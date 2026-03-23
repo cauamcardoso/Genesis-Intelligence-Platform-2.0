@@ -141,8 +141,8 @@
 }
 .hero-card::before{display:none}
 .hero-label{font-size:16px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.14em;margin-bottom:14px;position:relative;z-index:1}
-.hero-heading{font-size:42px;font-weight:800;letter-spacing:-0.03em;line-height:1.12;color:#FFF;max-width:800px;margin-bottom:20px;position:relative;z-index:1}
-.hero-desc{font-size:18px;color:rgba(255,255,255,0.6);max-width:680px;line-height:1.75;position:relative;z-index:1}
+.hero-heading{font-size:42px;font-weight:800;letter-spacing:-0.03em;line-height:1.12;color:#FFF;margin-bottom:20px;position:relative;z-index:1;text-align:left}
+.hero-desc{font-size:18px;color:rgba(255,255,255,0.6);max-width:780px;line-height:1.75;position:relative;z-index:1;text-align:left}
 
 /* ─── Alternating Section Backgrounds ─── */
 .ov-section{padding:48px 0;margin:0 -40px;padding-left:40px;padding-right:40px}
