@@ -35,7 +35,7 @@ async function renderOverview(container) {
       <div class="deco-ring deco-ring-3"></div>
     </div>
     <div class="hero-label">AAII x DOE Genesis Mission</div>
-    <h2 class="hero-heading">Building Genesis research teams,<br>powered by AI.</h2>
+    <h2 class="hero-heading">Building Genesis research teams, powered by AI.</h2>
     <p class="hero-desc">This platform scores ${S.totalFaculty} UTEP faculty against ${S.totalFocusAreas} DOE Genesis focus areas to help assemble the strongest possible research teams for each proposal. This approach uses a multi-axis scoring system to identify the researchers whose work, partnerships, and competitive advantages are the strongest fit for each opportunity.</p>
   </div>`;
 
