@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+.env
+venv/
+.venv/
+*.egg-info/
+dist/
+build/
+
+.DS_Store
+.claude/
+Information from AAII Affiliated Faculty/
+Information about Additional UTEP Faculty Relevant to Genesis/
+General Document for Genesis/
+Design inspiration/
+scoring/

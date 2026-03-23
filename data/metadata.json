@@ -1,0 +1,20 @@
+{
+  "version": "2.0.0",
+  "generated_at": "2026-03-22T21:48:40.643258",
+  "pipeline_duration_seconds": 1469.4,
+  "data_sources": {
+    "rfa_document": "Genesis Call for Proposals 20226.pdf (DE-FOA-0003612)",
+    "challenge_summary": "Summary - Genesis_Challenges_and_Focus_Areas.docx",
+    "aaii_faculty_dir": "Information from AAII Affiliated Faculty/",
+    "additional_faculty_dir": "Information about Additional UTEP Faculty Relevant to Genesis/"
+  },
+  "counts": {
+    "challenges": 21,
+    "focus_areas": 99,
+    "faculty_total": 160,
+    "non_zero_scores": 8044
+  },
+  "scoring_methodology": "Multi-axis hybrid triangulation",
+  "scoring_method": "sentence-transformers + LLM evaluation",
+  "llm_api_used": true
+}

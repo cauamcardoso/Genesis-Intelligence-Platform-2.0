@@ -1,0 +1,129 @@
+/* ─── Network Background Canvas ─── */
+#network-bg{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  z-index:0;pointer-events:none;opacity:1;
+}
+
+/* ─── Hero Canvas ─── */
+.hero-section{position:relative;overflow:hidden}
+#hero-canvas{
+  position:absolute;top:0;left:0;width:100%;height:100%;
+  pointer-events:none;z-index:0;
+}
+.hero-section > *:not(canvas){position:relative;z-index:1}
+
+/* ─── Scroll Reveal System ─── */
+[data-reveal]{
+  opacity:0;
+  transform:translateY(20px);
+  transition:opacity 0.6s ease, transform 0.6s ease;
+}
+[data-reveal="left"]{transform:translateX(-24px)}
+[data-reveal="right"]{transform:translateX(24px)}
+[data-reveal="scale"]{transform:scale(0.95)}
+[data-reveal="up"]{transform:translateY(20px)}
+
+[data-reveal].revealed{
+  opacity:1;
+  transform:translate(0,0) scale(1);
+}
+
+/* Stagger children */
+[data-reveal-stagger] > [data-reveal]:nth-child(1){transition-delay:0ms}
+[data-reveal-stagger] > [data-reveal]:nth-child(2){transition-delay:80ms}
+[data-reveal-stagger] > [data-reveal]:nth-child(3){transition-delay:160ms}
+[data-reveal-stagger] > [data-reveal]:nth-child(4){transition-delay:240ms}
+[data-reveal-stagger] > [data-reveal]:nth-child(5){transition-delay:320ms}
+
+/* ─── Card Hover Depth ─── */
+.audience-card,
+.fac-card,
+.fa-card,
+.stat-card{
+  transition:transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+.audience-card:hover{
+  transform:translateY(-3px);
+  box-shadow:0 8px 24px rgba(0,0,0,0.25);
+  border-color:rgba(255,255,255,0.10);
+}
+.stat-card:hover{
+  transform:translateY(-2px);
+  box-shadow:0 6px 20px rgba(0,0,0,0.2);
+}
+.fac-card:hover{
+  transform:translateY(-3px);
+  box-shadow:0 8px 24px rgba(0,0,0,0.25);
+}
+.fa-card:hover{
+  transform:translateY(-2px);
+  box-shadow:0 6px 18px rgba(0,0,0,0.2);
+}
+
+/* ─── Tab Transitions ─── */
+.content{
+  animation:fadeInContent 0.3s ease;
+}
+@keyframes fadeInContent{
+  from{opacity:0;transform:translateY(8px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* ─── Bar Fill Animation ─── */
+.bar-fill[data-bar-width]{
+  transition:width 0.8s cubic-bezier(0.25,0.46,0.45,0.94);
+}
+
+/* ─── Button Hover Polish ─── */
+.visit-btn{
+  transition:all 0.2s ease;
+}
+.visit-btn:hover{
+  transform:translateY(-1px);
+  box-shadow:0 4px 12px rgba(255,130,0,0.15);
+}
+
+/* ─── Heatmap Cell Entrance ─── */
+.hm-cell{
+  animation:cellFadeIn 0.15s ease both;
+}
+@keyframes cellFadeIn{
+  from{opacity:0;transform:scale(0.7)}
+  to{opacity:1;transform:scale(1)}
+}
+
+/* ─── Abstract Decorative Elements ─── */
+.deco-wrap{position:absolute;top:0;right:0;bottom:0;width:50%;pointer-events:none;overflow:hidden}
+.deco-ring{
+  position:absolute;
+  border:1.5px solid rgba(56,189,248,0.15);
+  border-radius:50%;
+  pointer-events:none;
+  animation:decoSpin 40s linear infinite;
+}
+.deco-ring-1{width:300px;height:300px;top:-80px;right:-60px;animation-duration:45s;border-width:1.5px}
+.deco-ring-2{width:200px;height:200px;top:40px;right:20px;border-color:rgba(124,58,237,0.12);animation-duration:35s;animation-direction:reverse;border-width:1.5px}
+.deco-ring-3{width:150px;height:150px;top:100px;right:80px;border-color:rgba(255,130,0,0.10);animation-duration:50s;border-width:1.5px}
+@keyframes decoSpin{
+  to{transform:rotate(360deg)}
+}
+
+/* ─── Stat Value Shimmer (on count) ─── */
+.stat-value[data-count-to]{
+  background:linear-gradient(90deg,#FFF 40%,rgba(56,189,248,0.8) 50%,#FFF 60%);
+  background-size:200% 100%;
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  animation:shimmer 2s ease forwards;
+}
+@keyframes shimmer{
+  0%{background-position:100% 0}
+  100%{background-position:-100% 0}
+}
+
+/* ─── Pulse on strong match badges ─── */
+@keyframes subtlePulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(255,130,0,0)}
+  50%{box-shadow:0 0 0 3px rgba(255,130,0,0.08)}
+}

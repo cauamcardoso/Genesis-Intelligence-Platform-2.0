@@ -1,0 +1,768 @@
+{
+  "total_challenges": 21,
+  "total_focus_areas": 99,
+  "challenges": [
+    {
+      "id": "C1",
+      "number": 1,
+      "title": "Reenvisioning Advanced Manufacturing and Industrial Productivity",
+      "offices": "SC-BES, CMEI-ITO, CMEI-AMMTO, SC-FES, SC-ASCR",
+      "focus_areas": [
+        {
+          "id": "C1-A",
+          "letter": "A",
+          "title": "Agentic AI-Driven Chemical Manufacturing",
+          "description": "Develop agentic-AI capable of reasoning, integrated with digital twins, and interacting with self-driving and self-adaptive chemical laboratories as a new scientific paradigm to investigate, predict, discover, and deploy new chemical processes, catalysts, and reaction modalities using domestic resources that will impact the production and distribution of large-scale critical chemical building blocks."
+        },
+        {
+          "id": "C1-B",
+          "letter": "B",
+          "title": "AI-Driven Materials Processing",
+          "description": "Develop AI models to integrate datasets from multi-modal synthesis, characterization, and fabrication techniques with high-throughput simulations and predictive theory, leveraging the data-rich parameter space, including diverse synthetic methodologies and bottom-up to top-down approaches, to accelerate the transition from novel material discovery to rapid scale-up, integration, and deployment."
+        },
+        {
+          "id": "C1-C",
+          "letter": "C",
+          "title": "AI-Enabled Manufacturing for Extreme Energy Systems",
+          "description": "Develop AI-driven digital twins for first-of-a-kind energy technologies, especially fusion energy systems, that connect physics, materials behavior, manufacturing processes, and systems-operations data and enable the design and fabrication of components as part of qualified and matured systems that outperform bespoke prototypes with limited operational ranges."
+        },
+        {
+          "id": "C1-D",
+          "letter": "D",
+          "title": "Digitalization of Industrial Processes",
+          "description": "Expand use of physics-informed AI methods, digital twins, and advanced controls for processes and equipment across a variety of industrial sectors to optimize existing processes and technologies; design, develop, and evaluate innovative technology and process solutions; and enable real-time process control and dispatch of energy resources or feedstocks."
+        },
+        {
+          "id": "C1-E",
+          "letter": "E",
+          "title": "AI-Enabled Smart Manufacturing",
+          "description": "Leverage AI-driven smart and secure manufacturing technologies across industrial facilities and enable manufacturing digital transformations. Develop Agentic-AI for manufacturing system level optimization and reasoning to simulate, train digital twins for modeling real-time hyper-realistic smart factory floor that includes the exact layout, equipment states, robot positions, advanced automation and control, and even virtual models of human workers."
+        },
+        {
+          "id": "C1-F",
+          "letter": "F",
+          "title": "Energy Material Manufacturing",
+          "description": "Leveraging AI-enabled digital twins to optimize advanced synthesis and roll-to-roll processes ubiquitous in the production of energy materials and solid electrolyte-based electrochemical devices with complex properties and geometries, e.g., fuel cells. These digital twins will integrate multi-physics models, real-time sensor fusion, and metrology data to achieve comprehensive monitoring, predictive analysis, and closed-loop control in complex, high-dimensional manufacturing environments."
+        }
+      ]
+    },
+    {
+      "id": "C2",
+      "number": 2,
+      "title": "Scaling the Biotechnology Revolution",
+      "offices": "SC-BER, CMEI-AFFO, SC-ASCR",
+      "focus_areas": [
+        {
+          "id": "C2-A",
+          "letter": "A",
+          "title": "Biomolecular Science",
+          "description": "Determine fundamental principles connecting protein structure with function. The structural characterization of biomolecules, integrated with genomics and other 'omics technologies, is crucial for functional analysis of biological systems and the acceleration of biosystems design applications underpinning biotechnology innovation. Recent advancements in AI tools for protein structure prediction have been transformative, offering new insights into biomolecular structure."
+        },
+        {
+          "id": "C2-B",
+          "letter": "B",
+          "title": "Genotype to Phenotype",
+          "description": "Link genomic, biomolecular, metabolic and environmental factors to predict emergent phenotypic outcomes within microbes and plants in a systematic way that incorporates non-linear, stochastic networks. Biological systems operate through complex networks where genetics interact with various external influences. The objective is to pioneer advanced artificial intelligence models designed to understand and optimize microbes and feedstock crops, for enhanced domestic production of sustainable fuels, chemicals, and materials. This involves strategically leveraging diverse multi- modal data, encompassing multi-omics, and environmental datasets."
+        },
+        {
+          "id": "C2-C",
+          "letter": "C",
+          "title": "Predictive Engineering of Microbial Communities",
+          "description": "Develop a complete understanding of how genetic variation and environmental dynamics determine the behavior and interactions within and among microbial populations. Engineered microbiomes could be leveraged for advancing biomanufacturing, resource extraction, enhanced plant health, and other DOE relevant applications. AI will accelerate predictive microbiome engineering by enhancing our understanding of how genetic variation and environmental dynamics determine the behavior and interactions within and among microbial populations."
+        },
+        {
+          "id": "C2-D",
+          "letter": "D",
+          "title": "Bio Design",
+          "description": "Utilize advances in fundamental predictive principles to design, control, optimize and incorporate multiple traits within plants and microorganisms. The standard strategy for engineering biology follows the so-called Design-Build-Test-Learn (DBTL) iterative cycle. The incorporation of innovative AI approaches can dramatically accelerate this process not only by facilitating the discovery of new molecular mechanisms and harnessing them for engineering purposes, but also by enabling accurate prediction of the behavior of engineered organisms."
+        },
+        {
+          "id": "C2-E",
+          "letter": "E",
+          "title": "AI-Enabled Biological Reaction Engineering, Bioreactor Design, Process Scale-up and Integration",
+          "description": "ctor Design, Process Scale-up and Integration (AFFO) Develop AI/digital twin models to streamline R&D, predict and address the challenges and complexities involved in the biological system, bioreactor design, and process scale-up and integration to enable cost-effective production of biofuels, biochemicals, and bioproducts."
+        }
+      ]
+    },
+    {
+      "id": "C3",
+      "number": 3,
+      "title": "Securing America\u2019s Critical Minerals Supply",
+      "offices": "CMEI-ASO, CMEI-AMMTO, CMEI-AMMPTO, SC-BES, SC-BER, SC-ASCR",
+      "focus_areas": [
+        {
+          "id": "C3-A",
+          "letter": "A",
+          "title": "Resource Mapping and Development",
+          "description": "Accelerate expansion of America's mineral resource base by combining cutting- edge geophysical and chemical data with AI-powered process prediction and cost estimation to derisk projects, leveraging existing minerals characterization datasets from existing DOE/NNSA National Laboratory efforts (e.g., METALLIC, CMI Hub)."
+        },
+        {
+          "id": "C3-B",
+          "letter": "B",
+          "title": "AI-Enabled Materials Discovery and Engineering",
+          "description": "Deploy automated discovery platforms to accelerate material discovery, manufacturing, and qualification through closed-loop systems that integrate hypothesis, experiment, validation, and manufacturing, reducing demand for critical minerals."
+        },
+        {
+          "id": "C3-C",
+          "letter": "C",
+          "title": "Economic Modeling and Market Analysis",
+          "description": "Implement ATHENA (AI-Toolkit for Holistic Economic Network Analysis) to synthesize critical mineral supply and demand datasets, enabling scenario analysis of policy interventions and geopolitical disruptions on critical mineral markets and critical materials supply chains informed by relevant third-party datasets (Benchmark Minerals Intelligence, Bloomberg BNEF, S&P Global, and potentially others)."
+        },
+        {
+          "id": "C3-D",
+          "letter": "D",
+          "title": "Extraction and Processing Technologies",
+          "description": "Develop AI-enhanced technologies for domestic extraction, mid-stream processing, refining, and recycling of critical minerals to establish complete domestic supply chain capabilities, leveraging existing minerals processing data from existing DOE/NNSA National Laboratory efforts (e.g., METALLIC/PROMMIS)."
+        },
+        {
+          "id": "C3-E",
+          "letter": "E",
+          "title": "Geological Finders/Keepers",
+          "description": "(i) Develop AI models that integrate geophysical, advanced sensing, and soil system Insights of fluid dynamics and interfacial interactions with the geochemistry of mineral/interface interactions to predict the location and extraction of CMMs from the subsurface and from unconventional sources such as mine tailings. Expand lab- scale model systems to incorporate real-world field-scale heterogeneous systems. (ii) Develop AI capabilities that integrate geophysical, advanced remote sensing, and subsurface system insights to locate, characterize, recover, and extract CMM from surface soils/water, the subsurface/groundwater, plants, and waste streams."
+        },
+        {
+          "id": "C3-F",
+          "letter": "F",
+          "title": "Connections for Isolation",
+          "description": "Utilize AI models to identify chemical drivers that significantly improve the separation of CMMs from heterogeneous mixtures, incorporating knowledge of properties at multiple length and time scales, quantum through macroscopic properties, molecular interactions, and energy exchanges."
+        },
+        {
+          "id": "C3-G",
+          "letter": "G",
+          "title": "Biological Pathways to Critical Minerals and Materials",
+          "description": "Employ AI-guided discovery of microbes, proteins, peptides, and pathways within a biological system or as a component of a biohybrid approach to significantly improve the efficiency of CMM recovery, separations, and refinement for industrial use. Use AI to decode the molecular-level rules of how microbes interact with minerals to enhance CMM extraction. The unique properties of biological molecules and organisms may present novel opportunities to recover CMMs from dilute substrates."
+        }
+      ]
+    },
+    {
+      "id": "C4",
+      "number": 4,
+      "title": "Delivering Nuclear Energy that is Faster, Safer, Cheaper",
+      "offices": "NE, SC-ASCR",
+      "focus_areas": [
+        {
+          "id": "C4-A",
+          "letter": "A",
+          "title": "Accelerated Nuclear Power Plant Design and Licensing",
+          "description": ": Create an automated process to enable rapid design, including safe and secure autonomous monitoring and control of plant operations, licensing considerations, and rapid deployment of advanced nuclear technologies using AI. INDUSTRY COST SHARE: Required (20% for R&D and 50% for Demonstration) To accelerate the deployment of advanced nuclear technologies, applications are sought to develop and demonstrate AI enabled tools that streamline nuclear reactor design and licensing under human authority."
+        },
+        {
+          "id": "C4-B",
+          "letter": "B",
+          "title": "Autonomous Power Plant Operations",
+          "description": ": Develop AI digital twin systems that interpret plant operational data in real time, detect anomalies, and recommend preemptive actions to maintain safety and operational performance. INDUSTRY COST SHARE: Required (20% for R&D and 50% for Demonstration) Applications are sought to develop AI digital twin systems for autonomous power plant operations, with a focus on small modular reactors (SMRs) and microreactors. This includes leveraging AI/ML to enhance existing sensor technologies and to develop novel instrumentation that fills identified measurement gaps, enabling more accurate, reliable, and integrated data streams that strengthen digital twin fidelity and real\u2011time decision support."
+        },
+        {
+          "id": "C4-C",
+          "letter": "C",
+          "title": "AI-Assisted Manufacturing and Construction",
+          "description": ": Support site selection, born certified manufacturing, construction, supply chain reliability, and factory modular production methods with AI technologies. INDUSTRY COST SHARE: Required (20% for R&D and 50% for Demonstration) Applications that leverage AI, predictive analytics, and automated delivery of a nuclear ready component or construction ready support, including advanced manufactured components, and qualification processes, for capacity expansion and reactor demonstration, i.e., certified and licensable, will be considered. Applications that will accelerate the availability of U.S.-based SMR technologies into domestic and international markets and fortify the SMR supply chain, including supplier development and component fabrication for deployment are desired."
+        },
+        {
+          "id": "C4-D",
+          "letter": "D",
+          "title": "Autonomous Research and Development",
+          "description": ": Condense nuclear material research and qualification timeframes using AI-driven pipelines for modeling, characterization, evaluation, and qualification, while integrating decades of global historical irradiation data."
+        },
+        {
+          "id": "C4-E",
+          "letter": "E",
+          "title": "Accelerated Fuel Cycle Facility Design and Licensing",
+          "description": "to Secure the Domestic Fuel Supply: Create automated processes to enable rapid design, licensing considerations, and accelerated deployment of advanced fuel cycle technologies using AI. INDUSTRY Cost Share: Required (20% for R&D and 50% for Demonstration) To accelerate the deployment of advanced nuclear fuel cycle technologies, applications are sought to develop and demonstrate AI enabled tools that streamline fuel cycle facility (e.g., mining, conversion, enrichment, deconversion) deployment and licensing under human authority."
+        },
+        {
+          "id": "C4-F",
+          "letter": "F",
+          "title": "AI-Assisted Site Characterization",
+          "description": ": Accelerate waste disposition site characterization through AI Modeling. INDUSTRY COST SHARE: Requires (20% for R&D and 50% for Demonstration) Proposals that leverage the collation, evaluation, and analysis of large data sets from multiple data sources, including but limited to USGS, state geologic surveys, and the oil and gas industry to create detailed cross-section extrapolations and 3D models to enable DOE to conduct a subsurface fatal flaw analysis of the feasibility of a potential site for waste disposition of used nuclear fuel and/or reprocessed fuel waste streams."
+        },
+        {
+          "id": "C4-G",
+          "letter": "G",
+          "title": "AI-Assisted End Disposition Design",
+          "description": ": Concept Design for Disposal of Used Nuclear Fuel and Reprocessed Fuel Waste Streams. INDUSTRY COST SHARE: Requires (20% for R&D and 50% for Demonstration) Given a combination of reprocessed fuel, high-level waste, and used nuclear fuel, DOE is interested in proposals that use AI to design a licensable mined geologic repository in one of the three main geological media, specifically shale, salt and granite. Proposals should take into account the current and future used nuclear fuel inventory and incorporate the use of deep boreholes as a disposition pathway for high-level waste."
+        },
+        {
+          "id": "C4-H",
+          "letter": "H",
+          "title": "AI/ML Tools for Legacy Document Review and Release",
+          "description": "engineering in areas ranging from high-performance computing through edge computing and laboratory/experimental automation. AI innovation is a priority for this funding solicitation. For consideration by ASCR, applications must clearly articulate how the proposed work will advance one or more aspects of ASCR\u2019s mission as described above. ASCR intends to work with all offices partnering on this solicitation to identify promising co-funding opportunities in all focus areas listed below. Accordingly, focus areas listed below that ASCR is leading in multi-program topics are tagged with ASCR, but ASCR will consider co-funding relevant applications submitted in all areas."
+        }
+      ]
+    },
+    {
+      "id": "C5",
+      "number": 5,
+      "title": "Accelerating Delivery of Fusion Energy",
+      "offices": "SC-FES, SC-ASCR, NE",
+      "focus_areas": [
+        {
+          "id": "C5-A",
+          "letter": "A",
+          "title": "Structural Materials",
+          "description": "Centralize material characterization datasets and train AI models to support the engineering, design, development, and qualification of materials that can withstand the high neutron flux, thermal loads, and environmental stresses of a fusion power plant. (i) Multiscale, Multiphysics Modeling: Developing high-quality databases and models that can connect femtosecond, atomistic interpretations to lifetime-scale, bulk descriptions of materials."
+        },
+        {
+          "id": "C5-B",
+          "letter": "B",
+          "title": "Plasma-Facing Materials",
+          "description": "The Plasma-Facing Materials area is interested in applications addressing the same challenges described in the Structural Materials focus area. Additionally, deploy digital twins of heat and plasma exposure facilities to support the characterization of physical and mechanical properties, manufacturing, and qualification of materials that directly interact with the plasma and face the most extreme temperatures, neutron fluxes, and stresses. (i) Multiscale Modeling and Materials Qualification, Manufacturing, and Design: As described in the above section, but instead for plasma-facing materials."
+        },
+        {
+          "id": "C5-C",
+          "letter": "C",
+          "title": "Advancing Confinement Approaches",
+          "description": "Apply AI and machine learning within real-time plasma control systems and between successive experimental pulses to create, sustain, and optimize fusion-relevant plasma scenarios, including using autonomous methods, with the goal of achieving fusion-relevant confinement regimes and sustained energy output. For IFE, develop physics-informed AI surrogates and HPC workflows for targets and drivers, and apply real-time operational feedback loops and inter-shot analysis frameworks. (i) Plant/plasma State Optimization (Digital Twin): Development tools for control and prediction of turbulence and stability that operate concurrently with plasma discharges, forming bi-directional data flows."
+        },
+        {
+          "id": "C5-D",
+          "letter": "D",
+          "title": "Fuel Cycle and Tritium Processing",
+          "description": "Curate test loop data and develop AI models that track, forecast, and optimize tritium separation, storage, inventory, and accountancy across components and systems to enable fuel self-sufficiency and mature supporting technologies such as permeation barriers and detritiation systems. Tritium storage, processing, and permeation: Development of models of the nuclear effects associated with tritium handling. Advanced Component Manufacturing: Development of models for the design and engineering of tritium-related components. (i) Regulatory Analysis: Development of models that navigate the regulation requirements for the handling of tritium."
+        },
+        {
+          "id": "C5-E",
+          "letter": "E",
+          "title": "Tritium Breeding Blankets",
+          "description": "Build a standardized database for thermophysical corrosion, tritium-related effects, and mechanical properties; and deploy multi-physics AI models to advance blanket concepts (e.g., solid, liquid, molten salt). (i) Plasma-blanket interactions: Development of models that predict the effects of plasma transients on breeding blankets. (ii) Tritium Breeding Optimization: Development of models that maximize the tritium breeding ratio for a Fusion Pilot Plant concept. (iii) Neutronics: Development of models for neutron interactions with blankets and materials."
+        },
+        {
+          "id": "C5-F",
+          "letter": "F",
+          "title": "Fusion Plant Engineering and System Integration",
+          "description": "Launch a centralized, standards-based data repository for experimental data and whole plant simulations, connecting AI, HPC, and digital twin capabilities to key fusion facilities in public and private sectors to advance balance-of-plant technologies such as power conversion and plant-wide control systems, as well as remote maintenance and robotics. (i) Remote Maintenance: Development of digital tools that provide warnings for end-of- cycle components, flagging potential issues before breakdown. (ii) Robotics: Development of automatons for maintenance of systems and assembly that may otherwise be impossible for human technicians. (iii) Facility Construction: Development of models that plan the entire lifecycle of Fusion Pilot Plant construction before breaking ground."
+        },
+        {
+          "id": "C5-G",
+          "letter": "G",
+          "title": "Plasma Science and Technology",
+          "description": "This area is interested in AI and machine learning techniques to enhance control, analyze large datasets, automate detection and prediction, and accelerate experimental throughput and discovery in plasma science and technology. (i) Apply AI and ML methods to magnetic reconnection (multiple X-line kinetic reconnection) process which occurs in most of the space (solar and magnetospheric) and laboratory magnetic fusion plasmas."
+        }
+      ]
+    },
+    {
+      "id": "C6",
+      "number": 6,
+      "title": "Transforming Nuclear Restoration and Revitalization",
+      "offices": "EM, LM, SC-ASCR",
+      "focus_areas": [
+        {
+          "id": "C6-A",
+          "letter": "A",
+          "title": "EM AI R&D Roadmap Implementation",
+          "description": "(EM-3.2, ASCR, LM) INDUSTRY COST SHARE: Required (Up to 50% cost share with industry partners, including in kind, depending on specific scope of work the partner will perform) Coordinate AI investments across EM sites by identifying and prioritizing needs, converting historical data into standardized formats, and evaluating multi-modal data assets for AI applications. The ability to clean, standardize, and prepare vast multi-modal data repositories \u2013 along with the intelligent retrieval, synthesis, and transfer of that information into functional knowledge and mathematical representations \u2013 is central to accelerating environmental management decision-making."
+        },
+        {
+          "id": "C6-B",
+          "letter": "B",
+          "title": "Scale-Bridging AI Foundation Model",
+          "description": "(EM-3.2, ASCR) INDUSTRY COST SHARE: Required (Up to 50% cost share with industry partners, including in kind, depending on specific scope of work the partner will perform) Develop a multimodal AI model using EM operational data, accelerated simulation toolkits, and Genesis Mission supercomputing resources to predict scale-dependent behavior. This focus area will develop a multimodal AI foundation model designed to transform nuclear waste management by utilizing integrated data analytics and an accelerated simulation architecture to address the complex non-linearities of large-scale treatment processes."
+        },
+        {
+          "id": "C6-C",
+          "letter": "C",
+          "title": "Treatment Process Optimization",
+          "description": "(EM-3.2, ASCR) INDUSTRY COST SHARE: Required (Up to 50% cost share with industry partners, including in kind, depending on specific scope of work the partner will perform) Implement AI-driven optimization of waste treatment facility throughputs to achieve completion milestones at EM sites such as SRS and Hanford. This focus area aims at optimization and/or real-time operation of dynamic process controls (e.g., for tank waste treatment flowsheets, groundwater remedial systems, informing conditions for decontamination and decommissioning, and nuclear material separation or isotope recovery)."
+        }
+      ]
+    },
+    {
+      "id": "C7",
+      "number": 7,
+      "title": "Discovering Quantum Algorithms with AI",
+      "offices": "SC-ASCR, SC-BES, SC-HEP, SC-NP, SC-FES",
+      "focus_areas": [
+        {
+          "id": "C7-A",
+          "letter": "A",
+          "title": "Application-aware Error Correction",
+          "description": "Use AI to find efficient error correction for specific scientific applications and co- design algorithms and hardware to identify and correct the errors that significantly impact the final scientific result."
+        },
+        {
+          "id": "C7-B",
+          "letter": "B",
+          "title": "Computational Tools for Fault Tolerant Quantum Computational Science",
+          "description": "Use AI and formal verification methods to develop novel, reduced complexity quantum algorithmic primitives and compilation tools that can be used to deliver scientific quantum advantage."
+        },
+        {
+          "id": "C7-C",
+          "letter": "C",
+          "title": "Hybrid Quantum-Classical Optimization Algorithms",
+          "description": "Use agentic AI workflows in quantum chemistry and materials sciences beyond iterative parameter space searches for variational solvers across platforms, including distributed execution on application needs. Use AI driven surrogate models to accelerate quantum time evolution and many-body simulations by learning efficient representations."
+        },
+        {
+          "id": "C7-D",
+          "letter": "D",
+          "title": "Quantum Algorithms for Nonlinear Plasma Physics",
+          "description": "Develop quantum algorithms suitable for nonlinear plasma physics problems and apply them to facilitate configuration development and optimization of fusion devices."
+        },
+        {
+          "id": "C7-E",
+          "letter": "E",
+          "title": "Quantum Advantage for Nuclear and Hadronic Systems",
+          "description": "Use AI to determine the quantum computation advantage in nuclear and hadronic systems typically described through lattice quantum chromodynamics. Enable solutions using quantum algorithms that demand AI to tackle the challenges of chiral symmetry breaking, confinement, relativistic kinematics, and infinite degrees of freedom."
+        }
+      ]
+    },
+    {
+      "id": "C8",
+      "number": 8,
+      "title": "Realizing Quantum Systems for Discovery",
+      "offices": "SC-BES, SC-HEP, SC-ASCR, SC-NP",
+      "focus_areas": [
+        {
+          "id": "C8-A",
+          "letter": "A",
+          "title": "AI for Quantum Systems Design",
+          "description": "Develop and apply AI frameworks to uncover the underlying causal relationships that influence the performance of quantum systems to develop improved designs and refined processes for the synthesis and fabrication of these devices."
+        },
+        {
+          "id": "C8-B",
+          "letter": "B",
+          "title": "AI for Control of Quantum Systems",
+          "description": "Implement AI-based methods in control systems to dramatically improve the real- time control of practical quantum systems, including automating and optimizing calibration, tuning, noise mitigation, error correction, and readout processes, providing accurate, practical, and scalable quantum control to a wide variety of potential users."
+        },
+        {
+          "id": "C8-C",
+          "letter": "C",
+          "title": "AI for Quantum Imaging and Sensing",
+          "description": "Integrate AI into multi-qubit quantum sensing applications for extreme sensitivity in both the laboratory and field environments to enhance and optimize the design, fabrication, and operation of sensors based on the quantum properties of superconductors, semiconductors, atoms, or other physical substrates."
+        },
+        {
+          "id": "C8-D",
+          "letter": "D",
+          "title": "AI for Quantum Computing and Networking",
+          "description": "Leverage AI to mitigate decoherence in qubits, develop and implement effective quantum error correction codes, control quantum processing units, and ensure the scalability of quantum processors and network systems."
+        }
+      ]
+    },
+    {
+      "id": "C9",
+      "number": 9,
+      "title": "Recentering Microelectronics in America",
+      "offices": "SC-BES, SC-ASCR, CMEI-AMMTO, SC-HEP, SC-FES",
+      "focus_areas": [
+        {
+          "id": "C9-A",
+          "letter": "A",
+          "title": "Angstrom Scale Microelectronics Manufacturing",
+          "description": "Accelerate lab-scale approaches for beyond-Moore and beyond-EUV and other Angstrom-scale fabrication for advanced node logic through AI-enabled nano and microfabrication. Of particular interest are approaches that enable greater design flexibility than current advanced node technology."
+        },
+        {
+          "id": "C9-B",
+          "letter": "B",
+          "title": "Materials and Architectures for Non-von Neumann Computing Devices",
+          "description": "Leverage AI to accelerate research on emerging organic and inorganic material candidates, including 2D materials and materials exhibiting quantum effects or properties, to advance radically different computational paradigms and overcome bottlenecks in efficiency and performance."
+        },
+        {
+          "id": "C9-C",
+          "letter": "C",
+          "title": "AI-Driven Architecture Design",
+          "description": "Develop and apply AI-based methodologies to model, prototype, integrate hardware and software development in the design of next-generation computing architectures, enabling optimization of complex hardware/software interactions, multi- scale systems modeling, and identification of highly efficient, application-specific computing architectures. D. 3D non-volatile compute-in-memory technology (ASCR) Utilize AI-driven codesign to revolutionize research, development, and prototyping on emerging technologies and materials and enable back-end-of-line integration of 3D non-volatile memory for electronic, optoelectronic, or photonic computing applications."
+        },
+        {
+          "id": "C9-D",
+          "letter": "D",
+          "title": "3D Non-Volatile Compute-in-Memory Technology",
+          "description": "Utilize AI-driven codesign to revolutionize research, development, and prototyping on emerging technologies and materials and enable back-end-of-line integration of 3D non-volatile memory for electronic, optoelectronic, or photonic computing applications."
+        },
+        {
+          "id": "C9-E",
+          "letter": "E",
+          "title": "Physics-Based Circuit Design, Simulation, and Emulation",
+          "description": "Leverage AI to link material composition, geometry, and operating conditions to defect evolution and device performance, accelerating time consuming and computationally intense processes and enabling non-intuitive optimization and greater design flexibility for physics-based circuit design, simulation, and emulation, including electronic design automation (EDA)."
+        },
+        {
+          "id": "C9-F",
+          "letter": "F",
+          "title": "Microelectronics in Harsh Environments",
+          "description": "Integrate AI into the design and validation of robust devices and facilitate the efficient operation of devices that process high data volumes in harsh environments where there is no possibility of replacement or service."
+        },
+        {
+          "id": "C9-G",
+          "letter": "G",
+          "title": "Plasma-Enabled Microelectronics Manufacturing",
+          "description": "Leverage AI to revolutionize the design, control, and optimization of plasma- based processes for manufacturing advanced microelectronics that push the boundaries of feature size and geometry and accelerate the discovery and implementation of optimal and repeatable plasma synthesis conditions."
+        },
+        {
+          "id": "C9-H",
+          "letter": "H",
+          "title": "Power Electronics and Communication Networks",
+          "description": "Deploy AI-driven design and manufacturing approaches for advanced (e.g., wide bandgap and ultra-wide bandgap) power electronics and advanced communication network (e.g. 6G and advanced wireless) technologies."
+        },
+        {
+          "id": "C9-I",
+          "letter": "I",
+          "title": "Low-Temperature Electronics for Sensors and Computation",
+          "description": "Low-temperature (mK up to 120K) electronics, including cryogenic CMOS and superconducting logic, promises efficient, high-speed, and low-cost computing to address Genesis Mission needs in edge computing and AI accelerators, but bottlenecks in design, density, scaling, fabrication, and integration have prevented practical realization of these benefits. Research applications may focus on EDA for superconducting digital logic, analog and digital superconducting electronics for sensors or for classical control of quantum computers, superconducting neuromorphic, AI, and control circuits, distributed superconducting computing architectures, or cryogenic CMOS."
+        },
+        {
+          "id": "C9-J",
+          "letter": "J",
+          "title": "Neuromorphic Computing Connectivity and System Hardware Integration",
+          "description": "Significant connectivity and communication challenges exist in tackling practical integration of neuromorphic computing hardware at scale and with instrumentation for scientific computing. Multi-scale connectivity, relevant circuit motifs from connectome data and efficient encoding schemes should be leveraged and appropriately translated to neuromorphic circuits. Advances in this critical domain will enable the design of high- bandwidth and massively parallel connectivity across emerging neuromorphic processing units. 10 - Securing U.S."
+        }
+      ]
+    },
+    {
+      "id": "C10",
+      "number": 10,
+      "title": "Securing U.S. Leadership in Data Centers",
+      "offices": "CMEI-ITO, OE, SC-ASCR",
+      "focus_areas": [
+        {
+          "id": "C10-A",
+          "letter": "A",
+          "title": "Data Center Load Flexibility",
+          "description": "Develop and demonstrate AI models that can analyze, design, and orchestrate smart, grid-aware load flexibility techniques, such as software-level workload management, infrastructure-level cooling modulation, onsite generation or storage resource activation, or innovative power electronics technologies, to transform the operations of data centers by enabling them to be responsive to real-time grid conditions."
+        },
+        {
+          "id": "C10-B",
+          "letter": "B",
+          "title": "Data Center Thermal Management",
+          "description": "Apply AI-based tools and approaches to advance the state-of-the-art in data center thermal management technologies at the chip-, rack-, and facility-level that reliably enable peak performance and efficient operation for current AI and computing chipsets and future higher-powered chipsets. The proposed approaches should demonstrate improvements in cooling efficiency in data centers and/or show promise of reductions in data center power and direct and indirect water use."
+        }
+      ]
+    },
+    {
+      "id": "C11",
+      "number": 11,
+      "title": "Achieving AI-Driven Autonomous Laboratories",
+      "offices": "SC-BES, SC-ASCR, SC-FES",
+      "focus_areas": [
+        {
+          "id": "C11-A",
+          "letter": "A",
+          "title": "Advanced Robotics for Dynamic Laboratory Environments",
+          "description": "Develop the foundational computational and algorithmic capabilities required for robotics and other embodied AI systems to navigate and perform tasks within these unstructured, complex settings, and tying them to high-performance computing systems and AI supercomputers. This involves creating novel AI and applied mathematics frameworks for real-time perception, path planning, and manipulation under uncertainty, creating digital twins to train AI, optimize designs, and, ultimately, reduce the cost of scientific discovery."
+        },
+        {
+          "id": "C11-B",
+          "letter": "B",
+          "title": "AIOps \u2013 AI for Network Operations",
+          "description": "Tools and technologies are needed that enable the use of AI for research network operations (AIOps) to maintain reliability and resilience in autonomous laboratory settings while increasing capacity and capability to support AI-driven science. The Applicant is encouraged to include domain science expertise in the proposed team."
+        },
+        {
+          "id": "C11-C",
+          "letter": "C",
+          "title": "AI-Accelerated Science: Correlation to Understanding",
+          "description": "The power of AI could be extended beyond automated data collection and processing, identification of correlations, and optimization of study variables to enable rapid, autonomous generation of scientific knowledge from integrated data. Key to transforming the pace of basic energy science is the high priority goal to demonstrate AI-enabled identification of phenomena or correlations in high-throughput data that are not consistent with or otherwise predicted by current scientific models and generation of a plausible new explanation as a testable hypothesis in a truly closed-loop process for advancing science."
+        },
+        {
+          "id": "C11-D",
+          "letter": "D",
+          "title": "AI-Enabled Diagnostics and Remote Handling",
+          "description": "Remote handling of irradiated wall material, maintenance of diagnostics, and replacement of tiles can be performed with AI-driven robots. Feedback control will be an integral part of maintaining a fusion power plant as edge AI can rapidly accelerate the data processing, stability analysis, and prediction of performance required to confine plasmas, minimize damage to the experiment, and deliver stable reactor conditions."
+        },
+        {
+          "id": "C11-E",
+          "letter": "E",
+          "title": "Neuromorphic Computing Circuit Primitives for Robotic Embodied AI",
+          "description": "Revolutionizing neuromorphic computing requires understanding the computational components and principles, e.g., neurons, dendritic trees, and local plasticity, that underpin the brain\u2019s functionality and robustness for performing autonomous tasks. These biological primitives must be translated into functionally equivalent circuits that could be implemented, validated, and embodied within autonomous robotic computing systems that can learn and adapt to perform tasks. Novel neuromorphic circuits based on current and emerging technologies guided by neuroscience-inspired functionality need to be engineered to realize high-performing computational systems."
+        }
+      ]
+    },
+    {
+      "id": "C12",
+      "number": 12,
+      "title": "Designing Materials with Predictable Functionality",
+      "offices": "SC-BES, SC-ASCR, SC-FES, SC-IRP, CMEI-AMMTO, CMEI-ITO, CMEI-AFFO",
+      "focus_areas": [
+        {
+          "id": "C12-A",
+          "letter": "A",
+          "title": "Functional to Quantum Materials",
+          "description": "Develop physics-aware AI frameworks and foundation models necessary to orchestrate high-throughput computation, high-fidelity simulations, and automated synthesis and characterization to enable fundamental understanding of functional, quantum and emergent properties on the atomistic and electronic level to predict and realize specific physical properties that are currently inaccessible but required to advance lossless power transmission, energy-efficient computing, advanced sensing, ultrafast switches, and quantum devices."
+        },
+        {
+          "id": "C12-B",
+          "letter": "B",
+          "title": "Structural Materials",
+          "description": "Develop interpretable AI models and agentic experimental workflows, grounded in advanced computational tools and scientific methods, to discover, understand, and manipulate the complex interactions governing materials behavior under stress and other extreme environments and to enable controlled design of mechanical behavior."
+        },
+        {
+          "id": "C12-C",
+          "letter": "C",
+          "title": "Biomolecular Materials",
+          "description": "Establish AI frameworks that integrate atomic and molecular modeling across scales and bridge biological and chemical data to realize a \u201cdesign to order\u201d paradigm for new biological molecules and hierarchical structures suited to extreme environments."
+        },
+        {
+          "id": "C12-D",
+          "letter": "D",
+          "title": "Plasma-Facing Materials",
+          "description": "Deploy AI-enabled digital twins of heat and plasma exposure facilities to support the characterization of physical and mechanical properties, manufacturing, and qualification of materials that directly interact with fusion energy plasmas and face some of the most extreme temperatures, neutron fluxes, and environmental stresses on Earth."
+        },
+        {
+          "id": "C12-E",
+          "letter": "E",
+          "title": "Targetry by Design",
+          "description": "Establish AI-driven \u201cTargetry by Design\u201d to accelerate breakthroughs in isotope production, enrichment, and chemical separation technologies, leading to an expanded portfolio of domestically produced isotopes and securing a reliable U.S. supply chain for energy, computing, medicine, and national security."
+        },
+        {
+          "id": "C12-F",
+          "letter": "F",
+          "title": "AI-Enabled Materials Discovery, Development, and Qualification",
+          "description": "Deploy automated discovery platforms to accelerate identification and design of novel manufacturable energy materials across critical materials, high-temperature structural materials, semiconductor materials, and energy storage materials. Develop closed-loop autonomous systems that integrate hypothesis generation, experimental validation, and manufacturing process through AI-driven frameworks. Implement rapid prototyping and characterization paired with AI-enabled prediction to compress traditional multi-year qualification processes."
+        },
+        {
+          "id": "C12-G",
+          "letter": "G",
+          "title": "Electrochemical Energy Conversion Catalyst Discovery and Scale Up",
+          "description": "ry and Scale up (AFFO) This topic solicits projects using AI to accelerate the search for platinum group metal (PGM) free oxygen reduction catalysts for electrochemical energy conversion devices. The current state of the art materials require multi-step synthesis routes often based on the pyrolysis of metal organic framework materials typically followed by metal substitution(s) to yield atomically dispersed metal sites in carbon frameworks."
+        }
+      ]
+    },
+    {
+      "id": "C13",
+      "number": 13,
+      "title": "Enhancing Particle Accelerators for Discovery",
+      "offices": "SC-HEP, SC-BES, SC-NP, SC-FES, SC-IRP, SC-ASCR",
+      "focus_areas": [
+        {
+          "id": "C13-A",
+          "letter": "A",
+          "title": "AI-Driven Accelerator Facilities",
+          "description": "Enable and deploy AI systems that provide real-time operational advice, automate control functions, enhance beam stability, reduce beam tuning time, predict equipment failure, detect faults, and optimize performance for both large and small-scale accelerator facilities currently operating or under construction. Scope includes the development and deployment of high-fidelity AI-driven \"digital twins\" of these particle accelerators to enable a sophisticated simulation and design environment and AI systems that can mitigate cost and risk of accelerator facilities under construction."
+        },
+        {
+          "id": "C13-B",
+          "letter": "B",
+          "title": "Integration of Digital Twins for Fusion Systems and Actuators",
+          "description": "Establish real-time control of nuclear fusion systems and facilities, leveraging the massive concurrency of experimental data and high-fidelity simulation results to monitor stability and provide feedback control for critical fusion technology for tokamaks, stellarators, and inertial fusion devices 14 - Unifying Physics from Quarks to the Cosmos Participating Offices: Office of Science-High Energy Physics (SC-HEP); SC-Nuclear Physics (SC-NP); SC-Advanced Scientific Computing Research (SC-ASCR) Challenge: The universe obeys only one set of rules, and scientists have hundreds of experiments targeting parts of that one set."
+        }
+      ]
+    },
+    {
+      "id": "C14",
+      "number": 14,
+      "title": "Unifying Physics from Quarks to the Cosmos",
+      "offices": "SC-HEP, SC-NP, SC-ASCR",
+      "focus_areas": [
+        {
+          "id": "C14-A",
+          "letter": "A",
+          "title": "Foundation Models of Particle Interactions and Cosmic Physics",
+          "description": ": Develop and curate the essential data of nuclear and particle experimental efforts, critical to train foundation models of particle interactions and cosmology to accelerate new breakthroughs in our understanding of the universe. Data and models may include the future Electron-Ion Collider, cosmic observations, underground and accelerator-based experiments as well as synthesizing different modalities of data from across multiple large-scale sky surveys to understand nuclear astrophysics, dark energy, dark matter, and the physics of the early Universe."
+        },
+        {
+          "id": "C14-B",
+          "letter": "B",
+          "title": "AI Accelerated DUNE Science",
+          "description": "Develop AI methods that significantly speed up and enhance the DUNE science program, reducing the time needed for the collaboration to publish neutrino oscillation measurements, significantly improving the sensitivity to neutrinos from core-collapse supernova, and developing new flagship measurements that will enhance the DUNE science goals."
+        },
+        {
+          "id": "C14-C",
+          "letter": "C",
+          "title": "Expedited Discovery from High Complexity and Petabyte-Scale Datasets",
+          "description": "Partner domain expertise with data science and industry to develop AI methods and techniques capable of drawing robust scientific insight from increasingly complex and/or petabyte-scale datasets. Enable deeper insights by directly connecting datasets with theoretical parameters for uncertainty-aware reasoning to leverage the high- dimensionality of particle physics datasets. Scope will address the critical slowdown problem in Lattice QCD, automate big-data analysis, achieve new levels of experimental precision and theoretical calculation, and significantly improve understanding of the universe and particle interactions."
+        }
+      ]
+    },
+    {
+      "id": "C15",
+      "number": 15,
+      "title": "Predicting U.S. Water for Energy",
+      "offices": "SC-BER, SC-ASCR, CMEI-IESO",
+      "focus_areas": [
+        {
+          "id": "C15-A",
+          "letter": "A",
+          "title": "Cloud Microphysics and Atmospheric Turbulence",
+          "description": "Develop and apply AI capabilities that integrate theory, field observations, and laboratory research to represent complex non-linear multi-scale interactions governing atmospheric microphysics and turbulence that are important to the formation, phase, and intensity of precipitation."
+        },
+        {
+          "id": "C15-B",
+          "letter": "B",
+          "title": "Water and Energy",
+          "description": "The predictive understanding of surface and groundwater is crucial for ensuring sufficient water for energy production and for protecting energy infrastructure from floods. The core scientific objective is to use advanced AI techniques to create a coupled surface-groundwater model that improves hydrologic process understanding and informs prediction of water availability."
+        },
+        {
+          "id": "C15-C",
+          "letter": "C",
+          "title": "Weeks to Years Prediction",
+          "description": "Leverage the power of generative and explainable AI to accelerate, refine, and analyze the DOE Energy Exascale Earth System Model (E3SM) and complementary data-driven and hybrid AI models to provide skillful regional predictions of water at the seasonal to multi-year time scales needed to inform energy system planning and operations."
+        }
+      ]
+    },
+    {
+      "id": "C16",
+      "number": 16,
+      "title": "Scaling the Grid to Power the American Economy",
+      "offices": "OE, CMEI, SC-BER, SC-ASCR",
+      "focus_areas": [
+        {
+          "id": "C16-A",
+          "letter": "A",
+          "title": "Grid Modeling and Analysis",
+          "description": "(OE, CMEI-IESO, SC-ASCR) INDUSTRY COST SHARE: 20% cost share for R&D activities/50% cost share for demonstration activities. Submissions must include a demonstration component of at least 20% of the effort. Submissions under this focus area will leverage AI to improve modeling and analysis to yield more comprehensive and robust tools for grid planners to understand the impacts of different upgrades, interventions, or courses of action on grid behavior. Of particular interest are applications focusing on: (i) Developing and demonstrating a foundational power system model with self- improvement capabilities to support AI-enabled applications for grid operations and infrastructure planning."
+        },
+        {
+          "id": "C16-B",
+          "letter": "B",
+          "title": "Grid Operations Optimization",
+          "description": "(OE, CMEI-IESO, SC-ASCR) INDUSTRY COST SHARE: 20% cost share for R&D activities/50% cost share for demonstration activities. Submissions must include a demonstration component of at least 20% of the effort. Submissions in this focus area will use AI to fundamentally enhance the operational efficiency, stability, and responsiveness of the grid. The applications should develop and deploy AI-augmented measurement of grid dynamics, identify anomalies and vulnerabilities, and provide advanced data analytics, situational awareness, and decision support tools for operators, resulting in more optimized, reliable, and cost- effective grid operations."
+        },
+        {
+          "id": "C16-C",
+          "letter": "C",
+          "title": "Uncertainty Quantification",
+          "description": "(SC-BER, SC-ASCR, OE, CMEI-IESO) Submissions to this focus area will investigate the sources of uncertainty in grid planning and operational models, including multi-sector inputs, and seek to understand how AI can expand or reduce those uncertainties. Examples include (a) external forcings on the power grid and feedback loops in multi-sector energy models and (b) the impact of differential privacy to protect data in federated learning models on outcome uncertainty."
+        }
+      ]
+    },
+    {
+      "id": "C17",
+      "number": 17,
+      "title": "Unleashing Subsurface Strategic Energy Assets",
+      "offices": "HGEO, SC-BER, SC-ASCR, SC-BES",
+      "focus_areas": [
+        {
+          "id": "C17-A",
+          "letter": "A",
+          "title": "Chemical and Hydrologic Transport in Subsurface",
+          "description": "To improve understanding and prediction of subsurface processes, AI can be utilized to incorporate vast amounts of data, including molecular-scale interactions and field-scale resource availability, with mechanistic and process-based predictive models of hydrological, geochemical, ecological, and biological processes occurring from soil pores to the subsurface/deeper bedrock. Responsive applications will use AI to incorporate mechanistic and quantitative knowledge of molecular processes occurring in the subsurface/rhizosphere/soil pores. DOE\u2019s datasets, combined with modeling and AI technologies will be crucial to enable development of a hierarchy of models that incorporate microbial, mineral, and fluid interactions to enhance reservoir characterization and resource recovery."
+        },
+        {
+          "id": "C17-B",
+          "letter": "B",
+          "title": "Evolution of Fractures in the Upper Crust",
+          "description": "Develop and use AI to advance geophysical understanding of subsurface processes that characterize fractures in the upper crust associated with enhanced geothermal systems and hydrocarbon recovery."
+        },
+        {
+          "id": "C17-C",
+          "letter": "C",
+          "title": "Control of Subsurface Fractures",
+          "description": "Use multivariate and multiscale data, high-performance computing, and machine learning & AI to measure and evaluate the interaction of natural and induced fractures before, during and after stimulation. Assess methods to rapidly analyze data from geo- physical, mechanical, and chemical sensors with other field data and numerical models, generating rapid predictions to support real-time decisions that will improve the recovery factor and cost effectiveness of unconventional hydrocarbon and geothermal energy from existing and marginal resources. Supported by the Office of Oil and Gas and Office of Geothermal."
+        }
+      ]
+    },
+    {
+      "id": "C18",
+      "number": 18,
+      "title": "HPC Code Curation, Translation, and Development for Accelerated Scientific Discoveries",
+      "offices": "SC-ASCR, CMEI-AMMTO",
+      "focus_areas": [
+        {
+          "id": "C18-A",
+          "letter": "A",
+          "title": "AI-Driven Code Porting and Optimization",
+          "description": "Develop and demonstrate AI systems capable of parsing existing DOE flagship application codes, identifying performance bottlenecks, and automatically generating optimized code for specific leadership-class computing facilities (LCFs), emphasizing GPU optimization and other heterogeneous and accelerated architectures."
+        },
+        {
+          "id": "C18-B",
+          "letter": "B",
+          "title": "Automated Scientific Problem-to-Code Generation",
+          "description": "Integrate AI capabilities to translate high-level scientific problem descriptions into governing equations, select scalable numerical algorithms, and produce performant, documented code for new scientific problems."
+        },
+        {
+          "id": "C18-C",
+          "letter": "C",
+          "title": "Neuro-Symbolic Agents for Code Development",
+          "description": "Advance the development of neuro-symbolic agents that combine neural network capabilities with symbolic reasoning to improve code generation, algorithm selection, and performance prediction, specifically for scientific and engineering codes."
+        },
+        {
+          "id": "C18-D",
+          "letter": "D",
+          "title": "Performance Prediction and Feedback Loops",
+          "description": "Develop graph-based performance predictors and surrogate models that map code and intermediate representations with hardware features to predict performance and diagnose bottlenecks, incorporating continuous learning from performance feedback for iterative improvement."
+        },
+        {
+          "id": "C18-E",
+          "letter": "E",
+          "title": "Trustworthy AI for Scientific Software",
+          "description": "Ensure the development of AI tools that provide numerical correctness guarantees, reproducibility, provenance tracking, interpretable performance diagnostics, and uncertainty quantification to guide risk-aware decision-making."
+        },
+        {
+          "id": "C18-F",
+          "letter": "F",
+          "title": "Multi-Modal Data Integration for Code Intelligence",
+          "description": "Integrate diverse data types, including open DOE application codebases, historical compiler and intermediate representations, performance logs, hardware performance counters, solver library internals, and campaign-level data, to train comprehensive foundation models."
+        },
+        {
+          "id": "C18-G",
+          "letter": "G",
+          "title": "Partnerships for HPC AI Advancement",
+          "description": "Partnerships should enhance HPC coding for manufacturing and materials engineering by doing some or all of the following: 1. Automating code generation (from mathematical problem formulation to direct coding), code optimization, software testing, automated test suites, and workflow orchestration. 2. Enhancing both parallel and portable code across heterogenous architectures and generalizable simulations and analysis. 3. Accelerating the development of high-fidelity models for digital twins, discovery, and predictive modeling. 4. Accelerating control system modeling to ensure prescriptive analytics 5."
+        }
+      ]
+    },
+    {
+      "id": "C19",
+      "number": 19,
+      "title": "AI for Scientific Reasoning",
+      "offices": "SC-ASCR",
+      "focus_areas": [
+        {
+          "id": "C19-A",
+          "letter": "A",
+          "title": "Trustworthy Mathematical and Symbolic Reasoning",
+          "description": "Develop foundation models with provably-enhanced capabilities for performing complex mathematical operations and symbolic manipulations, which are crucial for deriving and verifying scientific theories."
+        },
+        {
+          "id": "C19-B",
+          "letter": "B",
+          "title": "Hypothesis Generation from Multi-Modal Data",
+          "description": "Build AI systems capable of synthesizing information from diverse sources\u2014 including scientific literature, experimental datasets, simulation outputs, and visual data\u2014to identify gaps in current knowledge and formulate novel, testable hypotheses."
+        },
+        {
+          "id": "C19-C",
+          "letter": "C",
+          "title": "Composable and Modular Foundation Models",
+          "description": "Focus on developing strong base LLMs designed for flexible integration with other specialized foundation models and/or tools (e.g., for genomics, materials science, or grid modeling) to enable complex, cross-domain reasoning. 20 \u2013 Cybersecurity for AI-driven Science Workflows Participating Offices: Advanced Scientific Computing Research (SC-ASCR) Challenge: The increasing integration of AI into critical scientific workflows\u2014from experimental design and data acquisition to analysis and simulation\u2014creates a new and complex attack surface."
+        }
+      ]
+    },
+    {
+      "id": "C20",
+      "number": 20,
+      "title": "Cybersecurity for AI-driven Science Workflows",
+      "offices": "SC-ASCR",
+      "focus_areas": [
+        {
+          "id": "C20-A",
+          "letter": "A",
+          "title": "AI for Adversarial Robustness and Resilience",
+          "description": "Develop AI-powered tools that autonomously probe science-dedicated AI models for vulnerabilities. These tools should benchmark model resilience against a spectrum of adversarial attacks (e.g., evasion, poisoning, backdoor attacks) and generate methods to \u201charden\u201d the models, optimizing the trade-off between robustness and scientific accuracy. Benchmarks, either existing or new, must be used to demonstrate effectiveness, as well as trade-offs between, for instance, improved adversarial robustness and AI model accuracy."
+        },
+        {
+          "id": "C20-B",
+          "letter": "B",
+          "title": "Data Provenance and Integrity Verification",
+          "description": "Create and implement scalable frameworks for verifying the provenance of data used in AI workflows. This includes developing automated tools to detect malicious compromise, such as data poisoning or manipulation, in large-scale scientific datasets used for both model training and inference. These tools must be efficient enough for use in high-throughput HPC environments."
+        },
+        {
+          "id": "C20-C",
+          "letter": "C",
+          "title": "Real-Time Attack Detection and Mitigation for AI Models",
+          "description": "Design and demonstrate AI-based systems that monitor science-dedicated models during training or inference. These systems must be capable of detecting that a model is under attack and deploying real-time mitigation strategies to limit the impact and preserve the integrity of the scientific workflow. The tools or techniques must be capable of, but not limited to, detecting attacks with the adversarial intent to degrade accuracy of model results, insert a backdoor, or cause model results to support incorrect scientific conclusions."
+        }
+      ]
+    },
+    {
+      "id": "C21",
+      "number": 21,
+      "title": "Artificial Intelligence in Fluid Flow for Energy Components and Technologies (AFFECT)",
+      "offices": "SC-ASCR, CMEI-IESO, SC-BER, SC-FES",
+      "focus_areas": [
+        {
+          "id": "C21-A",
+          "letter": "A",
+          "title": "Physics-Informed AI for Complex Flow Modeling",
+          "description": "Develops AI models that integrate fundamental physical laws and domain knowledge to accurately represent and predict complex fluid phenomena (e.g., wall- bounded turbulence, bluff-body flows, particle-fluid interactions, and atmospheric dynamics). Unlike purely data-driven models, which require vast amounts of data and may lack generalizability, physics-informed AI (e.g., PINNs, Physics-Informed Neural Networks) can learn from sparse or noisy data while adhering to known physical constraints. This improves model robustness, interpretability, and predictive capabilities across diverse operating conditions or spatial scales."
+        },
+        {
+          "id": "C21-B",
+          "letter": "B",
+          "title": "AI-Driven Design and Control for Performance and Durability",
+          "description": "Develops AI methods, particularly generative AI and reinforcement learning, to remove the bottleneck of fluid flow modeling, rapidly explore vast design spaces, and identify optimal configurations and controls for energy components (e.g. advanced heat exchangers or turbine designs). These AI-driven tools will rapidly characterize fluid flow and component response within a virtual test bed, and in turn optimize the design and operation for key metrics like cost, efficiency, and fatigue, thereby accelerating the design process, enhancing component performance, and extending operational lifespans."
+        },
+        {
+          "id": "C21-C",
+          "letter": "C",
+          "title": "Data-Driven Operational Intelligence and System Resilience",
+          "description": "Integrates AI-enabled fluid flow models with real-time sensor data of energy systems to enable improved state estimation, anomaly detection, predictive maintenance, and adaptive control. Through this integration we aim to enhance the resilience, reliability, and economic performance of energy infrastructure by enabling faster, more informed decision-making and autonomous adaptation to changing fluid-driven conditions. This approach is central in building toward digital twins, virtual representations of the physical system, allowing for continuous monitoring, simulation, and analysis throughout its lifecycle with much reduced cost, risk, and expedited development timelines."
+        }
+      ]
+    }
+  ]
+}
