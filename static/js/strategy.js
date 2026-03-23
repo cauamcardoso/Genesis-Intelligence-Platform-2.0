@@ -65,6 +65,60 @@ const Strategy = {
   },
 
 
+  /* ─── Seniority Scoring ─── */
+
+  /**
+   * Compute a seniority score (0-5) for a faculty member.
+   * Based on academic rank, h-index percentile, and citation percentile.
+   */
+  seniorityScore(faculty, L) {
+    if (!faculty) return 0;
+
+    // Title rank (50% weight)
+    let titleScore = 2; // default for unknown/empty (benefit of doubt)
+    const title = (faculty.title || '').toLowerCase();
+    if (title.includes('assistant professor')) titleScore = 1;
+    else if (title.includes('associate professor')) titleScore = 3;
+    else if (title.includes('professor')) titleScore = 5; // "Professor" without assistant/associate
+    else if (title === '' && faculty.tier === 'Recommended') titleScore = 2; // no data
+
+    // h-index percentile (30% weight)
+    const hIndex = (faculty.scholar_metrics && faculty.scholar_metrics.h_index) || 0;
+    const hPct = this._percentileRank(hIndex, L.hIndexSorted);
+    const hScore = hPct >= 0.90 ? 5 : hPct >= 0.75 ? 4 : hPct >= 0.50 ? 3 : hPct >= 0.25 ? 2 : hIndex > 0 ? 1 : 0;
+
+    // Citation percentile (20% weight)
+    const citations = (faculty.scholar_metrics && faculty.scholar_metrics.citations) || 0;
+    const cPct = this._percentileRank(citations, L.citationsSorted);
+    const cScore = cPct >= 0.90 ? 5 : cPct >= 0.75 ? 4 : cPct >= 0.50 ? 3 : cPct >= 0.25 ? 2 : citations > 0 ? 1 : 0;
+
+    return Math.round((titleScore * 0.5 + hScore * 0.3 + cScore * 0.2) * 10) / 10;
+  },
+
+  /** Binary search for percentile rank in a sorted array */
+  _percentileRank(value, sortedArr) {
+    if (!sortedArr || !sortedArr.length) return 0;
+    let lo = 0, hi = sortedArr.length;
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1;
+      if (sortedArr[mid] <= value) lo = mid + 1;
+      else hi = mid;
+    }
+    return lo / sortedArr.length;
+  },
+
+  /** Check if a faculty member can serve in a given role */
+  canServeAs(faculty, role) {
+    if (!faculty || !faculty.constraints) return true;
+    const maxRole = faculty.constraints.max_role;
+    if (!maxRole) return true;
+    const hierarchy = { 'contributor': 0, 'co-pi': 1, 'pi': 2 };
+    const roleLevel = hierarchy[role] !== undefined ? hierarchy[role] : 0;
+    const maxLevel = hierarchy[maxRole] !== undefined ? hierarchy[maxRole] : 2;
+    return roleLevel <= maxLevel;
+  },
+
+
   /* ─── PI Allocation Optimizer ─── */
 
   /**
@@ -75,12 +129,13 @@ const Strategy = {
    * @returns {Object} { assignments, unassignedFaculty, uncoveredFAs, stats }
    */
   optimizePI(L, locked = [], minComposite = 3) {
-    // Build all eligible (faculty, FA) pairs
+    // Build all eligible (faculty, FA) pairs, excluding constrained faculty
     const pairs = [];
     for (const s of L.scores.scores) {
       if (s.composite >= minComposite) {
         const f = L.facultyById[s.faculty_id];
-        if (f) {
+        if (f && this.canServeAs(f, 'pi')) {
+          const seniority = this.seniorityScore(f, L);
           pairs.push({
             faculty_id: s.faculty_id,
             focus_area_id: s.focus_area_id,
@@ -91,15 +146,18 @@ const Strategy = {
             partnership_readiness: s.partnership_readiness,
             tier: f.tier,
             department: f.department,
+            seniority,
           });
         }
       }
     }
 
-    // Sort by composite desc, with AAII Affiliated tiebreaker
+    // Sort by composite desc, with seniority and AAII tiebreakers
     pairs.sort((a, b) => {
       if (b.composite !== a.composite) return b.composite - a.composite;
-      // AAII Affiliated gets priority in ties
+      // Seniority tiebreaker
+      if (b.seniority !== a.seniority) return b.seniority - a.seniority;
+      // AAII Affiliated gets priority in remaining ties
       if (a.tier === 'AAII Affiliated' && b.tier !== 'AAII Affiliated') return -1;
       if (b.tier === 'AAII Affiliated' && a.tier !== 'AAII Affiliated') return 1;
       return 0;
@@ -174,51 +232,86 @@ const Strategy = {
 
   /**
    * Suggest a team for a given focus area.
-   * Uses composite scores + departmental diversity + tier preference.
+   * Uses composite scores + seniority + departmental diversity + tier preference.
+   * PI selection weights seniority heavily; contributor selection ignores it.
    */
   suggestTeam(focusAreaId, L, excludeIds = [], maxSize = 5) {
     const candidates = (L.topFacultyByFA[focusAreaId] || [])
-      .filter(s => s.composite >= 2.5 && !excludeIds.includes(s.faculty_id));
+      .filter(s => s.composite >= 2.5 && !excludeIds.includes(s.faculty_id))
+      .map(s => {
+        const f = L.facultyById[s.faculty_id];
+        const seniority = f ? this.seniorityScore(f, L) : 0;
+        return { ...s, faculty: f, seniority };
+      });
 
     if (!candidates.length) return [];
 
-    // Score each candidate with diversity bonus
     const selectedDepts = new Set();
     const team = [];
+    const used = new Set();
 
-    // Sort by effective score (composite + bonuses)
-    const scored = candidates.map(s => {
-      const f = L.facultyById[s.faculty_id];
-      let effective = s.composite;
-      // Tier bonus for AAII
-      if (f && f.tier === 'AAII Affiliated') effective += 0.25;
-      return { ...s, faculty: f, effective };
-    }).sort((a, b) => b.effective - a.effective);
+    // Pass 1: Select PI (seniority weight = 0.4)
+    const piCandidates = candidates
+      .filter(c => c.faculty && this.canServeAs(c.faculty, 'pi'))
+      .map(c => ({
+        ...c,
+        piScore: c.composite + 0.4 * (c.seniority / 5) + (c.faculty.tier === 'AAII Affiliated' ? 0.25 : 0),
+      }))
+      .sort((a, b) => b.piScore - a.piScore);
 
-    // Greedy selection with diversity re-ranking
-    const remaining = [...scored];
-    while (team.length < maxSize && remaining.length > 0) {
-      // Re-score remaining with diversity bonus
-      for (const c of remaining) {
-        c._dScore = c.effective;
-        if (c.faculty && !selectedDepts.has(c.faculty.department)) {
-          c._dScore += 0.5;
-        }
-      }
-      remaining.sort((a, b) => b._dScore - a._dScore);
-
-      const pick = remaining.shift();
-      if (pick.faculty) selectedDepts.add(pick.faculty.department);
-
-      const role = team.length === 0 ? 'pi' : (team.length <= 2 ? 'co-pi' : 'contributor');
+    if (piCandidates.length) {
+      const pi = piCandidates[0];
       team.push({
-        faculty_id: pick.faculty_id,
-        role,
-        composite: pick.composite,
-        faculty_fit: pick.faculty_fit,
-        competitive_edge: pick.competitive_edge,
-        team_feasibility: pick.team_feasibility,
-        partnership_readiness: pick.partnership_readiness,
+        faculty_id: pi.faculty_id, role: 'pi',
+        composite: pi.composite, seniority: pi.seniority,
+        faculty_fit: pi.faculty_fit, competitive_edge: pi.competitive_edge,
+        team_feasibility: pi.team_feasibility, partnership_readiness: pi.partnership_readiness,
+      });
+      used.add(pi.faculty_id);
+      if (pi.faculty) selectedDepts.add(pi.faculty.department);
+    }
+
+    // Pass 2: Select Co-PIs (seniority weight = 0.2, diversity bonus)
+    const remaining = candidates.filter(c => !used.has(c.faculty_id));
+    for (let copiCount = 0; copiCount < 2 && remaining.length > 0; copiCount++) {
+      for (const c of remaining) {
+        const canCopi = c.faculty && this.canServeAs(c.faculty, 'co-pi');
+        c._copiScore = canCopi
+          ? c.composite + 0.2 * (c.seniority / 5) + (c.faculty && !selectedDepts.has(c.faculty.department) ? 0.5 : 0)
+          : -1; // ineligible for co-pi, will be skipped
+      }
+      remaining.sort((a, b) => b._copiScore - a._copiScore);
+
+      const pick = remaining[0];
+      if (!pick || pick._copiScore < 0) break;
+
+      remaining.shift();
+      used.add(pick.faculty_id);
+      if (pick.faculty) selectedDepts.add(pick.faculty.department);
+      team.push({
+        faculty_id: pick.faculty_id, role: 'co-pi',
+        composite: pick.composite, seniority: pick.seniority,
+        faculty_fit: pick.faculty_fit, competitive_edge: pick.competitive_edge,
+        team_feasibility: pick.team_feasibility, partnership_readiness: pick.partnership_readiness,
+      });
+    }
+
+    // Pass 3: Fill contributors (no seniority weight, diversity bonus only)
+    const contRemaining = candidates.filter(c => !used.has(c.faculty_id));
+    while (team.length < maxSize && contRemaining.length > 0) {
+      for (const c of contRemaining) {
+        c._cScore = c.composite + (c.faculty && !selectedDepts.has(c.faculty.department) ? 0.5 : 0);
+      }
+      contRemaining.sort((a, b) => b._cScore - a._cScore);
+
+      const pick = contRemaining.shift();
+      used.add(pick.faculty_id);
+      if (pick.faculty) selectedDepts.add(pick.faculty.department);
+      team.push({
+        faculty_id: pick.faculty_id, role: 'contributor',
+        composite: pick.composite, seniority: pick.seniority,
+        faculty_fit: pick.faculty_fit, competitive_edge: pick.competitive_edge,
+        team_feasibility: pick.team_feasibility, partnership_readiness: pick.partnership_readiness,
       });
     }
 

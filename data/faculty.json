@@ -464,7 +464,11 @@
         "citations": 504,
         "h_index": 10
       },
-      "id": 13
+      "id": 13,
+      "constraints": {
+        "max_role": "contributor",
+        "reason": "Seconded from Army Research Laboratory"
+      }
     },
     {
       "name": "Jorge Munoz",

@@ -35,8 +35,8 @@ async function renderOverview(container) {
       <div class="deco-ring deco-ring-3"></div>
     </div>
     <div class="hero-label">AAII x DOE Genesis Mission</div>
-    <h2 class="hero-heading">Building Genesis research teams, powered by AI.</h2>
-    <p class="hero-desc">This platform scores ${S.totalFaculty} UTEP faculty against ${S.totalFocusAreas} DOE Genesis focus areas to help assemble the strongest possible research teams for each proposal. This approach uses a multi-axis scoring system to identify the researchers whose work, partnerships, and competitive advantages are the strongest fit for each opportunity.</p>
+    <h2 class="hero-heading">From faculty scores to proposal-ready teams.</h2>
+    <p class="hero-desc">This platform scores ${S.totalFaculty} UTEP faculty against ${S.totalFocusAreas} DOE Genesis focus areas, then helps assemble optimal research teams for each opportunity. It combines multi-axis scoring with seniority analysis and departmental diversity to recommend PIs, build teams, and generate AI-assisted research concepts that serve as starting points for proposal development.</p>
   </div>`;
 
   // ═══ 2. STATS ROW (colored top borders) ═══
@@ -96,33 +96,77 @@ async function renderOverview(container) {
       <div class="narrative-bar" style="background:var(--green)"></div>
       <div>
         <h3>The Starting Point</h3>
-        <p>Of the ${(S.totalFaculty * S.totalFocusAreas).toLocaleString()} possible faculty-focus area combinations, ${fmtNum(S.strongMatches)} score 3 or above, meaning ${S.coveragePct}% of Genesis focus areas have at least one strong UTEP match. This platform makes those matches searchable, sortable, and transparent.</p>
+        <p>Of the ${(S.totalFaculty * S.totalFocusAreas).toLocaleString()} possible faculty-focus area combinations, ${fmtNum(S.strongMatches)} score 3 or above, meaning ${S.coveragePct}% of Genesis focus areas have at least one strong UTEP match. The scoring data is searchable, sortable, and transparent across the platform's exploration tools.</p>
+      </div>
+    </div>
+    <div class="card narrative-block" data-reveal="up" style="background:linear-gradient(135deg, rgba(14,21,52,0.9) 0%, rgba(139,92,246,0.06) 100%);border-color:rgba(139,92,246,0.12)">
+      <div class="narrative-bar" style="background:var(--purple)"></div>
+      <div>
+        <h3>The Proposal Lab</h3>
+        <p>Scoring is the foundation, but the goal is to build teams. The Proposal Lab uses scoring data, seniority analysis, and a PI allocation optimizer to suggest who should lead each proposal, who should join, and what research directions are worth pursuing. It generates proposal packages that can be shared with faculty to start real conversations about collaboration.</p>
       </div>
     </div>
   </div>
   </div>`;
 
-  // ═══ SECTION 4: EXPLORE ═══
+  // ═══ SECTION 4: HOW IT WORKS ═══
   html += `<div class="ov-section">
-  <div class="ov-section-title" data-reveal="up">Explore the Data</div>
-  <div class="ov-section-sub" data-reveal="up">Three entry points into the platform, depending on what is needed.</div>
-  <div class="grid-3 nav-grid" data-reveal-stagger>
+  <div class="ov-section-title" data-reveal="up">How It Works</div>
+  <div class="ov-section-sub" data-reveal="up">Four steps from raw data to a proposal-ready team.</div>
+  <div class="how-it-works" data-reveal="up">
+    <div class="how-step">
+      <div class="how-step-num" style="background:var(--grad-blue)">${ICONS.search}</div>
+      <div class="how-step-line"></div>
+      <div class="how-step-title">Score</div>
+      <div class="how-step-desc">${S.totalFaculty} faculty scored on 4 axes against ${S.totalFocusAreas} focus areas</div>
+    </div>
+    <div class="how-step">
+      <div class="how-step-num" style="background:var(--grad-orange)">${ICONS.chart}</div>
+      <div class="how-step-line"></div>
+      <div class="how-step-title">Analyze</div>
+      <div class="how-step-desc">Explore strengths by challenge, faculty, or scoring matrix</div>
+    </div>
+    <div class="how-step">
+      <div class="how-step-num" style="background:var(--grad-green)">${ICONS.users}</div>
+      <div class="how-step-line"></div>
+      <div class="how-step-title">Build Teams</div>
+      <div class="how-step-desc">PI optimizer + team builder with seniority and diversity analysis</div>
+    </div>
+    <div class="how-step">
+      <div class="how-step-num" style="background:var(--grad-purple)">${ICONS.clipboard}</div>
+      <div class="how-step-title">Share</div>
+      <div class="how-step-desc">Save proposal packages and distribute them to faculty</div>
+    </div>
+  </div>
+  </div>`;
+
+  // ═══ SECTION 5: EXPLORE ═══
+  html += `<div class="ov-section ov-section-alt">
+  <div class="ov-section-title" data-reveal="up">Explore the Platform</div>
+  <div class="ov-section-sub" data-reveal="up">Four entry points, depending on what is needed.</div>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px" data-reveal-stagger>
+    <div class="card nav-card-v nc-green" data-reveal="up" onclick="switchTab('proposallab')" style="border-color:rgba(34,197,94,0.20);background:linear-gradient(180deg, rgba(14,21,52,0.9) 0%, rgba(34,197,94,0.08) 100%)">
+      <div class="nav-card-v-icon" style="background:var(--grad-green)">${ICONS.bulb}</div>
+      <h4>Proposal Lab</h4>
+      <p>Build proposal teams, assign PIs, and generate AI-assisted research concepts.</p>
+      <div class="nav-card-v-arrow">&rsaquo;</div>
+    </div>
     <div class="card nav-card-v nc-orange" data-reveal="up" onclick="switchTab('challenges')">
       <div class="nav-card-v-icon" style="background:var(--grad-orange)">${ICONS.target}</div>
       <h4>Challenge Explorer</h4>
-      <p>Browse ${S.totalChallenges} challenges and ${S.totalFocusAreas} focus areas. See which faculty score highest for each, with full scoring breakdowns.</p>
+      <p>Browse ${S.totalChallenges} challenges and ${S.totalFocusAreas} focus areas with faculty scoring breakdowns.</p>
       <div class="nav-card-v-arrow">&rsaquo;</div>
     </div>
     <div class="card nav-card-v nc-blue" data-reveal="up" onclick="switchTab('faculty')">
       <div class="nav-card-v-icon" style="background:var(--grad-blue)">${ICONS.users}</div>
       <h4>Faculty Explorer</h4>
-      <p>Search ${S.totalFaculty} researchers by name, department, or expertise. See each person's top-matched focus areas and axis scores.</p>
+      <p>Search ${S.totalFaculty} researchers by name, department, or expertise.</p>
       <div class="nav-card-v-arrow">&rsaquo;</div>
     </div>
     <div class="card nav-card-v nc-purple" data-reveal="up" onclick="switchTab('heatmap')">
       <div class="nav-card-v-icon" style="background:var(--grad-purple)">${ICONS.grid}</div>
       <h4>Scoring Matrix</h4>
-      <p>The full picture: every faculty member scored against every challenge. Sort, filter, and drill into any cell.</p>
+      <p>Every faculty member scored against every challenge. Sort, filter, drill down.</p>
       <div class="nav-card-v-arrow">&rsaquo;</div>
     </div>
   </div>

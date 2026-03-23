@@ -143,6 +143,35 @@ async function renderMethodology(container) {
         <li><strong>Version:</strong> ${meta.version || '2.0.0'}</li>
       </ul>
     </div>
+
+    <div class="section-divider-labeled"><span>Proposal Lab Methodology</span></div>
+
+    <div class="method-section">
+      <h3>From Scores to Teams</h3>
+      <p>The Proposal Lab translates scoring data into actionable team recommendations. Its central feature is the PI Allocation Optimizer, which computes the maximum number of non-overlapping faculty-to-focus-area assignments where each faculty member serves as PI for at most one focus area.</p>
+      <p>The optimizer uses a greedy algorithm: all eligible faculty-focus area pairs with a composite score of 3 or above are ranked, and the highest-scoring pairs are assigned first. Faculty who are already assigned as PI are removed from consideration for subsequent focus areas, and vice versa. The algorithm prioritizes AAII Affiliated faculty in tiebreakers, reflecting their deeper integration with the institute's coordination infrastructure.</p>
+      <p>Manual overrides are supported through a lock mechanism. A locked assignment is treated as a fixed constraint; the optimizer recalculates all remaining assignments around it. This allows strategic decisions (such as reserving a specific faculty member for a high-priority challenge) without losing the optimization benefits for all other assignments.</p>
+    </div>
+
+    <div class="method-section">
+      <h3>PI Selection and Seniority</h3>
+      <p>Serving as Principal Investigator requires more than a high composite score. The team suggestion algorithm factors in seniority: the depth of a faculty member's track record, institutional standing, and ability to lead a multi-institutional research effort.</p>
+      <p>Seniority is computed as a weighted score (0-5) based on three signals:</p>
+      <ul>
+        <li><strong>Academic rank (50% weight):</strong> Full Professor receives the highest rank score, followed by Associate Professor and Assistant Professor. Faculty without a known rank (primarily in the Recommended tier) receive a moderate default score.</li>
+        <li><strong>h-index percentile (30% weight):</strong> The h-index measures sustained publication impact. Faculty are ranked against the full pool; those in the top 10% receive the highest score.</li>
+        <li><strong>Citation percentile (20% weight):</strong> Total citation count provides an additional measure of research visibility and influence.</li>
+      </ul>
+      <p>When selecting a PI, the algorithm ranks candidates by a combined score: composite (primary), seniority (secondary), and AAII affiliation (tertiary). Co-PI selection uses the same factors with reduced seniority weight. Contributor selection relies on composite score and departmental diversity only.</p>
+      <p>Some faculty have institutional constraints that restrict their eligibility for PI or Co-PI roles (for example, faculty seconded from external organizations). These constraints are enforced automatically in both the team suggestion and the PI optimizer.</p>
+    </div>
+
+    <div class="method-section">
+      <h3>AI-Assisted Research Concepts</h3>
+      <p>The Proposal Lab generates tailored research directions using Anthropic Claude (the same model family used for scoring evaluations). Given a focus area description, challenge context, and the assembled team's expertise profiles, the model suggests 2-3 specific research directions with technical rationale for why the team is well-positioned for each.</p>
+      <p>The generated text is a starting point for proposal development, not a finished narrative. It draws on the team members' published expertise and the DOE's stated focus area requirements to identify concrete research angles. Faculty reviewing a proposal package can use these directions as a basis for discussion and refinement.</p>
+      <p>The generation request includes UTEP institutional advantages (such as proximity to national laboratories or specialized research infrastructure) when they have been selected for the proposal package, allowing the model to incorporate these differentiators into its suggestions.</p>
+    </div>
   </div>`;
 
   container.innerHTML = html;

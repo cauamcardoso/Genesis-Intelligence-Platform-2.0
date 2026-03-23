@@ -59,6 +59,47 @@ async function renderProposalLab(container) {
   `;
   container.appendChild(header);
 
+  // Onboarding section (collapsible, only on dashboard view)
+  if (_labView === 'dashboard' && !localStorage.getItem('genesis_lab_onboarded')) {
+    const onboarding = document.createElement('div');
+    onboarding.className = 'lab-onboarding';
+    onboarding.innerHTML = `
+      <div class="narrative-section" data-reveal="up" data-reveal-stagger>
+        <div class="card narrative-block nb-cyan">
+          <div class="narrative-bar" style="background:var(--cyan)"></div>
+          <div>
+            <h3>What is the Proposal Lab?</h3>
+            <p>The Proposal Lab turns scoring data into actionable proposal teams. Using composite scores from four evaluation axes, seniority analysis, and departmental diversity, it suggests optimal team compositions for each DOE Genesis focus area. The platform has already identified ${pkgCount > 0 ? pkgCount + ' proposal packages and ' : ''}${L.stats.strongMatches} strong faculty matches across ${L.stats.totalFocusAreas} focus areas.</p>
+          </div>
+        </div>
+        <div class="card narrative-block nb-orange">
+          <div class="narrative-bar" style="background:var(--accent)"></div>
+          <div>
+            <h3>Three Ways to Build</h3>
+            <p><strong>Challenge First:</strong> Pick a focus area and get a suggested team ranked by composite score and seniority. <strong>Faculty First:</strong> Find a researcher's strongest opportunities and their natural collaborators. <strong>Team First:</strong> Select collaborators and discover which focus areas they match best. Each path leads to a team builder where roles, members, and research concepts can be refined before saving.</p>
+          </div>
+        </div>
+        <div class="card narrative-block nb-green">
+          <div class="narrative-bar" style="background:var(--green)"></div>
+          <div>
+            <h3>From Package to Proposal</h3>
+            <p>A proposal package captures the team, focus area, scoring evidence, UTEP competitive advantages, and an AI-generated research concept. Packages can be tagged by proposal track (AAII-Led, AAII-Supported, or Faculty-Led), shared with faculty via URL, or exported as a summary. The shared view gives recipients the evidence behind the recommendation and room to suggest adjustments.</p>
+          </div>
+        </div>
+      </div>
+      <button class="lab-dismiss-btn" onclick="localStorage.setItem('genesis_lab_onboarded','1');this.parentElement.remove()">
+        Got it, hide this guide
+      </button>
+    `;
+    container.appendChild(onboarding);
+  } else if (_labView === 'dashboard' && localStorage.getItem('genesis_lab_onboarded')) {
+    const showGuide = document.createElement('button');
+    showGuide.className = 'lab-show-guide';
+    showGuide.textContent = 'Show guide';
+    showGuide.onclick = () => { localStorage.removeItem('genesis_lab_onboarded'); renderProposalLab($('content')); };
+    container.appendChild(showGuide);
+  }
+
   // Route to current view
   switch (_labView) {
     case 'dashboard':
@@ -819,6 +860,10 @@ function renderTeamBuilder(container, L, advs) {
     if (!f) continue;
     const inTeam = teamFacultyIds.has(s.faculty_id);
     const scoreColor = SCORE_TEXT[Math.round(s.composite)] || SCORE_TEXT[0];
+    const seniority = Strategy.seniorityScore(f, L);
+    const isConstrained = f.constraints && f.constraints.max_role === 'contributor';
+    const seniorBadge = seniority >= 4 ? '<span class="seniority-badge">Senior</span>' : '';
+    const constraintBadge = isConstrained ? '<span class="constraint-badge-sm">Contributor only</span>' : '';
 
     poolHtml += `
       <div class="tb-pool-card${inTeam ? ' in-team' : ''}"
@@ -827,7 +872,7 @@ function renderTeamBuilder(container, L, advs) {
            ${!inTeam ? `onclick="tbAddToTeam(${s.faculty_id})"` : ''}>
         <div class="tb-pool-avatar" style="background:${TIER_AVATAR[f.tier]}">${getInitials(f.name)}</div>
         <div class="tb-pool-info">
-          <div class="tb-pool-name">${f.name}</div>
+          <div class="tb-pool-name">${f.name} ${seniorBadge}${constraintBadge}</div>
           <div class="tb-pool-dept">${f.department}</div>
         </div>
         <div class="tb-pool-score" style="color:${scoreColor};background:${SCORE_BG[Math.round(s.composite)]}">${s.composite}</div>
@@ -1004,7 +1049,14 @@ function tbSlotDrop(e, slotIdx) {
 
 function tbAddToTeam(fid) {
   if (_labTeam.find(m => m.faculty_id === fid)) return;
-  const role = _labTeam.length === 0 ? 'pi' : (_labTeam.length <= 2 ? 'co-pi' : 'contributor');
+  const L = DataStore._lookups;
+  const f = L ? L.facultyById[fid] : null;
+  let role = _labTeam.length === 0 ? 'pi' : (_labTeam.length <= 2 ? 'co-pi' : 'contributor');
+  // Enforce constraints
+  if (f && !Strategy.canServeAs(f, role)) {
+    role = 'contributor';
+    showToast(`${f.name} can only serve as Contributor (${f.constraints.reason})`);
+  }
   _labTeam.push({ faculty_id: fid, role });
   renderProposalLab($('content'));
 }
@@ -1148,9 +1200,14 @@ function renderPackageDetail(container, L, advs) {
   // Concept
   html += `
     <div class="pkg-concept">
-      <div style="font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.10em;margin-bottom:10px">Research Concept</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div style="font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.10em">Research Concept</div>
+        <button class="generate-concept-btn" id="generate-concept-btn" onclick="labGenerateConcept()">
+          ${ICONS.zap} Generate Research Directions
+        </button>
+      </div>
       <input class="pkg-concept-title-input" type="text" value="${escapeHtml(pkg.concept_title)}" placeholder="Concept title..." onchange="updatePkgField('concept_title',this.value)">
-      <textarea class="pkg-concept-seed" onchange="updatePkgField('concept_seed',this.value)" placeholder="Research concept description...">${escapeHtml(pkg.concept_seed)}</textarea>
+      <textarea class="pkg-concept-seed" id="pkg-concept-textarea" onchange="updatePkgField('concept_seed',this.value)" placeholder="Research concept description...">${escapeHtml(pkg.concept_seed)}</textarea>
       <textarea class="pkg-notes" onchange="updatePkgField('notes',this.value)" placeholder="Curator notes (internal, not shared)...">${escapeHtml(pkg.notes || '')}</textarea>
     </div>`;
 
@@ -1205,6 +1262,73 @@ function labEditTeam() {
   _labAdvantages = [...(_labEditingPkg.advantages || [])];
   _labView = 'builder';
   renderProposalLab($('content'));
+}
+
+async function labGenerateConcept() {
+  if (!_labEditingPkg) return;
+  const L = DataStore._lookups;
+  if (!L) return;
+
+  const pkg = _labEditingPkg;
+  const fa = L.focusAreaById[pkg.focus_area_id];
+  const challenge = fa ? L.challengeById[fa.challenge_id] : null;
+  const advs = await getAdvantages();
+
+  // Gather team member details
+  const teamData = pkg.team.map(m => {
+    const f = L.facultyById[m.faculty_id];
+    if (!f) return null;
+    return {
+      name: f.name,
+      department: f.department,
+      title: f.title || '',
+      expertise_keywords: f.expertise_keywords || [],
+      scholar_metrics: f.scholar_metrics || {},
+      role: m.role,
+    };
+  }).filter(Boolean);
+
+  // Gather selected advantages as text
+  const allAdvs = [...(advs.geographic || []), ...(advs.institutional || []), ...(advs.infrastructure || [])];
+  const selectedAdvs = allAdvs.filter(a => (pkg.advantages || []).includes(a.id)).map(a => a.title);
+
+  // UI loading state
+  const btn = document.getElementById('generate-concept-btn');
+  if (btn) { btn.disabled = true; btn.innerHTML = ICONS.zap + ' Generating...'; }
+
+  try {
+    const resp = await fetch('/api/generate-concept', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        focus_area: fa ? { title: fa.title, description: fa.description } : {},
+        challenge: challenge ? { title: challenge.title } : {},
+        team: teamData,
+        advantages: selectedAdvs,
+      }),
+    });
+
+    const data = await resp.json();
+    if (data.error) {
+      showToast('Error: ' + data.error);
+      return;
+    }
+
+    // Update the package with generated concept
+    pkg.concept_seed = data.concepts;
+    pkg.concept_title = fa ? fa.title : pkg.concept_title;
+    PackageStore.save(pkg);
+
+    // Update textarea directly
+    const textarea = document.getElementById('pkg-concept-textarea');
+    if (textarea) textarea.value = data.concepts;
+
+    showToast('Research directions generated');
+  } catch (e) {
+    showToast('Failed to generate concepts. Check your connection.');
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = ICONS.zap + ' Generate Research Directions'; }
+  }
 }
 
 function labCopyShareLink() {

@@ -101,6 +101,14 @@ const DataStore = {
     ).size;
     const coveragePct = Math.round((coverageFAs / focusAreas.length) * 100);
 
+    // Seniority percentile arrays (sorted ascending)
+    const hIndexSorted = faculty.faculty
+      .map(f => (f.scholar_metrics && f.scholar_metrics.h_index) || 0)
+      .sort((a, b) => a - b);
+    const citationsSorted = faculty.faculty
+      .map(f => (f.scholar_metrics && f.scholar_metrics.citations) || 0)
+      .sort((a, b) => a - b);
+
     this._lookups = {
       faculty: faculty.faculty,
       challenges: challenges.challenges,
@@ -115,6 +123,8 @@ const DataStore = {
       topMatchesByFaculty,
       topFacultyByFA,
       deptCounts,
+      hIndexSorted,
+      citationsSorted,
       stats: {
         totalFaculty: faculty.faculty.length,
         totalChallenges: challenges.challenges.length,
