@@ -1,0 +1,68 @@
+{
+  "geographic": [
+    {
+      "id": "g1",
+      "title": "Proximity to National Laboratories",
+      "description": "Located within 250 miles of Sandia National Laboratories, Los Alamos National Laboratory, and White Sands Missile Range, enabling close collaboration and facility access."
+    },
+    {
+      "id": "g2",
+      "title": "US-Mexico Border Research Corridor",
+      "description": "Unique position on the US-Mexico border provides access to binational research networks, cross-border data systems, and international collaboration pipelines."
+    },
+    {
+      "id": "g3",
+      "title": "Southwest Energy Hub",
+      "description": "Situated in a region with major solar, wind, and natural gas resources, enabling energy research with direct access to real-world energy infrastructure."
+    },
+    {
+      "id": "g4",
+      "title": "Fort Bliss and Defense Ecosystem",
+      "description": "Adjacent to one of the largest military installations in the US, providing proximity to defense research applications and workforce."
+    }
+  ],
+  "institutional": [
+    {
+      "id": "i1",
+      "title": "Carnegie R1 Research University",
+      "description": "Classified as a Doctoral University with Very High Research Activity, reflecting sustained research output and doctoral program strength."
+    },
+    {
+      "id": "i2",
+      "title": "Aerospace Center for Excellence (ACE)",
+      "description": "Dedicated center providing advanced aerospace research capabilities, wind tunnels, and testing infrastructure for defense and energy applications."
+    },
+    {
+      "id": "i3",
+      "title": "AAII: Aerospace and AI Institute",
+      "description": "Dedicated institute focused on AI, machine learning, and aerospace applications, providing cross-disciplinary research infrastructure and coordination."
+    },
+    {
+      "id": "i4",
+      "title": "Established DOE Research Portfolio",
+      "description": "Track record of DOE-funded research across multiple departments, demonstrating institutional capacity to manage federal research programs."
+    }
+  ],
+  "infrastructure": [
+    {
+      "id": "r1",
+      "title": "High-Performance Computing Resources",
+      "description": "On-campus HPC clusters supporting large-scale simulation, data analytics, and AI model training for computationally intensive research."
+    },
+    {
+      "id": "r2",
+      "title": "Advanced Manufacturing and Materials Labs",
+      "description": "Facilities for materials characterization, additive manufacturing, and testing that support energy and defense research applications."
+    },
+    {
+      "id": "r3",
+      "title": "Cybersecurity Research Infrastructure",
+      "description": "Dedicated cybersecurity research infrastructure supporting secure systems design, threat analysis, and national security applications."
+    },
+    {
+      "id": "r4",
+      "title": "W.M. Keck Center for 3D Innovation",
+      "description": "Nationally recognized center for additive manufacturing, 3D printing, and rapid prototyping supporting materials and engineering research."
+    }
+  ]
+}

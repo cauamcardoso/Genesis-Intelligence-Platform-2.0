@@ -5,6 +5,7 @@ const TABS = [
   { id: 'challenges', label: 'Challenge Explorer', icon: ICONS.target },
   { id: 'faculty', label: 'Faculty Explorer', icon: ICONS.users },
   { id: 'heatmap', label: 'Scoring Matrix', icon: ICONS.grid },
+  { id: 'proposallab', label: 'Proposal Lab', icon: ICONS.bulb },
   { id: 'methodology', label: 'Methodology', icon: ICONS.book },
 ];
 
@@ -41,6 +42,9 @@ async function renderContent() {
     case 'heatmap':
       await renderHeatmap(content);
       break;
+    case 'proposallab':
+      await renderProposalLab(content);
+      break;
     case 'methodology':
       await renderMethodology(content);
       break;
@@ -51,6 +55,11 @@ async function renderContent() {
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
+  // Check for shared package view
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('pkg')) {
+    activeTab = 'proposallab';
+  }
   renderTabs();
   renderContent();
 });

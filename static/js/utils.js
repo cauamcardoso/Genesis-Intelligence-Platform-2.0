@@ -98,3 +98,25 @@ const CHART_GRADIENTS = [
   '#FF8200','#F0932B','#E1A341','#0BC5EA','#4299E1',
   '#7B61FF','#01B574','#38B2AC','#ED64A6','#F6AD55'
 ];
+
+// Track badge helper
+function trackBadge(track) {
+  const TRACKS = {
+    'aaii-led': { label: 'AAII-Led', cls: 'track-aaii-led' },
+    'aaii-supported': { label: 'AAII-Supported', cls: 'track-aaii-supported' },
+    'faculty-led': { label: 'Faculty-Led', cls: 'track-faculty-led' },
+  };
+  const t = TRACKS[track] || TRACKS['aaii-led'];
+  return `<span class="track-badge ${t.cls}">${t.label}</span>`;
+}
+
+// Status badge helper
+function statusBadge(status) {
+  const STATUSES = {
+    'draft': { label: 'Draft', cls: 'status-draft' },
+    'ready': { label: 'Ready', cls: 'status-ready' },
+    'shared': { label: 'Shared', cls: 'status-shared' },
+  };
+  const s = STATUSES[status] || STATUSES['draft'];
+  return `<span class="status-badge ${s.cls}">${s.label}</span>`;
+}

@@ -19,6 +19,7 @@ faculty_data = load_json('faculty.json')
 challenges_data = load_json('challenges.json')
 scores_data = load_json('scores.json')
 metadata = load_json('metadata.json')
+advantages_data = load_json('utep_advantages.json')
 
 @app.route("/")
 def index():
@@ -39,6 +40,10 @@ def api_scores():
 @app.route("/api/metadata")
 def api_metadata():
     return jsonify(metadata)
+
+@app.route("/api/advantages")
+def api_advantages():
+    return jsonify(advantages_data)
 
 @app.route("/health")
 def health():
