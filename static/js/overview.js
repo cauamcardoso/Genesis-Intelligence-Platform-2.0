@@ -145,7 +145,7 @@ async function renderOverview(container) {
   html += `<div class="card" style="padding:28px 32px;margin-bottom:16px" data-reveal="up">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
       <div style="font-size:16px;font-weight:800;color:#FFF">Scoring Dimensions</div>
-      <button class="visit-btn" style="font-size:11px;padding:7px 14px" onclick="switchTab('methodology')">${ICONS.book} Full Methodology</button>
+      <button class="visit-btn" style="font-size:12px;padding:7px 14px" onclick="switchTab('methodology')">${ICONS.book} Full Methodology</button>
     </div>
     <div class="scoring-rings">`;
   for (const ax of axes) {
@@ -180,7 +180,7 @@ async function renderOverview(container) {
   // Left: Challenge coverage bar chart
   html += `<div class="card bar-chart-container" data-reveal="up" style="padding:20px 24px">
     <div class="card-title"><div class="icon" style="background:var(--grad-blue)">${ICONS.chart}</div>Challenge Coverage</div>
-    <p style="font-size:11px;color:var(--text3);margin-top:-10px;margin-bottom:10px">Faculty with composite >= 3 per challenge</p>`;
+    <p style="font-size:12px;color:var(--text3);margin-top:-10px;margin-bottom:10px">Faculty with composite >= 3 per challenge</p>`;
   for (let i = 0; i < challengeCoverage.length; i++) {
     const c = challengeCoverage[i];
     const pct = (c.count / maxCov * 100).toFixed(0);
@@ -196,7 +196,7 @@ async function renderOverview(container) {
   // Right: Department donut chart
   html += `<div class="card" data-reveal="up" style="padding:20px 24px;display:flex;flex-direction:column">
     <div class="card-title"><div class="icon" style="background:var(--grad-purple)">${ICONS.users}</div>Faculty by Department</div>
-    <p style="font-size:11px;color:var(--text3);margin-top:-10px;margin-bottom:10px">${S.totalFaculty} faculty across ${depts.length} departments</p>
+    <p style="font-size:12px;color:var(--text3);margin-top:-10px;margin-bottom:10px">${S.totalFaculty} faculty across ${depts.length} departments</p>
     <div class="donut-container">
       <div class="donut-chart-wrap">
       <svg class="donut-svg" viewBox="0 0 200 200">`;

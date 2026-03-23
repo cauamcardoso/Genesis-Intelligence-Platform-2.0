@@ -114,7 +114,7 @@ function renderFacultyCards() {
       const detailStrong = allMatches.filter(s => s.composite >= 3);
       const detailBelow = allMatches.filter(s => s.composite > 0 && s.composite < 3).slice(0, 10);
       if (detailStrong.length > 0) {
-        html += `<div style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px">Focus Area Matches (Composite >= 3)</div>`;
+        html += `<div style="font-size:12px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px">Focus Area Matches (Composite >= 3)</div>`;
         html += `<div class="fac-all-matches">`;
         for (const m of detailStrong) {
           const fa = L.focusAreaById[m.focus_area_id];
@@ -134,7 +134,7 @@ function renderFacultyCards() {
       }
 
       if (detailBelow.length > 0) {
-        html += `<div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin:12px 0 6px">Below Threshold (Composite < 3)</div>`;
+        html += `<div style="font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin:12px 0 6px">Below Threshold (Composite < 3)</div>`;
         html += `<div class="fac-all-matches" style="opacity:0.6">`;
         for (const m of detailBelow) {
           const fa = L.focusAreaById[m.focus_area_id];

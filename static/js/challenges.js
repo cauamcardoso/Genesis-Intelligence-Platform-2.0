@@ -90,7 +90,7 @@ function renderChallengeDetail(L, cId) {
 
     if (isSelected && strongFac.length > 0) {
       html += `<div style="margin-top:12px;border-top:1px solid var(--card-border);padding-top:10px">
-        <div style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">Faculty Matches (Composite >= 3)</div>`;
+        <div style="font-size:12px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">Faculty Matches (Composite >= 3)</div>`;
 
       for (const s of strongFac.slice(0, 15)) {
         const fac = L.facultyById[s.faculty_id];
@@ -99,7 +99,7 @@ function renderChallengeDetail(L, cId) {
 
         html += `<div class="fac-match-row">
           <span class="fac-match-id">${fac.name.split(' ').slice(-1)[0]}</span>
-          <span style="font-size:10px;color:${tc.color};margin-right:4px">\u25CF</span>
+          <span style="font-size:12px;color:${tc.color};margin-right:4px">\u25CF</span>
           <span class="fac-match-title">${fac.name} - ${truncate(fac.department, 25)}</span>
           <div class="fac-match-scores">
             ${scoreBadge(s.faculty_fit, 'Fit')}

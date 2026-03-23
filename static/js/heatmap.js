@@ -157,7 +157,7 @@ function rebuildHeatmap() {
     const tc = TIER_COLORS[f.tier] || TIER_COLORS['Recommended'];
     html += `<tr><td style="background:var(--bg2)">
       <span class="hm-name">${f.name}</span>
-      <span style="color:${tc.color};font-size:9px;margin-left:4px">\u25CF</span>
+      <span style="color:${tc.color};font-size:11px;margin-left:4px">\u25CF</span>
       <br/><span class="hm-dept">${truncate(f.department, 25)}</span>
     </td>`;
 
