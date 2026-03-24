@@ -489,42 +489,39 @@ def health():
 
 @app.route("/api/test-claude")
 def test_claude():
-    """Minimal test of Claude API connectivity."""
+    """Test Claude API connectivity using raw requests first, then SDK."""
+    import requests as req_lib
+    results = {}
+
+    # Step 1: Can we reach api.anthropic.com at all?
+    try:
+        r = req_lib.get("https://api.anthropic.com/v1/models",
+                        headers={"x-api-key": os.environ.get("ANTHROPIC_API_KEY", ""),
+                                 "anthropic-version": "2023-06-01"},
+                        timeout=15)
+        results["raw_http_status"] = r.status_code
+        results["raw_http_body"] = r.text[:200]
+    except Exception as e:
+        results["raw_http_error"] = str(e)
+        results["raw_http_type"] = type(e).__name__
+
+    # Step 2: Try SDK
     try:
         import anthropic
-        import httpx
-
-        # Try with explicit httpx client to diagnose connectivity
-        http_client = httpx.Client(
-            timeout=60.0,
-            follow_redirects=True,
-        )
-        client = anthropic.Anthropic(
-            http_client=http_client,
-        )
+        client = anthropic.Anthropic()
         message = client.messages.create(
             model="claude-sonnet-4-20250514",
             max_tokens=50,
             messages=[{"role": "user", "content": "Say hello in one word."}]
         )
-        return jsonify({"ok": True, "response": message.content[0].text})
-    except ImportError as e:
-        return jsonify({"ok": False, "error": str(e), "type": "ImportError"}), 500
+        results["sdk_ok"] = True
+        results["sdk_response"] = message.content[0].text
     except Exception as e:
-        # Also try a raw request to see if it's DNS
-        dns_test = "unknown"
-        try:
-            import socket
-            addr = socket.getaddrinfo("api.anthropic.com", 443)
-            dns_test = str(addr[0][4]) if addr else "no result"
-        except Exception as dns_e:
-            dns_test = f"DNS failed: {dns_e}"
-        return jsonify({
-            "ok": False,
-            "error": str(e),
-            "type": type(e).__name__,
-            "dns_test": dns_test,
-        }), 500
+        results["sdk_ok"] = False
+        results["sdk_error"] = str(e)
+        results["sdk_type"] = type(e).__name__
+
+    return jsonify(results)
 
 @app.route("/api/debug-env")
 def debug_env():
