@@ -110,6 +110,7 @@ Be specific and technical. Reference the team members' actual expertise areas. D
         message = client.messages.create(
             model="claude-sonnet-4-20250514",
             max_tokens=1000,
+            timeout=60.0,
             messages=[{"role": "user", "content": prompt}]
         )
 
@@ -485,6 +486,23 @@ def api_export_docx():
 @app.route("/health")
 def health():
     return {"status": "ok"}, 200
+
+@app.route("/api/test-claude")
+def test_claude():
+    """Minimal test of Claude API connectivity."""
+    try:
+        import anthropic
+        client = anthropic.Anthropic(timeout=30.0)
+        message = client.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=50,
+            messages=[{"role": "user", "content": "Say hello in one word."}]
+        )
+        return jsonify({"ok": True, "response": message.content[0].text})
+    except ImportError:
+        return jsonify({"ok": False, "error": "SDK not installed"}), 500
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e), "type": type(e).__name__}), 500
 
 @app.route("/api/debug-env")
 def debug_env():
