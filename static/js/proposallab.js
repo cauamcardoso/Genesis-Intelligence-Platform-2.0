@@ -2,6 +2,9 @@
 
 /* ─── State ─── */
 let _labView = 'dashboard';    // 'dashboard' | 'challenge' | 'faculty' | 'team' | 'builder' | 'packages' | 'package-detail'
+let _labStep = 0;              // Step in the journey: 0=select, 1=team, 2=concept, 3=keywords, 4=export
+let _labKeywords = null;       // Cached keyword results
+let _labAnalysis = null;       // Cached AI analysis for selected FA
 let _labSelectedChallenge = null;
 let _labSelectedFA = null;
 let _labSelectedFaculty = [];  // array of faculty_id for team-first
@@ -42,6 +45,19 @@ async function renderProposalLab(container) {
     return;
   }
 
+  // Handle entry from Opportunity Map
+  if (window._labEntryContext) {
+    const ctx = window._labEntryContext;
+    window._labEntryContext = null;
+    _labSelectedFA = ctx.faId;
+    const fa = L.focusAreaById[ctx.faId];
+    if (fa) _labSelectedChallenge = fa.challenge_id;
+    // Pre-suggest a team
+    const suggested = Strategy.suggestTeam(ctx.faId, L);
+    _labTeam = Array.isArray(suggested) ? suggested.map(m => ({faculty_id: m.faculty_id, role: m.role})) : [];
+    _labView = 'builder';
+  }
+
   // Lab header
   const header = document.createElement('div');
   header.className = 'lab-header';
@@ -58,6 +74,26 @@ async function renderProposalLab(container) {
     </button>
   `;
   container.appendChild(header);
+
+  // Step indicator (shown when in builder or package-detail)
+  if (['builder', 'package-detail'].includes(_labView)) {
+    const steps = ['Opportunity', 'Team', 'Research', 'Keywords', 'Export'];
+    const stepIcons = [ICONS.map, ICONS.users, ICONS.bulb, ICONS.key, ICONS.download];
+    const currentStep = _labView === 'builder' ? 1 : (_labStep || 2);
+    const indicator = document.createElement('div');
+    indicator.className = 'step-indicator';
+    let stepHtml = '';
+    for (let i = 0; i < steps.length; i++) {
+      const state = i < currentStep ? 'completed' : i === currentStep ? 'active' : 'pending';
+      stepHtml += `<div class="step-item ${state}">
+        <div class="step-dot">${state === 'completed' ? ICONS.check : stepIcons[i]}</div>
+        <div class="step-name">${steps[i]}</div>
+      </div>`;
+      if (i < steps.length - 1) stepHtml += '<div class="step-line"></div>';
+    }
+    indicator.innerHTML = stepHtml;
+    container.appendChild(indicator);
+  }
 
   // Onboarding section (collapsible, only on dashboard view)
   if (_labView === 'dashboard' && !localStorage.getItem('genesis_lab_onboarded')) {
@@ -136,13 +172,22 @@ async function renderProposalLab(container) {
 function renderStrategyDashboard(container, L, advs) {
   const wrap = document.createElement('div');
 
-  // Entry point cards
+  // Didactic intro
   wrap.innerHTML = `
+    <div class="card lab-didactic" style="padding:16px 20px;margin-bottom:16px;border-left:3px solid var(--green);background:rgba(34,197,94,0.04)">
+      <div style="font-size:13px;font-weight:700;color:#FFF;margin-bottom:4px">How the Proposal Lab Works</div>
+      <div style="font-size:12px;color:var(--text2);line-height:1.7">The Proposal Lab takes the scoring and opportunity data from the Intelligence tab and turns it into actionable proposal teams. Start by selecting a high-opportunity focus area, then assemble the optimal team, generate AI-powered research directions, produce literature review keywords, and export a ready-to-share Word document for faculty.</div>
+    </div>
     <div class="entry-cards" data-reveal="up" data-reveal-stagger>
+      <div class="card entry-card" style="border-color:rgba(34,197,94,0.20);background:linear-gradient(180deg, rgba(14,21,52,0.9) 0%, rgba(34,197,94,0.08) 100%)" onclick="openIntelligenceTab('opportunity')">
+        <div class="entry-card-icon" style="background:var(--grad-green)">${ICONS.map}</div>
+        <h4>Start from Opportunities</h4>
+        <p>View UTEP's top-ranked focus areas and jump directly into team building (recommended)</p>
+      </div>
       <div class="card entry-card nc-orange" onclick="_labView='challenge';renderProposalLab($('content'))">
         <div class="entry-card-icon" style="background:var(--grad-orange)">${ICONS.target}</div>
         <h4>Challenge First</h4>
-        <p>Start from a focus area and build the optimal team around it</p>
+        <p>Pick a specific focus area and build the optimal team around it</p>
       </div>
       <div class="card entry-card nc-blue" onclick="_labView='faculty';renderProposalLab($('content'))">
         <div class="entry-card-icon" style="background:var(--grad-blue)">${ICONS.users}</div>
@@ -1211,17 +1256,32 @@ function renderPackageDetail(container, L, advs) {
       <textarea class="pkg-notes" onchange="updatePkgField('notes',this.value)" placeholder="Curator notes (internal, not shared)...">${escapeHtml(pkg.notes || '')}</textarea>
     </div>`;
 
+  // ─── Keywords Section ───
+  html += `
+    <div class="pkg-keywords">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div style="font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.10em">Literature Review Keywords</div>
+        <button class="generate-concept-btn" id="generate-keywords-btn" onclick="labGenerateKeywords()">
+          ${ICONS.key} Generate Keywords
+        </button>
+      </div>
+      <div class="lab-didactic" style="font-size:11px;color:var(--text2);line-height:1.6;margin-bottom:12px;padding:10px 14px;background:rgba(139,92,246,0.04);border-left:3px solid var(--purple);border-radius:0 var(--radius-sm) var(--radius-sm) 0">
+        Keywords help the team conduct targeted literature reviews. Intersection keywords are particularly valuable as they represent the unique space where this team's combined expertise meets the challenge requirements.
+      </div>
+      <div id="keywords-display">${renderKeywordsDisplay(pkg.keywords)}</div>
+    </div>`;
+
   // Actions
   html += `
     <div class="pkg-actions">
-      <button class="pkg-btn pkg-btn-primary" onclick="labEditTeam()">
+      <button class="pkg-btn pkg-btn-primary" onclick="labExportDocx()">
+        ${ICONS.download} Export to Word
+      </button>
+      <button class="pkg-btn" onclick="labEditTeam()">
         ${ICONS.users} Edit Team
       </button>
       <button class="pkg-btn" onclick="labCopyShareLink()">
         ${ICONS.link} Copy Share Link
-      </button>
-      <button class="pkg-btn" onclick="labExportSummary()">
-        ${ICONS.clipboard} Export Summary
       </button>
       <select style="padding:6px 10px;border-radius:6px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.10);color:var(--text2);font-size:12px;font-family:var(--font)" onchange="updatePkgField('status',this.value)">
         <option value="draft" ${pkg.status === 'draft' ? 'selected' : ''}>Draft</option>
@@ -1536,6 +1596,191 @@ function renderSharedView(container, encoded, L, advs) {
   evHtml += '</div>';
   evidence.innerHTML = evHtml;
   container.appendChild(evidence);
+}
+
+
+/* ═══════════════════════════════════════════════════════
+   KEYWORD GENERATION
+   ═══════════════════════════════════════════════════════ */
+
+function renderKeywordsDisplay(keywords) {
+  if (!keywords || (!keywords.core_topics && !keywords.expertise_intersections)) {
+    return '<div style="font-size:12px;color:var(--text3);padding:12px;text-align:center">Click "Generate Keywords" to create structured keyword sets for this team and focus area.</div>';
+  }
+
+  const categories = [
+    { key: 'core_topics', label: 'Core Topics', color: 'var(--cyan)', bg: 'rgba(56,189,248,0.10)' },
+    { key: 'expertise_intersections', label: 'Expertise Intersections', color: 'var(--accent)', bg: 'rgba(255,130,0,0.10)' },
+    { key: 'methodological', label: 'Methodological', color: 'var(--green)', bg: 'rgba(34,197,94,0.10)' },
+    { key: 'application_domains', label: 'Application Domains', color: 'var(--purple)', bg: 'rgba(139,92,246,0.10)' },
+  ];
+
+  let html = '<div class="keywords-grid">';
+  for (const cat of categories) {
+    const kws = keywords[cat.key] || [];
+    if (!kws.length) continue;
+    html += `<div class="keyword-category">
+      <div class="keyword-cat-label" style="color:${cat.color}">${cat.label}</div>
+      <div class="keyword-tags">
+        ${kws.map(k => `<span class="keyword-tag" style="background:${cat.bg};color:${cat.color};border:1px solid ${cat.color}30">${k}</span>`).join('')}
+      </div>
+    </div>`;
+  }
+  html += '</div>';
+
+  // Search strings
+  const searches = keywords.search_strings || [];
+  if (searches.length) {
+    html += `<div style="margin-top:12px">
+      <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px">Suggested Search Strings</div>
+      <div class="search-strings">
+        ${searches.map(s => `<div class="search-string-chip" onclick="navigator.clipboard.writeText(this.textContent.trim());showToast('Copied to clipboard')">${s}</div>`).join('')}
+      </div>
+    </div>`;
+  }
+
+  return html;
+}
+
+async function labGenerateKeywords() {
+  if (!_labEditingPkg) return;
+  const L = DataStore._lookups;
+  if (!L) return;
+
+  const pkg = _labEditingPkg;
+  const fa = L.focusAreaById[pkg.focus_area_id];
+  const challenge = fa ? L.challengeById[fa.challenge_id] : null;
+
+  const teamData = pkg.team.map(m => {
+    const f = L.facultyById[m.faculty_id];
+    if (!f) return null;
+    return {
+      name: f.name,
+      department: f.department,
+      title: f.title || '',
+      expertise_keywords: f.expertise_keywords || [],
+      scholar_metrics: f.scholar_metrics || {},
+      role: m.role,
+    };
+  }).filter(Boolean);
+
+  const btn = document.getElementById('generate-keywords-btn');
+  if (btn) { btn.disabled = true; btn.innerHTML = ICONS.key + ' Generating...'; }
+
+  try {
+    const resp = await fetch('/api/generate-keywords', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        focus_area: fa ? { id: fa.id, title: fa.title, description: fa.description } : {},
+        challenge: challenge ? { title: challenge.title } : {},
+        team: teamData,
+      }),
+    });
+
+    const data = await resp.json();
+    if (data.error) {
+      showToast('Error: ' + data.error);
+      return;
+    }
+
+    // Save keywords to package
+    pkg.keywords = data;
+    PackageStore.save(pkg);
+    _labKeywords = data;
+
+    // Update display
+    const display = document.getElementById('keywords-display');
+    if (display) display.innerHTML = renderKeywordsDisplay(data);
+
+    showToast('Keywords generated');
+  } catch (e) {
+    showToast('Failed to generate keywords. Check your connection.');
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = ICONS.key + ' Generate Keywords'; }
+  }
+}
+
+
+/* ═══════════════════════════════════════════════════════
+   WORD DOCUMENT EXPORT
+   ═══════════════════════════════════════════════════════ */
+
+async function labExportDocx() {
+  if (!_labEditingPkg) return;
+  const L = DataStore._lookups;
+  if (!L) return;
+
+  const pkg = _labEditingPkg;
+  const fa = L.focusAreaById[pkg.focus_area_id];
+  const challenge = fa ? L.challengeById[fa.challenge_id] : null;
+  const profile = Strategy.computeTeamProfile(pkg.team, pkg.focus_area_id, L);
+  const advs = await getAdvantages();
+
+  // Build team data with full info
+  const teamData = pkg.team.map(m => {
+    const f = L.facultyById[m.faculty_id];
+    if (!f) return null;
+    const allScores = L.scoresByFaculty[m.faculty_id] || [];
+    const score = allScores.find(s => s.focus_area_id === pkg.focus_area_id);
+    return {
+      name: f.name,
+      role: m.role,
+      department: f.department,
+      title: f.title || '',
+      expertise_keywords: f.expertise_keywords || [],
+      composite: score ? score.composite : 0,
+    };
+  }).filter(Boolean);
+
+  // Build advantages text
+  const allAdvs = [...(advs.geographic || []), ...(advs.institutional || []), ...(advs.infrastructure || [])];
+  const selectedAdvs = allAdvs.filter(a => (pkg.advantages || []).includes(a.id)).map(a => a.title);
+
+  showToast('Generating Word document...');
+
+  try {
+    const resp = await fetch('/api/export-docx', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        focus_area: fa ? { id: fa.id, title: fa.title, description: fa.description } : {},
+        challenge: challenge ? { id: challenge.id, title: challenge.title } : {},
+        team: teamData,
+        track: pkg.track,
+        concepts: pkg.concept_seed || '',
+        keywords: pkg.keywords || {},
+        advantages: selectedAdvs,
+        scoring: {
+          faculty_fit: profile.avgFit,
+          competitive_edge: profile.avgEdge,
+          team_feasibility: profile.avgTeam,
+          partnership_readiness: profile.avgPartner,
+          composite: profile.avgComposite,
+        },
+      }),
+    });
+
+    if (!resp.ok) {
+      const err = await resp.json();
+      showToast('Export failed: ' + (err.error || 'Unknown error'));
+      return;
+    }
+
+    // Download the file
+    const blob = await resp.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Genesis_Proposal_${fa ? fa.id : 'package'}.docx`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    showToast('Word document downloaded');
+  } catch (e) {
+    showToast('Export failed. Check your connection.');
+  }
 }
 
 

@@ -64,6 +64,81 @@ const Strategy = {
     return { label: 'Weak', color: '#EF4444', bg: 'rgba(239,68,68,0.15)' };
   },
 
+  /**
+   * Compute opportunity score for every focus area.
+   * Ranks FAs by team-building potential: strength, PI availability, dept diversity, seniority depth.
+   */
+  computeFocusAreaOpportunities(L) {
+    const opportunities = [];
+
+    for (const fa of L.focusAreas) {
+      const scores = (L.topFacultyByFA[fa.id] || []).slice(); // already sorted by composite DESC
+      const strongScores = scores.filter(s => s.composite >= 3);
+      const moderateScores = scores.filter(s => s.composite >= 2);
+
+      // Strength: average of top 3 faculty composites
+      const top3 = scores.slice(0, 3).map(s => s.composite);
+      const strength = top3.length ? top3.reduce((a, b) => a + b, 0) / top3.length : 0;
+
+      // PI pool: faculty with composite >= 3 who can serve as PI
+      const piPool = strongScores.filter(s => {
+        const f = L.facultyById[s.faculty_id];
+        return f && this.canServeAs(f, 'pi');
+      }).length;
+
+      // Department diversity among strong+ candidates
+      const depts = new Set();
+      for (const s of moderateScores) {
+        const f = L.facultyById[s.faculty_id];
+        if (f && f.department) depts.add(f.department);
+      }
+      const deptDiversity = depts.size;
+
+      // Seniority depth: candidates with seniority >= 4
+      let seniorCount = 0;
+      for (const s of moderateScores.slice(0, 10)) {
+        const f = L.facultyById[s.faculty_id];
+        if (f && this.seniorityScore(f, L) >= 4) seniorCount++;
+      }
+
+      // Opportunity score: weighted combination
+      const normStrength = strength / 5; // 0-1
+      const normPI = Math.min(piPool / 3, 1); // 0-1, capped at 3
+      const normDept = Math.min(deptDiversity / 4, 1); // 0-1, capped at 4
+      const normSeniority = Math.min(seniorCount / 2, 1); // 0-1, capped at 2
+
+      const opportunityScore = normStrength * 0.40 + normPI * 0.25 + normDept * 0.20 + normSeniority * 0.15;
+
+      // Tier classification
+      let tier;
+      if (strongScores.length === 0) tier = 'Gap';
+      else if (opportunityScore >= 0.55) tier = 'High Opportunity';
+      else if (opportunityScore >= 0.30) tier = 'Moderate';
+      else tier = 'Weak';
+
+      // Get challenge info
+      const challenge = L.challengeById[fa.challenge_id];
+
+      opportunities.push({
+        faId: fa.id,
+        faTitle: fa.title,
+        challengeId: fa.challenge_id,
+        challengeTitle: challenge ? challenge.title : '',
+        challengeNumber: challenge ? challenge.number : 0,
+        strength: Math.round(strength * 10) / 10,
+        piPool,
+        deptDiversity,
+        seniorityDepth: seniorCount,
+        opportunityScore: Math.round(opportunityScore * 100) / 100,
+        tier,
+        strongCount: strongScores.length,
+        topFaculty: scores.slice(0, 15),
+      });
+    }
+
+    return opportunities.sort((a, b) => b.opportunityScore - a.opportunityScore);
+  },
+
 
   /* ─── Seniority Scoring ─── */
 

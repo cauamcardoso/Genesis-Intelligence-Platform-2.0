@@ -1,4 +1,6 @@
-/* ═══ Methodology Tab ═══ */
+/* ═══ Methodology Tab - Sub-tabs with Visual Aids ═══ */
+
+let _methodSubTab = 'overview';
 
 async function renderMethodology(container) {
   const L = await DataStore.buildLookups();
@@ -6,173 +8,244 @@ async function renderMethodology(container) {
   const scores = await DataStore.getScores();
   const methodology = scores.methodology || {};
 
-  let html = `<div class="card" style="max-width:960px;margin:0 auto">
+  const subTabs = [
+    { id: 'overview', label: 'Scoring Overview' },
+    { id: 'faculty', label: 'Faculty & Data' },
+    { id: 'technical', label: 'Technical Pipeline' },
+    { id: 'teambuilding', label: 'Team Building' },
+    { id: 'limitations', label: 'Limitations' },
+  ];
+
+  let html = `<div style="margin-bottom:16px">
+    <h2 style="font-size:20px;font-weight:800;color:#FFF;margin-bottom:4px">Methodology</h2>
+    <p style="font-size:13px;color:var(--text2);max-width:700px;line-height:1.6">How ${L.stats.totalFaculty} faculty were scored against ${L.stats.totalFocusAreas} focus areas, and how scoring data powers team formation.</p>
+  </div>`;
+
+  // Sub-tab bar
+  html += `<div class="subview-bar" style="margin-bottom:20px">`;
+  for (const st of subTabs) {
+    html += `<button class="subview-btn${_methodSubTab === st.id ? ' active' : ''}" onclick="_methodSubTab='${st.id}';renderMethodology($('content'))">${st.label}</button>`;
+  }
+  html += `</div>`;
+
+  html += `<div class="card" style="max-width:960px">`;
+
+  switch (_methodSubTab) {
+    case 'overview': html += renderMethodOverview(L, methodology); break;
+    case 'faculty': html += renderMethodFaculty(L); break;
+    case 'technical': html += renderMethodTechnical(L, meta, methodology); break;
+    case 'teambuilding': html += renderMethodTeamBuilding(L); break;
+    case 'limitations': html += renderMethodLimitations(); break;
+  }
+
+  html += `</div>`;
+  container.innerHTML = html;
+}
+
+function renderMethodOverview(L, methodology) {
+  const axes = [
+    { name: 'Faculty Fit', weight: 40, color: '#38BDF8', method: 'Sentence-transformers + LLM', desc: 'How closely a faculty member\'s research aligns with the focus area description. Measured through semantic similarity of publication text against DOE descriptions, then validated by LLM evaluation.' },
+    { name: 'Competitive Edge', weight: 25, color: '#FF8200', method: 'LLM evaluation', desc: 'Whether the faculty member brings unique assets other institutions may lack: specialized equipment, geographic advantages, existing industry partnerships, or rare methodological expertise.' },
+    { name: 'Team Feasibility', weight: 20, color: '#22C55E', method: 'LLM evaluation', desc: 'How well the faculty member would complement other strong candidates for the same focus area. Evaluated based on disciplinary diversity, methodological complementarity, and potential for interdisciplinary integration.' },
+    { name: 'Partnership Readiness', weight: 15, color: '#8B5CF6', method: 'LLM evaluation', desc: 'Whether existing grants, lab affiliations, or institutional partnerships position the faculty member for the multi-institutional collaboration that Genesis proposals require.' },
+  ];
+
+  let html = '';
+
+  // Visual formula
+  html += `<div class="method-section">
+    <h3>Composite Score Formula</h3>
+    <div style="display:flex;align-items:center;justify-content:center;gap:6px;padding:20px;background:rgba(255,255,255,0.02);border-radius:var(--radius);margin-bottom:16px;flex-wrap:wrap">
+      <span style="font-size:16px;font-weight:800;color:#FFF">Composite</span>
+      <span style="font-size:14px;color:var(--text3)">=</span>`;
+  for (let i = 0; i < axes.length; i++) {
+    const ax = axes[i];
+    if (i > 0) html += `<span style="font-size:14px;color:var(--text3)">+</span>`;
+    html += `<span style="padding:4px 10px;border-radius:var(--radius-sm);background:${ax.color}20;border:1px solid ${ax.color}40;font-size:12px;font-weight:700;color:${ax.color}">${ax.weight}% ${ax.name}</span>`;
+  }
+  html += `</div></div>`;
+
+  // Score scale visual
+  html += `<div class="method-section">
+    <h3>Score Scale (0-5)</h3>
+    <div style="display:flex;gap:4px;margin-bottom:14px">`;
+  const scaleItems = [
+    { score: 0, label: 'No Match', desc: 'No identifiable connection' },
+    { score: 1, label: 'Minimal', desc: 'Very distant relevance' },
+    { score: 2, label: 'Tangential', desc: 'Some overlap, not direct' },
+    { score: 3, label: 'Moderate', desc: 'Clear alignment, worth pursuing' },
+    { score: 4, label: 'Strong', desc: 'High alignment with evidence' },
+    { score: 5, label: 'Expert', desc: 'Direct, deep expertise match' },
+  ];
+  for (const s of scaleItems) {
+    html += `<div style="flex:1;padding:10px 6px;text-align:center;border-radius:var(--radius-sm);background:${SCORE_BG[s.score]};border:1px solid ${SCORE_COLORS[s.score] || 'rgba(255,255,255,0.06)'}">
+      <div style="font-size:18px;font-weight:800;color:${SCORE_TEXT[s.score]}">${s.score}</div>
+      <div style="font-size:10px;font-weight:600;color:${SCORE_TEXT[s.score]}">${s.label}</div>
+      <div style="font-size:9px;color:var(--text3);margin-top:2px">${s.desc}</div>
+    </div>`;
+  }
+  html += `</div></div>`;
+
+  // Four axes detail
+  html += `<div class="method-section"><h3>Four Scoring Axes</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">`;
+  for (const ax of axes) {
+    html += `<div class="axis-card" style="border-left-color:${ax.color}">
+      <h4>${ax.name}</h4>
+      <div class="weight">${ax.weight}% weight | ${ax.method}</div>
+      <p>${ax.desc}</p>
+    </div>`;
+  }
+  html += `</div></div>`;
+
+  // Stats
+  const dist = (L.stats || {});
+  html += `<div class="method-section"><h3>Scoring Statistics</h3>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+      <div style="text-align:center;padding:12px;background:rgba(255,255,255,0.02);border-radius:var(--radius-sm)"><div style="font-size:20px;font-weight:800;color:#FFF">${(L.stats.totalFaculty * L.stats.totalFocusAreas).toLocaleString()}</div><div style="font-size:10px;color:var(--text3)">Total pairs scored</div></div>
+      <div style="text-align:center;padding:12px;background:rgba(255,255,255,0.02);border-radius:var(--radius-sm)"><div style="font-size:20px;font-weight:800;color:var(--accent)">${L.stats.strongMatches}</div><div style="font-size:10px;color:var(--text3)">Strong matches (>= 3)</div></div>
+      <div style="text-align:center;padding:12px;background:rgba(255,255,255,0.02);border-radius:var(--radius-sm)"><div style="font-size:20px;font-weight:800;color:var(--green)">${L.stats.coveragePct}%</div><div style="font-size:10px;color:var(--text3)">FA coverage</div></div>
+      <div style="text-align:center;padding:12px;background:rgba(255,255,255,0.02);border-radius:var(--radius-sm)"><div style="font-size:20px;font-weight:800;color:var(--cyan)">4</div><div style="font-size:10px;color:var(--text3)">Scoring axes</div></div>
+    </div>
+  </div>`;
+
+  return html;
+}
+
+function renderMethodFaculty(L) {
+  return `
     <div class="method-section">
-      <h3>Scoring Methodology</h3>
-      <p>This platform implements a multi-axis scoring methodology to evaluate ${L.stats.totalFaculty} UTEP faculty members against ${L.stats.totalFocusAreas} DOE Genesis Mission focus areas spanning ${L.stats.totalChallenges} challenge topics. The core design principle is <strong>hybrid triangulation</strong>: combining automated text-based semantic analysis with structured expert evaluation by a large language model (LLM) to produce scores that reflect both measurable textual alignment and contextual judgment about research relevance.</p>
-      <p>The rationale for this hybrid approach is straightforward. Pure keyword or embedding-based matching captures surface-level topical overlap but misses important contextual factors, such as whether a researcher's expertise fills a specific team role, or whether they hold unique assets (e.g., specialized equipment, national lab partnerships) that would strengthen a proposal. Conversely, relying solely on LLM evaluation introduces subjectivity and potential inconsistency. By triangulating across four complementary axes, each measured through a different method, the system produces scores that are more robust than any single approach would yield.</p>
+      <h3>Faculty Selection Criteria</h3>
+      <p>The ${L.stats.totalFaculty} faculty included were selected from two UTEP colleges judged most relevant to the Genesis Mission: the College of Science and the College of Engineering. Only tenured and tenure-track professors were included, reflecting PI/Co-PI eligibility requirements.</p>
     </div>
 
     <div class="method-section">
-      <h3>Faculty Selection Criteria</h3>
-      <p>The ${L.stats.totalFaculty} faculty included in this analysis were selected through a deliberate scoping process designed to capture UTEP researchers most likely to be relevant to the Genesis Mission:</p>
-      <ul>
-        <li><strong>College Selection:</strong> Faculty were drawn from two colleges at UTEP judged to have the highest concentration of Genesis-relevant expertise: the College of Science and the College of Engineering. These colleges house the departments most closely aligned with the DOE's challenge areas in energy, materials, computing, and environmental science.</li>
-        <li><strong>Rank Filter:</strong> Only tenured and tenure-track professors were included. This decision reflects the expectation that PI and Co-PI roles on Genesis proposals will typically require the stability, track record, and institutional standing associated with tenured or tenure-track appointments.</li>
-        <li><strong>AAII Affiliated Faculty (${L.stats.aaiiCount}):</strong> For faculty formally affiliated with the Advanced Artificial Intelligence Institute, publicly available information was collected in depth, including CVs, university profiles, institutional bios, expertise keyword lists, and personal research websites. This richer data supports higher-confidence scoring across all four axes.</li>
-        <li><strong>Recommended Faculty (${L.stats.recCount}):</strong> For non-affiliated faculty from the two colleges, Google Scholar profiles served as the primary proxy document for assessing expertise, experience, and publication activity. Only faculty with an active, working Google Scholar profile were included in the current version of the platform. Faculty without a Scholar presence are not represented and may be added in future iterations as additional data sources become available.</li>
-      </ul>
-      <p>This scoping approach prioritizes coverage of the most Genesis-relevant research areas at UTEP while acknowledging that the current database does not capture every potentially relevant faculty member across the institution.</p>
+      <h3>Two Faculty Tiers</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div style="padding:16px;border-radius:var(--radius-sm);border:1px solid rgba(11,197,234,0.2);background:rgba(11,197,234,0.04)">
+          <div style="font-size:14px;font-weight:700;color:var(--cyan);margin-bottom:6px">AAII Affiliated (${L.stats.aaiiCount})</div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.65">Faculty formally affiliated with the Advanced Artificial Intelligence Institute. Data collected in depth: CVs, university profiles, institutional bios, expertise keyword lists, and research websites. This richer data supports higher-confidence scoring.</div>
+        </div>
+        <div style="padding:16px;border-radius:var(--radius-sm);border:1px solid rgba(123,97,255,0.2);background:rgba(123,97,255,0.04)">
+          <div style="font-size:14px;font-weight:700;color:var(--purple);margin-bottom:6px">Recommended (${L.stats.recCount})</div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.65">Non-affiliated faculty from Science and Engineering colleges. Google Scholar profiles serve as the primary proxy for assessing expertise and publication activity. Only faculty with active Scholar profiles are included.</div>
+        </div>
+      </div>
     </div>
 
     <div class="method-section">
       <h3>Data Sources</h3>
-      <p>All scoring is derived from the following primary data sources:</p>
       <ul>
-        <li><strong>DOE RFA (DE-FOA-0003612):</strong> The full Genesis Call for Proposals document, parsed into ${L.stats.totalChallenges} challenges and ${L.stats.totalFocusAreas} focus areas. Each focus area includes its official title and the DOE-provided description text, which serves as the target for semantic matching.</li>
-        <li><strong>AAII Faculty Profiles:</strong> Institutional bios, expertise keyword lists, Google Scholar publication records, CVs, and university profile pages. This richer data availability generally supports higher-confidence scoring.</li>
-        <li><strong>Recommended Faculty Profiles:</strong> Complete Google Scholar profiles, including publication records, citation metrics, co-author networks, and research interest descriptions.</li>
+        <li><strong>RFA Document:</strong> Genesis Call for Proposals (DE-FOA-0003612), used to extract challenge descriptions, focus area specifications, and evaluation criteria.</li>
+        <li><strong>AAII Faculty Profiles:</strong> Detailed documents including CVs, bios, research statements, and expertise keyword lists from the AAII institutional directory.</li>
+        <li><strong>Google Scholar Profiles:</strong> Publication lists, citation counts, h-index values, and co-author networks for Recommended-tier faculty.</li>
       </ul>
-    </div>
+    </div>`;
+}
 
+function renderMethodTechnical(L, meta, methodology) {
+  // Pipeline flow diagram
+  let html = `<div class="method-section">
+    <h3>Scoring Pipeline</h3>
+    <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">`;
+  const steps = [
+    { label: 'Data Collection', desc: 'Faculty profiles + RFA text', color: 'var(--cyan)' },
+    { label: 'Text Extraction', desc: 'Parse into scored segments', color: 'var(--blue)' },
+    { label: 'Embedding Match', desc: 'all-MiniLM-L6-v2 similarity', color: 'var(--green)' },
+    { label: 'LLM Evaluation', desc: 'Claude scores 3 axes', color: 'var(--accent)' },
+    { label: 'Composite Score', desc: 'Weighted average (0-5)', color: 'var(--purple)' },
+  ];
+  for (let i = 0; i < steps.length; i++) {
+    const s = steps[i];
+    html += `<div style="flex:1;min-width:120px;padding:12px;text-align:center;border-radius:var(--radius-sm);border-top:3px solid ${s.color};background:rgba(255,255,255,0.02)">
+      <div style="font-size:11px;font-weight:700;color:${s.color};margin-bottom:4px">${i + 1}. ${s.label}</div>
+      <div style="font-size:10px;color:var(--text3)">${s.desc}</div>
+    </div>`;
+    if (i < steps.length - 1) html += `<div style="display:flex;align-items:center;color:var(--text3)">${ICONS.arrowRight}</div>`;
+  }
+  html += `</div></div>`;
+
+  html += `
     <div class="method-section">
-      <h3>Score Scale and Interpretation</h3>
-      <p>All axis scores and composite scores use a 0-5 integer scale. The scale is designed to be interpretable in the context of DOE proposal team assembly:</p>
-      <table class="score-table">
-        <tr><th>Score</th><th>Label</th><th>Interpretation</th></tr>
-        <tr><td style="background:${SCORE_COLORS[0]}">0</td><td>No Match</td><td>No relevant expertise identified in the faculty member's profile for this focus area.</td></tr>
-        <tr><td style="background:${SCORE_COLORS[1]};color:${SCORE_TEXT[1]}">1</td><td>Minimal</td><td>Peripheral awareness only. The faculty member works in a tangentially related field with no direct publications or demonstrated activity in the focus area's domain.</td></tr>
-        <tr><td style="background:${SCORE_COLORS[2]};color:${SCORE_TEXT[2]}">2</td><td>Tangential</td><td>Related methods or adjacent domain expertise that could potentially transfer. The faculty member has relevant foundational knowledge but lacks direct evidence of work in this specific area.</td></tr>
-        <tr><td style="background:${SCORE_COLORS[3]};color:${SCORE_TEXT[3]}">3</td><td>Moderate</td><td>Demonstrable relevant expertise with publications or projects that meaningfully overlap with the focus area. A solid contributor on a proposal team.</td></tr>
-        <tr><td style="background:${SCORE_COLORS[4]};color:${SCORE_TEXT[4]}">4</td><td>Strong</td><td>Direct expertise supported by multiple relevant publications and/or active research programs. A strong candidate for a key role on the proposal team.</td></tr>
-        <tr><td style="background:${SCORE_COLORS[5]};color:${SCORE_TEXT[5]}">5</td><td>Expert</td><td>PI-level authority with defining publications, grants, or leadership roles in the exact domain of the focus area. A candidate for lead investigator on this topic.</td></tr>
-      </table>
+      <h3>Embedding Model</h3>
+      <p>Faculty Fit scores begin with semantic similarity computed using <strong>all-MiniLM-L6-v2</strong>, a sentence-transformer model. Faculty research text is encoded into embeddings and compared against each focus area description using cosine similarity. The raw similarity score is then calibrated to the 0-5 scale through a percentile-based mapping.</p>
     </div>
-
-    <div class="method-section">
-      <h3>Four Scoring Axes</h3>
-      <p>Each faculty-focus area pair is evaluated across four complementary dimensions. The axes are weighted to reflect the relative importance of different factors in building competitive DOE proposals. The weights were calibrated based on the structure of DOE Genesis evaluation criteria, which prioritize research alignment and institutional differentiation.</p>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px">
-        <div class="card axis-card" style="border-left-color:var(--cyan)">
-          <h4>${ICONS.search} Axis 1: Faculty Fit (40%)</h4>
-          <div class="weight">Automated - Sentence-Transformer Embeddings</div>
-          <p>This axis measures the semantic similarity between a faculty member's research corpus and the focus area's description text from the RFA. The system constructs a research profile for each faculty member by concatenating their bio, expertise keywords, and publication titles (with recent publications from the last 5 years and higher-cited works receiving increased weight in the representation).</p>
-          <p>Both the faculty research text and the focus area description are encoded into dense vector embeddings using the <code>all-MiniLM-L6-v2</code> sentence-transformer model (384-dimensional embeddings). Cosine similarity between the two vectors yields a continuous similarity score, which is then mapped to the 0-5 integer scale using percentile-based calibrated thresholds derived from the full distribution of faculty-focus area similarities.</p>
-          <p><strong>Why 40%:</strong> Research alignment is the single most important factor in DOE proposal competitiveness. A faculty member whose published work directly addresses a focus area's domain is the strongest signal of potential contribution. This axis is also the most objective and reproducible of the four, relying on deterministic mathematical operations rather than LLM judgment.</p>
-        </div>
-
-        <div class="card axis-card" style="border-left-color:var(--green)">
-          <h4>${ICONS.users} Axis 2: Team Feasibility (20%)</h4>
-          <div class="weight">LLM-Evaluated - Structured Expert Assessment</div>
-          <p>This axis evaluates whether a faculty member can contribute to a viable multi-disciplinary team for the focus area. The LLM receives the faculty member's full profile alongside the focus area description and the profiles of other faculty who scored well on Faculty Fit for the same area.</p>
-          <p>The evaluation considers: (1) whether the faculty member's expertise fills a specific, defined role on the team rather than duplicating capabilities already represented; (2) departmental and disciplinary diversity relative to other high-scoring faculty; and (3) whether the combination of this faculty member with others creates cross-disciplinary complementarity that strengthens the proposal narrative.</p>
-          <p><strong>Why 20%:</strong> Team composition matters for DOE proposals, which require multi-institutional and often multi-disciplinary teams. However, team feasibility is partially derivative of Faculty Fit (strong individual fits tend to compose well), so it receives moderate weight.</p>
-        </div>
-
-        <div class="card axis-card" style="border-left-color:var(--accent)">
-          <h4>${ICONS.zap} Axis 3: Competitive Edge (25%)</h4>
-          <div class="weight">LLM-Evaluated - Structured Expert Assessment</div>
-          <p>This axis assesses unique advantages a faculty member brings that would differentiate a UTEP-led proposal from competitors at other institutions. The LLM evaluates: rare or specialized equipment and facilities; unique datasets (e.g., border region environmental monitoring, arid climate data, transboundary water systems); existing relationships with DOE national laboratories (Sandia, LANL, INL); active patents or IP; industry partnerships and co-PI arrangements; and uncommon methodological expertise that addresses a gap in the focus area's technical requirements.</p>
-          <p><strong>Why 25%:</strong> Competitive differentiation is critical in DOE funding decisions. UTEP's geographic position, its status as a Hispanic-Serving Institution, and the unique research assets of the border region represent real competitive advantages that text similarity alone cannot capture. This axis exists to find those differentiators.</p>
-        </div>
-
-        <div class="card axis-card" style="border-left-color:var(--purple)">
-          <h4>${ICONS.link} Axis 4: Partnership Readiness (15%)</h4>
-          <div class="weight">LLM-Evaluated - Structured Expert Assessment</div>
-          <p>This axis measures evidence of existing external partnerships relevant to the focus area. The LLM examines: prior DOE, DOD, or NSF collaborations; national laboratory affiliations or joint appointments; industry co-PIs on funded grants; multi-institutional grant leadership; and joint publications with researchers at national laboratories or partner institutions.</p>
-          <p>Higher scores indicate an established partnership network that reduces the time and effort needed to assemble a credible multi-institutional team, which is a requirement for Genesis proposals (teams must include at least 2 of 3 categories: National Lab, Industry, Academia).</p>
-          <p><strong>Why 15%:</strong> While partnership infrastructure is valuable, it is the most volatile of the four axes (partnerships change frequently) and can be established relatively quickly compared to deep research expertise. It receives the lowest weight but still contributes meaningfully to composite scores.</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="method-section">
-      <h3>Composite Score Calculation</h3>
-      <p>The composite score for each faculty-focus area pair is computed as a weighted linear combination of the four axis scores:</p>
-      <div class="card" style="padding:16px;margin:12px 0;font-family:monospace;font-size:14px;color:var(--cyan);text-align:center">
-        Composite = 0.40 x Faculty Fit + 0.20 x Team Feasibility + 0.25 x Competitive Edge + 0.15 x Partnership Readiness
-      </div>
-      <p>The composite score ranges from 0 to 5. In practice, achieving a composite of 5 would require expert-level scores across all four axes, which is exceptionally rare. The distribution of composite scores across all ${(L.stats.totalFaculty * L.stats.totalFocusAreas).toLocaleString()} possible faculty-focus area pairs is heavily right-skewed: most pairs score 0 (no relevance), with a smaller tail of moderate to strong matches worth investigating for proposal teams.</p>
-      <p>For the main analysis views (Challenge Explorer, Faculty Explorer, and Scoring Matrix), only faculty-focus area pairs with a composite score of 3 or higher are displayed as primary matches. This threshold corresponds to the "Moderate" level, indicating demonstrable relevant expertise. All faculty remain accessible in the complete Faculty Explorer and Scoring Matrix views regardless of score.</p>
-    </div>
-
-    <div class="method-section">
-      <h3>Faculty Tier Definitions</h3>
-      <ul>
-        <li><strong style="color:var(--cyan)">AAII Affiliated (${L.stats.aaiiCount}):</strong> Faculty formally affiliated with UTEP's Advanced Artificial Intelligence Institute. These faculty have richer data profiles available for scoring (institutional bios, full CVs, detailed expertise profiles in addition to Google Scholar data), which generally supports higher-confidence scores.</li>
-        <li><strong style="color:var(--purple)">Recommended (${L.stats.recCount}):</strong> Tenured and tenure-track faculty from UTEP's Colleges of Science and Engineering with active Google Scholar profiles. Scored primarily using publication records, citation metrics, and research interest descriptions. Faculty were included based on research relevance to Genesis focus areas, not departmental affiliation or prior relationships.</li>
-      </ul>
-    </div>
-
     <div class="method-section">
       <h3>LLM Evaluation Protocol</h3>
-      <p>Three of the four scoring axes (Team Feasibility, Competitive Edge, Partnership Readiness) use LLM-based evaluation via <strong>Anthropic's Claude (claude-sonnet-4-20250514)</strong>. The protocol is designed for consistency and reproducibility:</p>
-      <ul>
-        <li><strong>Structured Prompting:</strong> Each evaluation uses a standardized prompt template that provides the LLM with the faculty member's full profile (bio, keywords, publications, metrics) and the focus area's description. The prompt specifies the exact evaluation criteria and scoring rubric for the axis being assessed.</li>
-        <li><strong>Constrained Output:</strong> The LLM is instructed to return an integer score (0-5) with a brief justification. This keeps the output structured and makes it easier to audit individual scores.</li>
-        <li><strong>Rate-Limited Execution:</strong> API calls are rate-limited (0.5s between calls) to ensure consistent processing. The full scoring pipeline processes all ${(L.stats.totalFaculty * L.stats.totalFocusAreas).toLocaleString()} pairs sequentially.</li>
-        <li><strong>Deterministic Seeds:</strong> Temperature is set to 0 to maximize output consistency across runs.</li>
-      </ul>
+      <p>Three of the four scoring axes (Competitive Edge, Team Feasibility, Partnership Readiness) are evaluated by Claude (claude-sonnet-4-20250514). For each faculty-focus area pair, the LLM receives the faculty's research profile and the focus area description, then returns an integer score (0-5) with a brief justification for each axis. Faculty Fit also incorporates an LLM component that is averaged with the embedding-based score.</p>
+      <p>To reduce variability, each evaluation uses a structured prompt with explicit scoring criteria and examples. The same prompt template is applied consistently across all ${(L.stats.totalFaculty * L.stats.totalFocusAreas).toLocaleString()} pair evaluations.</p>
     </div>
-
-    <div class="method-section">
-      <h3>Limitations and Caveats</h3>
-      <p>The following limitations should be considered when interpreting scores:</p>
-      <ul>
-        <li><strong>Data Asymmetry Between Tiers:</strong> AAII Affiliated faculty have substantially richer data profiles (bios, CVs, detailed keywords) compared to Recommended faculty (Google Scholar profiles only). This asymmetry means that scoring precision and confidence is generally higher for the AAII tier. A Recommended faculty member with a score of 3 may in reality warrant a 4 if richer data were available, and vice versa.</li>
-        <li><strong>Vocabulary Mismatch:</strong> The Faculty Fit axis relies on text similarity, which can miss expertise expressed using different terminology than the RFA. For example, a faculty member who works on "computational materials discovery" may not score highly against a focus area described as "advanced simulation for materials design" despite substantive overlap. The LLM-evaluated axes partially compensate for this, but vocabulary gaps remain a systematic source of error.</li>
-        <li><strong>LLM Judgment Variability:</strong> While the evaluation protocol is designed for consistency, LLM outputs are inherently stochastic. Scores on the three LLM-evaluated axes may vary slightly across pipeline runs, particularly for borderline cases (e.g., a faculty member on the boundary between a 2 and a 3). The composite score's multi-axis design mitigates the impact of any single axis's variability.</li>
-        <li><strong>Static Snapshot:</strong> Faculty profiles reflect data at the time of extraction (${meta.generated_at ? new Date(meta.generated_at).toLocaleDateString() : 'see pipeline info'}). The pipeline can be re-run as faculty profiles are updated, but scores do not automatically refresh.</li>
-        <li><strong>No Ground Truth Validation:</strong> There is no labeled dataset of "correct" faculty-focus area matches to formally validate against. The methodology was calibrated by checking that known strong matches (e.g., faculty with prior DOE grants in directly relevant areas) received high scores, but this is informal validation, not rigorous benchmarking.</li>
-        <li><strong>Scholar Coverage Gaps:</strong> Faculty whose research outputs are well-represented on Google Scholar will tend to score higher than those whose work appears primarily in other venues (conference proceedings, technical reports, patents). Faculty without a working Google Scholar profile are not currently represented in the Recommended tier.</li>
-        <li><strong>College Scope:</strong> The current analysis covers faculty from two UTEP colleges (Science and Engineering). Researchers in other colleges whose work may be relevant to Genesis focus areas (e.g., health sciences, liberal arts) are not included in this version.</li>
-      </ul>
-    </div>
-
     <div class="method-section">
       <h3>Pipeline Information</h3>
-      <ul>
-        <li><strong>Generated:</strong> ${meta.generated_at ? new Date(meta.generated_at).toLocaleString() : 'N/A'}</li>
-        <li><strong>Pipeline Duration:</strong> ${meta.pipeline_duration_seconds ? meta.pipeline_duration_seconds + 's' : 'N/A'}</li>
-        <li><strong>Scoring Method:</strong> ${meta.scoring_method || 'Multi-axis weighted composite (4 axes)'}</li>
-        <li><strong>Embedding Model:</strong> all-MiniLM-L6-v2 (sentence-transformers)</li>
-        <li><strong>LLM:</strong> Anthropic Claude (claude-sonnet-4-20250514), temperature 0, structured prompting</li>
-        <li><strong>Total Pairs Evaluated:</strong> ${(L.stats.totalFaculty * L.stats.totalFocusAreas).toLocaleString()}</li>
-        <li><strong>Non-Zero Scored Pairs:</strong> ${L.scores.scores.length.toLocaleString()}</li>
-        <li><strong>Version:</strong> ${meta.version || '2.0.0'}</li>
-      </ul>
-    </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div style="padding:10px 14px;background:rgba(255,255,255,0.02);border-radius:var(--radius-sm)"><span style="font-size:11px;color:var(--text3)">Generated:</span> <span style="font-size:11px;color:var(--text2)">${meta.generated_at ? new Date(meta.generated_at).toLocaleString() : 'N/A'}</span></div>
+        <div style="padding:10px 14px;background:rgba(255,255,255,0.02);border-radius:var(--radius-sm)"><span style="font-size:11px;color:var(--text3)">Duration:</span> <span style="font-size:11px;color:var(--text2)">${meta.pipeline_duration_seconds ? Math.round(meta.pipeline_duration_seconds / 60) + ' minutes' : 'N/A'}</span></div>
+        <div style="padding:10px 14px;background:rgba(255,255,255,0.02);border-radius:var(--radius-sm)"><span style="font-size:11px;color:var(--text3)">LLM API:</span> <span style="font-size:11px;color:var(--text2)">Claude claude-sonnet-4-20250514</span></div>
+        <div style="padding:10px 14px;background:rgba(255,255,255,0.02);border-radius:var(--radius-sm)"><span style="font-size:11px;color:var(--text3)">Embedding:</span> <span style="font-size:11px;color:var(--text2)">all-MiniLM-L6-v2 (local)</span></div>
+      </div>
+    </div>`;
+  return html;
+}
 
-    <div class="section-divider-labeled"><span>Proposal Lab Methodology</span></div>
-
+function renderMethodTeamBuilding(L) {
+  return `
     <div class="method-section">
       <h3>From Scores to Teams</h3>
-      <p>The Proposal Lab translates scoring data into actionable team recommendations. Its central feature is the PI Allocation Optimizer, which computes the maximum number of non-overlapping faculty-to-focus-area assignments where each faculty member serves as PI for at most one focus area.</p>
-      <p>The optimizer uses a greedy algorithm: all eligible faculty-focus area pairs with a composite score of 3 or above are ranked, and the highest-scoring pairs are assigned first. Faculty who are already assigned as PI are removed from consideration for subsequent focus areas, and vice versa. The algorithm prioritizes AAII Affiliated faculty in tiebreakers, reflecting their deeper integration with the institute's coordination infrastructure.</p>
-      <p>Manual overrides are supported through a lock mechanism. A locked assignment is treated as a fixed constraint; the optimizer recalculates all remaining assignments around it. This allows strategic decisions (such as reserving a specific faculty member for a high-priority challenge) without losing the optimization benefits for all other assignments.</p>
+      <p>Scoring data feeds into a team formation system that identifies optimal PI assignments and team compositions for each focus area. The system operates in two stages: first, a global PI allocation optimizer assigns PIs to focus areas to maximize coverage; then, a team suggestion algorithm fills out each team with Co-PIs and Contributors.</p>
     </div>
-
     <div class="method-section">
-      <h3>PI Selection and Seniority</h3>
-      <p>Serving as Principal Investigator requires more than a high composite score. The team suggestion algorithm factors in seniority: the depth of a faculty member's track record, institutional standing, and ability to lead a multi-institutional research effort.</p>
-      <p>Seniority is computed as a weighted score (0-5) based on three signals:</p>
-      <ul>
-        <li><strong>Academic rank (50% weight):</strong> Full Professor receives the highest rank score, followed by Associate Professor and Assistant Professor. Faculty without a known rank (primarily in the Recommended tier) receive a moderate default score.</li>
-        <li><strong>h-index percentile (30% weight):</strong> The h-index measures sustained publication impact. Faculty are ranked against the full pool; those in the top 10% receive the highest score.</li>
-        <li><strong>Citation percentile (20% weight):</strong> Total citation count provides an additional measure of research visibility and influence.</li>
-      </ul>
-      <p>When selecting a PI, the algorithm ranks candidates by a combined score: composite (primary), seniority (secondary), and AAII affiliation (tertiary). Co-PI selection uses the same factors with reduced seniority weight. Contributor selection relies on composite score and departmental diversity only.</p>
-      <p>Some faculty have institutional constraints that restrict their eligibility for PI or Co-PI roles (for example, faculty seconded from external organizations). These constraints are enforced automatically in both the team suggestion and the PI optimizer.</p>
+      <h3>PI Allocation Optimizer</h3>
+      <p>A greedy 1:1 matching algorithm assigns each eligible faculty member to at most one focus area as PI. The algorithm sorts all faculty-FA pairs by composite score (descending), then assigns each pair if neither the faculty member nor the focus area has already been assigned. A lock mechanism allows manual overrides that persist across re-optimization runs.</p>
+      <p>Constraints are enforced: faculty with role restrictions (e.g., "contributor only") are excluded from PI consideration. Seniority score serves as a tiebreaker when composite scores are equal.</p>
     </div>
-
+    <div class="method-section">
+      <h3>Seniority Scoring</h3>
+      <p>Each faculty member receives a seniority score (0-5) based on three factors:</p>
+      <div style="display:flex;gap:8px;margin:12px 0">
+        <div style="flex:1;padding:12px;border-radius:var(--radius-sm);background:rgba(255,130,0,0.04);border:1px solid rgba(255,130,0,0.12);text-align:center">
+          <div style="font-size:16px;font-weight:800;color:var(--accent)">50%</div>
+          <div style="font-size:11px;font-weight:600;color:#FFF">Academic Title</div>
+          <div style="font-size:10px;color:var(--text3)">Professor=5, Associate=3, Assistant=1</div>
+        </div>
+        <div style="flex:1;padding:12px;border-radius:var(--radius-sm);background:rgba(56,189,248,0.04);border:1px solid rgba(56,189,248,0.12);text-align:center">
+          <div style="font-size:16px;font-weight:800;color:var(--cyan)">30%</div>
+          <div style="font-size:11px;font-weight:600;color:#FFF">h-index Percentile</div>
+          <div style="font-size:10px;color:var(--text3)">Ranked among all ${L.stats.totalFaculty} faculty</div>
+        </div>
+        <div style="flex:1;padding:12px;border-radius:var(--radius-sm);background:rgba(139,92,246,0.04);border:1px solid rgba(139,92,246,0.12);text-align:center">
+          <div style="font-size:16px;font-weight:800;color:var(--purple)">20%</div>
+          <div style="font-size:11px;font-weight:600;color:#FFF">Citation Percentile</div>
+          <div style="font-size:10px;color:var(--text3)">Ranked among all ${L.stats.totalFaculty} faculty</div>
+        </div>
+      </div>
+    </div>
     <div class="method-section">
       <h3>AI-Assisted Research Concepts</h3>
-      <p>The Proposal Lab generates tailored research directions using Anthropic Claude (the same model family used for scoring evaluations). Given a focus area description, challenge context, and the assembled team's expertise profiles, the model suggests 2-3 specific research directions with technical rationale for why the team is well-positioned for each.</p>
-      <p>The generated text is a starting point for proposal development, not a finished narrative. It draws on the team members' published expertise and the DOE's stated focus area requirements to identify concrete research angles. Faculty reviewing a proposal package can use these directions as a basis for discussion and refinement.</p>
-      <p>The generation request includes UTEP institutional advantages (such as proximity to national laboratories or specialized research infrastructure) when they have been selected for the proposal package, allowing the model to incorporate these differentiators into its suggestions.</p>
-    </div>
-  </div>`;
+      <p>The Proposal Lab integrates Claude to generate research directions tailored to each team-focus area combination. The AI receives the focus area description, team member profiles (expertise, h-index, publications), and selected UTEP advantages, then suggests 2-3 specific research directions with technical approach descriptions and team positioning rationale. These serve as conversation starters for faculty, not final proposals.</p>
+    </div>`;
+}
 
-  container.innerHTML = html;
+function renderMethodLimitations() {
+  const caveats = [
+    { title: 'Data Asymmetry', text: 'AAII Affiliated faculty have substantially richer input data than Recommended faculty. Scores for AAII faculty may be more accurate across all axes, while Recommended scores are more dependent on Google Scholar content.' },
+    { title: 'Vocabulary Mismatch', text: 'Faculty who describe their research using different terminology than the DOE RFA may receive lower Faculty Fit scores despite genuine expertise. The embedding model mitigates this partially but cannot fully resolve semantic gaps across disciplines.' },
+    { title: 'LLM Variability', text: 'Claude evaluations, while guided by structured prompts, involve inherent nondeterminism. Running the same pipeline twice may produce slightly different scores for individual pairs, though aggregate patterns remain consistent.' },
+    { title: 'Temporal Snapshot', text: 'Scores reflect faculty profiles at the time of data collection. Recent publications, new grants, or changes in research direction are not captured until the pipeline is re-run.' },
+    { title: 'Missing Faculty', text: 'Faculty without Google Scholar profiles or outside the College of Science and Engineering are not currently included. The platform does not claim exhaustive coverage of all UTEP researchers.' },
+    { title: 'Single-Institution Scope', text: 'The platform only scores UTEP faculty. Genesis proposals require multi-institutional teams. The Opportunity Map highlights where external partners are needed, but does not identify specific external collaborators.' },
+    { title: 'Score Interpretation', text: 'Scores are relative indicators of match quality, not absolute measures of research competence. A low score means the faculty member\'s documented expertise does not align well with a particular focus area, not that their research is less valuable.' },
+  ];
+
+  let html = `<div class="method-section"><h3>Limitations and Caveats</h3>
+    <p style="margin-bottom:14px">The scoring methodology has known limitations that users should consider when interpreting results:</p>
+    <div style="display:flex;flex-direction:column;gap:8px">`;
+  for (let i = 0; i < caveats.length; i++) {
+    const c = caveats[i];
+    html += `<div style="display:flex;gap:12px;padding:12px 14px;border-radius:var(--radius-sm);background:rgba(255,255,255,0.02);border:1px solid var(--card-border)">
+      <div style="width:24px;height:24px;border-radius:50%;background:rgba(255,130,0,0.12);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0">${i + 1}</div>
+      <div><div style="font-size:12px;font-weight:700;color:#FFF;margin-bottom:2px">${c.title}</div><div style="font-size:11px;color:var(--text2);line-height:1.65">${c.text}</div></div>
+    </div>`;
+  }
+  html += `</div></div>`;
+  return html;
 }

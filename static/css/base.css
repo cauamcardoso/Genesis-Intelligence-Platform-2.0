@@ -77,21 +77,25 @@ h1{font-size:22px;font-weight:800;letter-spacing:-0.025em;color:#FFF}
 
 /* Tabs */
 .tabs{
-  display:flex;gap:2px;padding:0 40px;margin-bottom:28px;
-  max-width:1480px;margin-left:auto;margin-right:auto;margin-bottom:28px;
-  border-bottom:1px solid rgba(255,255,255,0.05);
-  padding-bottom:0;
+  padding:0 40px;margin-bottom:0;
+  max-width:1480px;margin-left:auto;margin-right:auto;
   overflow-x:auto;
   -webkit-overflow-scrolling:touch;
   scrollbar-width:none;
 }
 .tabs::-webkit-scrollbar{display:none}
+.tab-bar-primary{
+  display:flex;gap:2px;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+  padding-bottom:0;
+}
 .tab-btn{
-  padding:11px 16px;border:none;font-size:13px;font-weight:600;white-space:nowrap;
+  padding:11px 18px;border:none;font-size:12px;font-weight:600;white-space:nowrap;
   background:transparent;color:var(--text3);
   border-bottom:2px solid transparent;
   border-radius:0;
   transition:all 0.2s;cursor:pointer;font-family:var(--font);
+  text-transform:uppercase;letter-spacing:0.05em;
 }
 .tab-btn:hover{color:var(--text2)}
 .tab-btn.active{
@@ -99,9 +103,25 @@ h1{font-size:22px;font-weight:800;letter-spacing:-0.025em;color:#FFF}
   border-bottom-color:var(--accent);
   background:transparent;
 }
+.tab-btn svg{width:14px;height:14px;vertical-align:-2px;margin-right:4px}
+/* Sub-tabs */
+.subtab-bar{
+  display:flex;gap:4px;padding:10px 0;
+  border-bottom:1px solid rgba(255,255,255,0.04);
+}
+.subtab-btn{
+  padding:7px 16px;border:none;font-size:12px;font-weight:600;white-space:nowrap;
+  background:transparent;color:var(--text3);
+  border-radius:var(--radius-sm);
+  transition:all 0.2s;cursor:pointer;font-family:var(--font);
+  display:flex;align-items:center;gap:6px;
+}
+.subtab-btn:hover{color:var(--text2);background:rgba(255,255,255,0.03)}
+.subtab-btn.active{color:#FFF;background:rgba(255,130,0,0.12)}
+.subtab-btn svg{width:13px;height:13px}
 
 /* Content */
-.content{padding:0 40px 60px;max-width:1480px;margin:0 auto}
+.content{padding:20px 40px 60px;max-width:1480px;margin:0 auto}
 .footer{
   padding:28px 40px;text-align:center;font-size:11px;color:var(--text3);
   letter-spacing:0.03em;

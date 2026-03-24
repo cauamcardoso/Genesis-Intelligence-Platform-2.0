@@ -73,72 +73,44 @@ async function renderOverview(container) {
     </div>
   </div>`;
 
-  // ═══ SECTION 3: NARRATIVE ═══
-  html += `<div class="ov-section ov-section-alt">
-  <div class="ov-section-title" data-reveal="up">Understanding the Platform</div>
-  <div class="ov-section-sub" data-reveal="up">How this platform works, and why it exists.</div>
-  <div class="narrative-section" data-reveal-stagger>
-    <div class="card narrative-block nb-cyan" data-reveal="up">
-      <div class="narrative-bar" style="background:var(--cyan)"></div>
-      <div>
-        <h3>The Challenge</h3>
-        <p>The DOE Genesis Mission (DE-FOA-0003612) covers ${S.totalChallenges} challenges and ${S.totalFocusAreas} focus areas across energy, computing, materials science, and national security. Building a competitive proposal means finding the right combination of researchers, but most teams are assembled through existing relationships rather than systematic analysis of who actually fits best.</p>
-      </div>
-    </div>
-    <div class="card narrative-block nb-orange" data-reveal="up">
-      <div class="narrative-bar" style="background:var(--accent)"></div>
-      <div>
-        <h3>The Approach</h3>
-        <p>Every faculty member is scored against every focus area on four dimensions: how closely their research aligns, whether they complement other strong candidates, what competitive advantages they bring, and whether the partnerships a Genesis proposal requires are already in place. The result is a composite score (0-5) for each faculty-focus area pair.</p>
-      </div>
-    </div>
-    <div class="card narrative-block nb-green" data-reveal="up">
-      <div class="narrative-bar" style="background:var(--green)"></div>
-      <div>
-        <h3>The Starting Point</h3>
-        <p>Of the ${(S.totalFaculty * S.totalFocusAreas).toLocaleString()} possible faculty-focus area combinations, ${fmtNum(S.strongMatches)} score 3 or above, meaning ${S.coveragePct}% of Genesis focus areas have at least one strong UTEP match. The scoring data is searchable, sortable, and transparent across the platform's exploration tools.</p>
-      </div>
-    </div>
-    <div class="card narrative-block" data-reveal="up" style="background:linear-gradient(135deg, rgba(14,21,52,0.9) 0%, rgba(139,92,246,0.06) 100%);border-color:rgba(139,92,246,0.12)">
-      <div class="narrative-bar" style="background:var(--purple)"></div>
-      <div>
-        <h3>The Proposal Lab</h3>
-        <p>Scoring is the foundation, but the goal is to build teams. The Proposal Lab uses scoring data, seniority analysis, and a PI allocation optimizer to suggest who should lead each proposal, who should join, and what research directions are worth pursuing. It generates proposal packages that can be shared with faculty to start real conversations about collaboration.</p>
-      </div>
-    </div>
-  </div>
-  </div>`;
+  // ═══ SECTION 3: PIPELINE INFOGRAPHIC ═══
+  const pipeline = [
+    { icon: ICONS.search, label: 'Collect', stat: S.totalFaculty + ' Faculty + ' + S.totalFocusAreas + ' Focus Areas', color: 'var(--cyan)', grad: 'var(--grad-blue)', detail: 'Faculty research profiles from two UTEP colleges and 99 DOE Genesis focus area descriptions serve as the input data. AAII-affiliated faculty have in-depth profiles; Recommended faculty are indexed through Google Scholar.' },
+    { icon: ICONS.chart, label: 'Score', stat: (S.totalFaculty * S.totalFocusAreas).toLocaleString() + ' Pairs Evaluated', color: 'var(--accent)', grad: 'var(--grad-orange)', detail: 'Every faculty member is scored against every focus area on four axes: Faculty Fit (40%), Competitive Edge (25%), Team Feasibility (20%), and Partnership Readiness (15%). The result is a composite score on a 0-5 scale.' },
+    { icon: ICONS.map, label: 'Map', stat: S.strongMatches + ' Strong Matches Found', color: 'var(--green)', grad: 'var(--grad-green)', detail: 'Opportunities are ranked by team-building potential: not just individual scores, but PI availability, departmental diversity, and seniority depth. ' + S.coveragePct + '% of focus areas have at least one strong UTEP match.' },
+    { icon: ICONS.users, label: 'Build', stat: 'AI-Suggested Teams', color: '#8B5CF6', grad: 'var(--grad-purple)', detail: 'A PI allocation optimizer assigns leads to focus areas. The team builder suggests Co-PIs and Contributors based on composite scores, departmental diversity, and seniority. Claude generates tailored research directions.' },
+    { icon: ICONS.download, label: 'Export', stat: 'Proposal-Ready Packages', color: '#DB2777', grad: 'linear-gradient(135deg,#DB2777,#F59E0B)', detail: 'Each package includes the team, scoring evidence, AI-generated research directions, literature review keywords, and UTEP advantages. Exported as a Word document that faculty can use as the starting point for their proposal.' },
+  ];
 
-  // ═══ SECTION 4: HOW IT WORKS ═══
-  html += `<div class="ov-section">
-  <div class="ov-section-title" data-reveal="up">How It Works</div>
-  <div class="ov-section-sub" data-reveal="up">Four steps from raw data to a proposal-ready team.</div>
-  <div class="how-it-works" data-reveal="up">
-    <div class="how-step">
-      <div class="how-step-num" style="background:var(--grad-blue)">${ICONS.search}</div>
-      <div class="how-step-line"></div>
-      <div class="how-step-title">Score</div>
-      <div class="how-step-desc">${S.totalFaculty} faculty scored on 4 axes against ${S.totalFocusAreas} focus areas</div>
-    </div>
-    <div class="how-step">
-      <div class="how-step-num" style="background:var(--grad-orange)">${ICONS.chart}</div>
-      <div class="how-step-line"></div>
-      <div class="how-step-title">Analyze</div>
-      <div class="how-step-desc">Explore strengths by challenge, faculty, or scoring matrix</div>
-    </div>
-    <div class="how-step">
-      <div class="how-step-num" style="background:var(--grad-green)">${ICONS.users}</div>
-      <div class="how-step-line"></div>
-      <div class="how-step-title">Build Teams</div>
-      <div class="how-step-desc">PI optimizer + team builder with seniority and diversity analysis</div>
-    </div>
-    <div class="how-step">
-      <div class="how-step-num" style="background:var(--grad-purple)">${ICONS.clipboard}</div>
-      <div class="how-step-title">Share</div>
-      <div class="how-step-desc">Save proposal packages and distribute them to faculty</div>
-    </div>
-  </div>
-  </div>`;
+  html += `<div class="ov-section ov-section-alt">
+  <div class="ov-section-title" data-reveal="up">How the Platform Works</div>
+  <div class="ov-section-sub" data-reveal="up">Five stages from raw data to a proposal-ready team package.</div>
+  <div class="pipeline-infographic" data-reveal="up">`;
+
+  for (let i = 0; i < pipeline.length; i++) {
+    const p = pipeline[i];
+    html += `<div class="pipeline-stage" data-reveal="up" onclick="togglePipelineDetail(${i})">
+      <div class="pipeline-node" style="background:${p.grad}">${p.icon}</div>
+      ${i < pipeline.length - 1 ? '<div class="pipeline-connector"><svg width="100%" height="2"><line x1="0" y1="1" x2="100%" y2="1" stroke="rgba(255,255,255,0.08)" stroke-width="2" stroke-dasharray="4,4"/></svg></div>' : ''}
+      <div class="pipeline-label">${p.label}</div>
+      <div class="pipeline-stat">${p.stat}</div>
+      <div class="pipeline-detail" id="pipeline-detail-${i}" style="display:none">
+        <div style="font-size:11px;color:var(--text2);line-height:1.65;padding:10px 0">${p.detail}</div>
+      </div>
+    </div>`;
+  }
+
+  html += `</div></div>`;
+
+  // Inline script for detail toggle
+  html += `<script>
+    function togglePipelineDetail(idx) {
+      for (let i = 0; i < 5; i++) {
+        const el = document.getElementById('pipeline-detail-' + i);
+        if (el) el.style.display = i === idx && el.style.display === 'none' ? 'block' : 'none';
+      }
+    }
+  <\/script>`;
 
   // ═══ SECTION 5: EXPLORE ═══
   html += `<div class="ov-section ov-section-alt">
@@ -151,22 +123,22 @@ async function renderOverview(container) {
       <p>Build proposal teams, assign PIs, and generate AI-assisted research concepts.</p>
       <div class="nav-card-v-arrow">&rsaquo;</div>
     </div>
-    <div class="card nav-card-v nc-orange" data-reveal="up" onclick="switchTab('challenges')">
+    <div class="card nav-card-v nc-orange" data-reveal="up" onclick="openIntelligenceTab('challenges')">
       <div class="nav-card-v-icon" style="background:var(--grad-orange)">${ICONS.target}</div>
-      <h4>Challenge Explorer</h4>
+      <h4>Challenges & Focus Areas</h4>
       <p>Browse ${S.totalChallenges} challenges and ${S.totalFocusAreas} focus areas with faculty scoring breakdowns.</p>
       <div class="nav-card-v-arrow">&rsaquo;</div>
     </div>
-    <div class="card nav-card-v nc-blue" data-reveal="up" onclick="switchTab('faculty')">
+    <div class="card nav-card-v nc-blue" data-reveal="up" onclick="openIntelligenceTab('faculty')">
       <div class="nav-card-v-icon" style="background:var(--grad-blue)">${ICONS.users}</div>
       <h4>Faculty Explorer</h4>
       <p>Search ${S.totalFaculty} researchers by name, department, or expertise.</p>
       <div class="nav-card-v-arrow">&rsaquo;</div>
     </div>
-    <div class="card nav-card-v nc-purple" data-reveal="up" onclick="switchTab('heatmap')">
-      <div class="nav-card-v-icon" style="background:var(--grad-purple)">${ICONS.grid}</div>
-      <h4>Scoring Matrix</h4>
-      <p>Every faculty member scored against every challenge. Sort, filter, drill down.</p>
+    <div class="card nav-card-v nc-purple" data-reveal="up" onclick="openIntelligenceTab('opportunity')">
+      <div class="nav-card-v-icon" style="background:var(--grad-purple)">${ICONS.map}</div>
+      <h4>Opportunity Map</h4>
+      <p>See where UTEP's strengths align with DOE priorities. Ranked by team-building potential.</p>
       <div class="nav-card-v-arrow">&rsaquo;</div>
     </div>
   </div>
@@ -189,7 +161,7 @@ async function renderOverview(container) {
   html += `<div class="card" style="padding:28px 32px;margin-bottom:16px" data-reveal="up">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
       <div style="font-size:16px;font-weight:800;color:#FFF">Scoring Dimensions</div>
-      <button class="visit-btn" style="font-size:12px;padding:7px 14px" onclick="switchTab('methodology')">${ICONS.book} Full Methodology</button>
+      <button class="visit-btn" style="font-size:12px;padding:7px 14px" onclick="openIntelligenceTab('methodology')">${ICONS.book} Full Methodology</button>
     </div>
     <div class="scoring-rings">`;
   for (const ax of axes) {
