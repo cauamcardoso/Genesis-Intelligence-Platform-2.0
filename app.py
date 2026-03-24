@@ -118,7 +118,9 @@ Be specific and technical. Reference the team members' actual expertise areas. D
     except ImportError:
         return jsonify({"error": "Anthropic SDK not installed"}), 500
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": str(e), "type": type(e).__name__}), 500
 
 
 # ═══ Opportunity Analysis (AI-powered, cached) ═══
@@ -483,6 +485,28 @@ def api_export_docx():
 @app.route("/health")
 def health():
     return {"status": "ok"}, 200
+
+@app.route("/api/debug-env")
+def debug_env():
+    key = os.environ.get("ANTHROPIC_API_KEY", "")
+    has_key = bool(key)
+    key_preview = key[:10] + "..." if len(key) > 10 else "(empty)"
+    try:
+        import anthropic
+        sdk_ok = True
+    except ImportError:
+        sdk_ok = False
+    try:
+        import docx
+        docx_ok = True
+    except ImportError:
+        docx_ok = False
+    return jsonify({
+        "has_api_key": has_key,
+        "key_preview": key_preview,
+        "anthropic_sdk": sdk_ok,
+        "docx_sdk": docx_ok,
+    })
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5001))
