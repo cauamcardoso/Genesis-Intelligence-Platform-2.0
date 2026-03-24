@@ -492,17 +492,39 @@ def test_claude():
     """Minimal test of Claude API connectivity."""
     try:
         import anthropic
-        client = anthropic.Anthropic(timeout=30.0)
+        import httpx
+
+        # Try with explicit httpx client to diagnose connectivity
+        http_client = httpx.Client(
+            timeout=60.0,
+            follow_redirects=True,
+        )
+        client = anthropic.Anthropic(
+            http_client=http_client,
+        )
         message = client.messages.create(
             model="claude-sonnet-4-20250514",
             max_tokens=50,
             messages=[{"role": "user", "content": "Say hello in one word."}]
         )
         return jsonify({"ok": True, "response": message.content[0].text})
-    except ImportError:
-        return jsonify({"ok": False, "error": "SDK not installed"}), 500
+    except ImportError as e:
+        return jsonify({"ok": False, "error": str(e), "type": "ImportError"}), 500
     except Exception as e:
-        return jsonify({"ok": False, "error": str(e), "type": type(e).__name__}), 500
+        # Also try a raw request to see if it's DNS
+        dns_test = "unknown"
+        try:
+            import socket
+            addr = socket.getaddrinfo("api.anthropic.com", 443)
+            dns_test = str(addr[0][4]) if addr else "no result"
+        except Exception as dns_e:
+            dns_test = f"DNS failed: {dns_e}"
+        return jsonify({
+            "ok": False,
+            "error": str(e),
+            "type": type(e).__name__,
+            "dns_test": dns_test,
+        }), 500
 
 @app.route("/api/debug-env")
 def debug_env():
