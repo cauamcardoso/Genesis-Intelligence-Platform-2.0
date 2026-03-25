@@ -39,37 +39,43 @@ async function renderOverview(container) {
     <p class="hero-desc">This platform scores ${S.totalFaculty} UTEP faculty against ${S.totalFocusAreas} DOE Genesis focus areas, then helps assemble optimal research teams for each opportunity. It combines multi-axis scoring with seniority analysis and departmental diversity to recommend PIs, build teams, and generate AI-assisted research concepts that serve as starting points for proposal development.</p>
   </div>`;
 
-  // ═══ 2. STATS ROW (colored top borders) ═══
-  html += `<div class="stats-row" data-reveal-stagger>
-    <div class="card stat-card stat-blue" data-reveal="up">
-      <div><div class="stat-label">Faculty Analyzed</div>
-        <div class="stat-value" data-count-to="${S.totalFaculty}">0</div>
-        <div class="stat-sub">${S.aaiiCount} AAII + ${S.recCount} Recommended</div></div>
-      <div class="stat-icon" style="background:var(--grad-blue)">${ICONS.users}</div>
+  // ═══ 2. STATS + PIPELINE in two-column layout ═══
+  html += `<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px" data-reveal="up">
+    <div class="card" style="padding:24px">
+      <div style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:16px">Platform at a Glance</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div>
+          <div style="font-size:28px;font-weight:800;color:#FFF" data-count-to="${S.totalFaculty}">0</div>
+          <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em">Faculty Analyzed</div>
+          <div style="font-size:11px;color:var(--text2);margin-top:2px">${S.aaiiCount} AAII + ${S.recCount} Recommended</div>
+        </div>
+        <div>
+          <div style="font-size:28px;font-weight:800;color:#FFF" data-count-to="${S.totalChallenges}">0</div>
+          <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em">DOE Challenges</div>
+          <div style="font-size:11px;color:var(--text2);margin-top:2px">${S.totalFocusAreas} focus areas total</div>
+        </div>
+        <div>
+          <div style="font-size:28px;font-weight:800;color:var(--accent)" data-count-to="${S.strongMatches}">0</div>
+          <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em">Strong Matches</div>
+          <div style="font-size:11px;color:var(--text2);margin-top:2px">Composite >= 3 out of 5</div>
+        </div>
+        <div>
+          <div style="font-size:28px;font-weight:800;color:var(--green)" data-count-to="${S.coveragePct}" data-count-suffix="%">0</div>
+          <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em">FA Coverage</div>
+          <div style="font-size:11px;color:var(--text2);margin-top:2px">Focus areas with a strong match</div>
+        </div>
+      </div>
     </div>
-    <div class="card stat-card stat-orange" data-reveal="up">
-      <div><div class="stat-label">Challenges</div>
-        <div class="stat-value" data-count-to="${S.totalChallenges}">0</div>
-        <div class="stat-sub">DOE Genesis Mission</div></div>
-      <div class="stat-icon" style="background:var(--grad-orange)">${ICONS.target}</div>
-    </div>
-    <div class="card stat-card stat-purple" data-reveal="up">
-      <div><div class="stat-label">Focus Areas</div>
-        <div class="stat-value" data-count-to="${S.totalFocusAreas}">0</div>
-        <div class="stat-sub">Across all challenges</div></div>
-      <div class="stat-icon" style="background:var(--grad-purple)">${ICONS.layers}</div>
-    </div>
-    <div class="card stat-card stat-green" data-reveal="up">
-      <div><div class="stat-label">Strong Matches</div>
-        <div class="stat-value" data-count-to="${S.strongMatches}">0</div>
-        <div class="stat-sub">Composite >= 3 out of 5</div></div>
-      <div class="stat-icon" style="background:var(--grad-green)">${ICONS.zap}</div>
-    </div>
-    <div class="card stat-card stat-pink" data-reveal="up">
-      <div><div class="stat-label">Coverage</div>
-        <div class="stat-value" data-count-to="${S.coveragePct}" data-count-suffix="%">0</div>
-        <div class="stat-sub">Focus areas with a strong match</div></div>
-      <div class="stat-icon" style="background:linear-gradient(135deg,#DB2777,#F59E0B)">${ICONS.shield}</div>
+    <div class="card" style="padding:24px">
+      <div style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:16px">What This Platform Does</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:12px">The Genesis Intelligence Platform identifies where UTEP's faculty strengths align with DOE Genesis Mission priorities, then helps assemble optimal proposal teams backed by evidence.</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <span style="font-size:10px;padding:4px 10px;border-radius:20px;background:rgba(56,189,248,0.10);color:var(--cyan);border:1px solid rgba(56,189,248,0.20)">Multi-axis scoring</span>
+        <span style="font-size:10px;padding:4px 10px;border-radius:20px;background:rgba(255,130,0,0.10);color:var(--accent);border:1px solid rgba(255,130,0,0.20)">Opportunity mapping</span>
+        <span style="font-size:10px;padding:4px 10px;border-radius:20px;background:rgba(34,197,94,0.10);color:var(--green);border:1px solid rgba(34,197,94,0.20)">AI team suggestions</span>
+        <span style="font-size:10px;padding:4px 10px;border-radius:20px;background:rgba(139,92,246,0.10);color:var(--purple);border:1px solid rgba(139,92,246,0.20)">Research directions</span>
+        <span style="font-size:10px;padding:4px 10px;border-radius:20px;background:rgba(219,39,119,0.10);color:#DB2777;border:1px solid rgba(219,39,119,0.20)">Word export</span>
+      </div>
     </div>
   </div>`;
 

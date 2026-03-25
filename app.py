@@ -297,25 +297,47 @@ def api_export_docx():
         style = doc.styles['Normal']
         font = style.font
         font.name = 'Calibri'
-        font.size = Pt(11)
+        font.size = Pt(10)
         font.color.rgb = RGBColor(0x33, 0x33, 0x33)
 
-        # Title
+        # Set narrow margins
+        for section in doc.sections:
+            section.top_margin = Inches(0.7)
+            section.bottom_margin = Inches(0.5)
+            section.left_margin = Inches(0.8)
+            section.right_margin = Inches(0.8)
+
+        # ─── Branded Header (matching AAII 2-pager style) ───
+        # Title line
         title_para = doc.add_paragraph()
-        title_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        run = title_para.add_run("GENESIS MISSION PROPOSAL PACKAGE")
-        run.font.size = Pt(18)
+        run = title_para.add_run("The Institute for Applied AI Innovation (AAII)")
+        run.font.size = Pt(14)
         run.font.bold = True
         run.font.color.rgb = RGBColor(0x04, 0x1E, 0x42)
 
-        # Subtitle
+        # Tagline
         sub_para = doc.add_paragraph()
-        sub_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        run = sub_para.add_run(f"AAII x DOE Genesis Mission | {track.replace('-', ' ').title()}")
-        run.font.size = Pt(12)
+        run = sub_para.add_run("DOE Genesis Mission Proposal Package")
+        run.font.size = Pt(11)
+        run.font.color.rgb = RGBColor(0xFF, 0x82, 0x00)
+        run.font.bold = True
+
+        # Track + FA as subtitle
+        info_para = doc.add_paragraph()
+        run = info_para.add_run(f"{track.replace('-', ' ').title()} Track")
+        run.font.size = Pt(10)
+        run.font.color.rgb = RGBColor(0x66, 0x66, 0x66)
+        run = info_para.add_run(f"  |  {fa.get('id', '')} - {fa.get('title', '')}")
+        run.font.size = Pt(10)
         run.font.color.rgb = RGBColor(0x66, 0x66, 0x66)
 
-        doc.add_paragraph("")  # spacer
+        # Divider
+        div_para = doc.add_paragraph()
+        div_para.paragraph_format.space_before = Pt(4)
+        div_para.paragraph_format.space_after = Pt(8)
+        run = div_para.add_run("_" * 80)
+        run.font.size = Pt(6)
+        run.font.color.rgb = RGBColor(0xCC, 0xCC, 0xCC)
 
         # ─── Section 1: Opportunity Context ───
         h = doc.add_heading("1. Opportunity Context", level=1)

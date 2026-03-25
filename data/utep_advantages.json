@@ -8,61 +8,76 @@
     {
       "id": "g2",
       "title": "US-Mexico Border Research Corridor",
-      "description": "Unique position on the US-Mexico border provides access to binational research networks, cross-border data systems, and international collaboration pipelines."
+      "description": "Unique position on the US-Mexico border provides access to binational research networks, cross-border data systems, and international collaboration pipelines relevant to trade, logistics, and environmental research."
     },
     {
       "id": "g3",
-      "title": "Southwest Energy Hub",
-      "description": "Situated in a region with major solar, wind, and natural gas resources, enabling energy research with direct access to real-world energy infrastructure."
+      "title": "Southwest Energy and Water Hub",
+      "description": "Situated in a region with major solar, wind, and natural gas resources, plus critical water scarcity challenges. Direct access to real-world energy and water infrastructure for field research."
     },
     {
       "id": "g4",
       "title": "Fort Bliss and Defense Ecosystem",
-      "description": "Adjacent to one of the largest military installations in the US, providing proximity to defense research applications and workforce."
+      "description": "Adjacent to one of the largest military installations in the US, providing proximity to defense research applications, testing ranges, and Army Research Laboratory personnel."
     }
   ],
   "institutional": [
     {
       "id": "i1",
       "title": "Carnegie R1 Research University",
-      "description": "Classified as a Doctoral University with Very High Research Activity, reflecting sustained research output and doctoral program strength."
+      "description": "Classified as a Doctoral University with Very High Research Activity, reflecting sustained research output and doctoral program strength across engineering and sciences."
     },
     {
       "id": "i2",
-      "title": "Aerospace Center for Excellence (ACE)",
-      "description": "Dedicated center providing advanced aerospace research capabilities, wind tunnels, and testing infrastructure for defense and energy applications."
+      "title": "Institute for Applied AI Innovation (AAII)",
+      "description": "Founded in 2025 under UTEP Research & Innovation, AAII provides cross-disciplinary AI research infrastructure, GPU computing resources (NVIDIA H100 DGX), and collaborative workspace in the Interdisciplinary Research Building."
     },
     {
       "id": "i3",
-      "title": "AAII: Aerospace and AI Institute",
-      "description": "Dedicated institute focused on AI, machine learning, and aerospace applications, providing cross-disciplinary research infrastructure and coordination."
+      "title": "Aerospace Center",
+      "description": "Nationally recognized research hub advancing aerospace technologies in propulsion, space exploration, and advanced manufacturing. Partners with NASA, the Department of Defense, and industry."
     },
     {
       "id": "i4",
       "title": "Established DOE Research Portfolio",
       "description": "Track record of DOE-funded research across multiple departments, demonstrating institutional capacity to manage federal research programs."
+    },
+    {
+      "id": "i5",
+      "title": "Hispanic-Serving Institution (HSI)",
+      "description": "As a leading HSI with a majority Hispanic student body, UTEP brings unique workforce diversity and cultural competence to research teams, aligning with DOE priorities for broadening participation."
     }
   ],
   "infrastructure": [
     {
       "id": "r1",
-      "title": "High-Performance Computing Resources",
-      "description": "On-campus HPC clusters supporting large-scale simulation, data analytics, and AI model training for computationally intensive research."
+      "title": "High-Performance Computing and Cyberinfrastructure",
+      "description": "GPU resources through NVIDIA H100 DGX and HGX systems, access to UT System's Texas Advanced Computing Center (TACC), and Cyber-SHARE data-sharing infrastructure for collaborative research."
     },
     {
       "id": "r2",
-      "title": "Advanced Manufacturing and Materials Labs",
-      "description": "Facilities for materials characterization, additive manufacturing, and testing that support energy and defense research applications."
+      "title": "W.M. Keck Center for 3-D Innovation",
+      "description": "Leading research facility in additive manufacturing and 3D printing, developing advanced technologies for aerospace, biomedical, and defense applications."
     },
     {
       "id": "r3",
-      "title": "Cybersecurity Research Infrastructure",
-      "description": "Dedicated cybersecurity research infrastructure supporting secure systems design, threat analysis, and national security applications."
+      "title": "Center for Inland Desalination Systems (CIDS)",
+      "description": "Develops innovative technologies to treat and reuse brackish groundwater, wastewater, and nontraditional water sources, expanding sustainable water supplies for arid regions."
     },
     {
       "id": "r4",
-      "title": "W.M. Keck Center for 3D Innovation",
-      "description": "Nationally recognized center for additive manufacturing, 3D printing, and rapid prototyping supporting materials and engineering research."
+      "title": "Research Institute for Manufacturing & Engineering Systems",
+      "description": "Advances research in automation, robotics, and advanced manufacturing processes with industry and government partners."
+    },
+    {
+      "id": "r5",
+      "title": "Border Biomedical Research Center (BBRC)",
+      "description": "NIH-funded center supporting interdisciplinary research on health disparities and diseases affecting Hispanic and border populations, with advanced core facilities."
+    },
+    {
+      "id": "r6",
+      "title": "Visualization Wall and Scientific Computing",
+      "description": "Ultra-high resolution display surface for Scientific Exploratory Research and Collaboration, supporting complex data visualization across disciplines."
     }
   ]
 }

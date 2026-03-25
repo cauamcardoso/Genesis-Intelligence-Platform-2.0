@@ -532,13 +532,13 @@
 
 /* ─── Keywords ─── */
 .pkg-keywords{margin-top:16px;padding-top:16px;border-top:1px solid var(--card-border)}
-.keywords-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.keyword-category{padding:10px;border-radius:var(--radius-sm);background:rgba(255,255,255,0.02)}
-.keyword-cat-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px}
-.keyword-tags{display:flex;flex-wrap:wrap;gap:4px}
+.keywords-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+.keyword-category{padding:14px;border-radius:var(--radius-sm);background:rgba(255,255,255,0.02)}
+.keyword-cat-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px}
+.keyword-tags{display:flex;flex-wrap:wrap;gap:5px}
 .keyword-tag{
-  display:inline-block;padding:3px 8px;border-radius:3px;
-  font-size:10px;font-weight:600;cursor:default;transition:all 0.15s;
+  display:inline-block;padding:4px 10px;border-radius:4px;
+  font-size:11px;font-weight:600;cursor:default;transition:all 0.15s;
 }
 .keyword-tag:hover{filter:brightness(1.2)}
 .search-strings{display:flex;flex-direction:column;gap:6px}

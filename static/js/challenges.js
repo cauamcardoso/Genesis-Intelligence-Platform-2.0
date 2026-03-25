@@ -3,6 +3,7 @@
 let _selectedChallenge = null;
 let _selectedFA = null;
 let _chSearch = '';
+let _chSort = 'score'; // 'score' | 'id' | 'matches' | 'fas'
 
 async function renderChallenges(container) {
   container.innerHTML = '<div class="loading">Loading challenges...</div>';
@@ -38,13 +39,33 @@ async function renderChallenges(container) {
     </div>
   </div>`;
 
-  // ═══ SEARCH ═══
-  html += `<input class="fac-search" type="text" placeholder="Search challenges, focus areas, or offices..." value="${_chSearch}" oninput="_chSearch=this.value;renderChallenges($('content'))" style="max-width:400px;margin-bottom:16px">`;
+  // ═══ SEARCH + SORT ═══
+  html += `<div style="display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap">
+    <input class="fac-search" type="text" placeholder="Search challenges, focus areas, or offices..." value="${_chSearch}" oninput="_chSearch=this.value;renderChallenges($('content'))" style="max-width:350px;flex:1;margin-bottom:0">
+    <select onchange="_chSort=this.value;renderChallenges($('content'))" style="padding:6px 10px;border-radius:var(--radius-sm);border:1px solid var(--card-border);background:rgba(255,255,255,0.03);color:var(--text2);font-size:11px;font-family:var(--font)">
+      <option value="score" ${_chSort === 'score' ? 'selected' : ''}>Sort by Strength (highest first)</option>
+      <option value="matches" ${_chSort === 'matches' ? 'selected' : ''}>Sort by Match Count</option>
+      <option value="id" ${_chSort === 'id' ? 'selected' : ''}>Sort by Challenge Number</option>
+      <option value="fas" ${_chSort === 'fas' ? 'selected' : ''}>Sort by Focus Area Count</option>
+    </select>
+  </div>`;
 
   // ═══ CHALLENGE CARDS ═══
+  // Sort challenges
+  const sortedChallenges = [...L.challenges].sort((a, b) => {
+    const sa = strengthMap[a.id] || { strength: 0, totalFacultyStrong: 0 };
+    const sb = strengthMap[b.id] || { strength: 0, totalFacultyStrong: 0 };
+    switch (_chSort) {
+      case 'score': return sb.strength - sa.strength;
+      case 'matches': return sb.totalFacultyStrong - sa.totalFacultyStrong;
+      case 'fas': return b.focus_areas.length - a.focus_areas.length;
+      default: return a.id.localeCompare(b.id);
+    }
+  });
+
   html += `<div class="ch-card-grid">`;
 
-  for (const c of L.challenges) {
+  for (const c of sortedChallenges) {
     const str = strengthMap[c.id] || { strength: 0, totalFacultyStrong: 0, coveredFAs: 0 };
     const tier = Strategy.strengthTier(str.strength);
     const pct = Math.min((str.strength / 5) * 100, 100);

@@ -172,11 +172,11 @@ async function renderProposalLab(container) {
 function renderStrategyDashboard(container, L, advs) {
   const wrap = document.createElement('div');
 
-  // Didactic intro
+  // Didactic intro (outside card, plain text)
   wrap.innerHTML = `
-    <div class="card lab-didactic" style="padding:16px 20px;margin-bottom:16px;border-left:3px solid var(--green);background:rgba(34,197,94,0.04)">
-      <div style="font-size:13px;font-weight:700;color:#FFF;margin-bottom:4px">How the Proposal Lab Works</div>
-      <div style="font-size:12px;color:var(--text2);line-height:1.7">The Proposal Lab takes the scoring and opportunity data from the Intelligence tab and turns it into actionable proposal teams. Start by selecting a high-opportunity focus area, then assemble the optimal team, generate AI-powered research directions, produce literature review keywords, and export a ready-to-share Word document for faculty.</div>
+    <div style="margin-bottom:20px;padding-left:2px">
+      <div style="font-size:14px;font-weight:700;color:#FFF;margin-bottom:6px">How the Proposal Lab Works</div>
+      <div style="font-size:12px;color:var(--text2);line-height:1.7;max-width:800px">The Proposal Lab takes the scoring and opportunity data from the Intelligence tab and turns it into actionable proposal teams. Start by selecting a high-opportunity focus area, then assemble the optimal team, generate AI-powered research directions, produce literature review keywords, and export a ready-to-share Word document for faculty.</div>
     </div>
     <div class="entry-cards" data-reveal="up" data-reveal-stagger>
       <div class="card entry-card" style="border-color:rgba(34,197,94,0.20);background:linear-gradient(180deg, rgba(14,21,52,0.9) 0%, rgba(34,197,94,0.08) 100%)" onclick="openIntelligenceTab('opportunity')">
@@ -873,7 +873,7 @@ function renderTeamBuilder(container, L, advs) {
       <span class="title">${fa.title}</span>
     </div>
     <div style="font-size:12px;color:var(--text3);margin-top:4px">${challenge ? challenge.title : ''}</div>
-    <div style="font-size:13px;color:var(--text2);margin-top:8px;line-height:1.6">${truncate(fa.description || '', 200)}</div>
+    <div style="font-size:13px;color:var(--text2);margin-top:8px;line-height:1.6">${fa.description || ''}</div>
   `;
   container.appendChild(faHeader);
 
@@ -1230,15 +1230,28 @@ function renderPackageDetail(container, L, advs) {
 
   // Advantages
   html += '<div class="pkg-scoring-advs">';
-  html += '<div style="font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.10em;margin-bottom:12px">UTEP Advantages</div>';
-  const allAdvs = [...(advs.geographic || []), ...(advs.institutional || []), ...(advs.infrastructure || [])];
-  for (const adv of allAdvs) {
-    const isSelected = (pkg.advantages || []).includes(adv.id);
-    html += `
-      <div class="adv-item${isSelected ? ' selected' : ''}" onclick="togglePkgAdvantage('${adv.id}')">
-        <div class="adv-check">${isSelected ? '&#10003;' : ''}</div>
-        <div class="adv-item-title">${adv.title}</div>
-      </div>`;
+  html += '<div style="font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.10em;margin-bottom:6px">UTEP Advantages</div>';
+  html += '<div style="font-size:11px;color:var(--text2);line-height:1.6;margin-bottom:12px;padding:8px 10px;background:rgba(56,189,248,0.04);border-left:2px solid var(--cyan);border-radius:0 var(--radius-sm) var(--radius-sm) 0">Selected advantages are included in the exported Word document and provided as context when generating AI research directions. Check the items that strengthen this specific proposal.</div>';
+  const selectedCount = (pkg.advantages || []).length;
+  html += `<div style="font-size:10px;color:var(--accent);margin-bottom:8px">${selectedCount} selected</div>`;
+  const advCategories = [
+    { label: 'Geographic', items: advs.geographic || [] },
+    { label: 'Institutional', items: advs.institutional || [] },
+    { label: 'Infrastructure', items: advs.infrastructure || [] },
+  ];
+  for (const cat of advCategories) {
+    html += `<div style="font-size:10px;font-weight:700;color:var(--text3);margin-bottom:4px;margin-top:8px">${cat.label}</div>`;
+    for (const adv of cat.items) {
+      const isSelected = (pkg.advantages || []).includes(adv.id);
+      html += `
+        <div class="adv-item${isSelected ? ' selected' : ''}" onclick="togglePkgAdvantage('${adv.id}')" title="${escapeHtml(adv.description)}">
+          <div class="adv-check">${isSelected ? '&#10003;' : ''}</div>
+          <div>
+            <div class="adv-item-title">${adv.title}</div>
+            <div style="font-size:10px;color:var(--text3);line-height:1.4;margin-top:2px">${adv.description ? adv.description.substring(0, 80) + (adv.description.length > 80 ? '...' : '') : ''}</div>
+          </div>
+        </div>`;
+    }
   }
   html += '</div></div>';
 
@@ -1252,7 +1265,7 @@ function renderPackageDetail(container, L, advs) {
         </button>
       </div>
       <input class="pkg-concept-title-input" type="text" value="${escapeHtml(pkg.concept_title)}" placeholder="Concept title..." onchange="updatePkgField('concept_title',this.value)">
-      <textarea class="pkg-concept-seed" id="pkg-concept-textarea" onchange="updatePkgField('concept_seed',this.value)" placeholder="Research concept description...">${escapeHtml(pkg.concept_seed)}</textarea>
+      <textarea class="pkg-concept-seed" id="pkg-concept-textarea" onchange="updatePkgField('concept_seed',this.value)" placeholder="Research concept description..." style="min-height:200px;font-size:12px;line-height:1.7">${escapeHtml(pkg.concept_seed)}</textarea>
       <textarea class="pkg-notes" onchange="updatePkgField('notes',this.value)" placeholder="Curator notes (internal, not shared)...">${escapeHtml(pkg.notes || '')}</textarea>
     </div>`;
 
