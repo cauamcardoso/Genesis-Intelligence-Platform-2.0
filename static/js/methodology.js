@@ -304,6 +304,22 @@ function renderMethodPortfolio(L) {
     </div>
 
     <div class="method-section">
+      <h3>Trade-off Indicators</h3>
+      <p>Each proposal card in the optimizer shows a real-time trade-off assessment:</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0">
+        <div style="padding:12px;border-radius:var(--radius-sm);background:rgba(34,197,94,0.04);border:1px solid rgba(34,197,94,0.15)">
+          <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:4px">Optimized</div>
+          <div style="font-size:11px;color:var(--text2);line-height:1.5">The AAII-led team is within 0.2 points of the strongest possible team from all UTEP faculty. No significant improvement available through external recruitment.</div>
+        </div>
+        <div style="padding:12px;border-radius:var(--radius-sm);background:rgba(245,158,11,0.04);border:1px solid rgba(245,158,11,0.15)">
+          <div style="font-size:12px;font-weight:700;color:#F59E0B;margin-bottom:4px">Trade-off: +X possible</div>
+          <div style="font-size:11px;color:var(--text2);line-height:1.5">A stronger team exists if non-AAII faculty are included. The gap shows how much the composite could improve, and specific faculty are recommended by name.</div>
+        </div>
+      </div>
+      <p>Both metrics (AAII Team Composite and Overall Opportunity Strength) are shown on each card header, allowing the strategist to see at a glance whether the organizational constraint of AAII leadership is costing proposal strength.</p>
+    </div>
+
+    <div class="method-section">
       <h3>Manual Override Design</h3>
       <p>The optimizer provides a starting point, not a final answer. Every assignment can be overridden through drag-and-drop: faculty can be moved between teams, proposals can be added or removed, and the system re-scores the entire portfolio after each change. This combination of algorithmic optimization with human judgment is intentional. The strategist brings qualitative knowledge (faculty availability, interest, existing collaborations) that the scoring data does not capture.</p>
     </div>`;

@@ -219,11 +219,14 @@ async function renderPortfolio(container) {
       // Check if this faculty already has a strong match in the portfolio
       const matches = (L.topMatchesByFaculty[sf.id] || []).filter(s => s.composite >= 3);
       if (!matches.length) continue;
-      const hasStrongInPortfolio = matches.some(m => selectedFAIds.has(m.focus_area_id));
-      if (hasStrongInPortfolio) continue; // already has a good FA in portfolio
+      // Count how many strong FAs this faculty has in the portfolio
+      const strongInPortfolio = matches.filter(m => selectedFAIds.has(m.focus_area_id));
+      if (strongInPortfolio.length >= _pfMaxTeams) continue; // already has enough coverage
 
-      // Their best FA is not in the portfolio; try to add it
-      const bestFA = matches[0].focus_area_id;
+      // Find their best FA that's NOT already in the portfolio
+      const bestUnused = matches.find(m => !selectedFAIds.has(m.focus_area_id));
+      if (!bestUnused) continue;
+      const bestFA = bestUnused.focus_area_id;
       const eligibleFA = eligible.find(e => e.faId === bestFA);
       if (!eligibleFA) continue;
 
@@ -245,28 +248,82 @@ async function renderPortfolio(container) {
       }
     }
 
+    // Extra pass: ensure preferred-PI faculty have at least 2 FAs with room in portfolio
+    for (const prefId of _pfPreferPI) {
+      const matches = (L.topMatchesByFaculty[prefId] || []).filter(s => s.composite >= 3);
+      const inPortfolio = matches.filter(m => selectedFAIds.has(m.focus_area_id));
+      if (inPortfolio.length >= 2) continue;
+      // Find their best unused FA
+      const bestUnused = matches.find(m => !selectedFAIds.has(m.focus_area_id));
+      if (!bestUnused) continue;
+      const bestFA = bestUnused.focus_area_id;
+      const eligibleFA = eligible.find(e => e.faId === bestFA);
+      if (!eligibleFA) continue;
+      if (selected.length >= _pfSize) {
+        const weakestIdx = selected.reduce((wi, f, i) => {
+          if (f.mandatory) return wi;
+          return (wi === -1 || f.score < selected[wi].score) ? i : wi;
+        }, -1);
+        if (weakestIdx >= 0) {
+          const oldFaId = selected[weakestIdx].faId;
+          selected[weakestIdx] = eligibleFA;
+          selectedFAIds.delete(oldFaId);
+          selectedFAIds.add(bestFA);
+        }
+      } else {
+        selected.push(eligibleFA);
+        selectedFAIds.add(bestFA);
+      }
+    }
+
     _pfFAs = selected;
     _pfTeams = PFOptimizer.allocate(L, _pfFAs, _pfLocked);
 
-    // Post-allocation fix: promote preferred-PI faculty stuck as contributors
+    // Post-allocation fix: ensure all preferred-PI faculty are PI or Co-PI, and on enough teams
     for (const prefId of _pfPreferPI) {
-      let currentRole = null, currentFA = null;
+      // Count current assignments
+      const assignments = [];
       for (const [faId, team] of Object.entries(_pfTeams)) {
         const m = team.find(t => t.faculty_id === prefId);
-        if (m) { currentRole = m.role; currentFA = faId; break; }
+        if (m) assignments.push({ faId, role: m.role, idx: team.indexOf(m) });
       }
-      // If they're a contributor, try to promote to co-pi
-      if (currentRole === 'contributor' && currentFA) {
-        const team = _pfTeams[currentFA];
-        const idx = team.findIndex(m => m.faculty_id === prefId);
-        if (idx >= 0) team[idx].role = 'co-pi';
+
+      // Promote any contributor assignments to co-pi
+      for (const a of assignments) {
+        if (a.role === 'contributor') {
+          _pfTeams[a.faId][a.idx].role = 'co-pi';
+          a.role = 'co-pi';
+        }
       }
-      // If they're not assigned anywhere, find their best FA and add as co-pi
-      if (!currentRole) {
+
+      // If not a PI anywhere and has capacity, try to place as PI on an FA that needs one
+      const isPI = assignments.some(a => a.role === 'pi');
+      if (!isPI && assignments.length < _pfMaxTeams) {
+        // Find FAs without a PI where this faculty scores well
         const matches = (L.topMatchesByFaculty[prefId] || []).filter(s => s.composite >= 2.5);
         for (const m of matches) {
-          if (_pfTeams[m.focus_area_id] && _pfTeams[m.focus_area_id].length < 5) {
-            _pfTeams[m.focus_area_id].push({ faculty_id: prefId, role: 'co-pi' });
+          if (!_pfTeams[m.focus_area_id]) continue;
+          const team = _pfTeams[m.focus_area_id];
+          const hasPi = team.some(t => t.role === 'pi');
+          const alreadyOn = team.some(t => t.faculty_id === prefId);
+          if (!hasPi && !alreadyOn && team.length < 5) {
+            team.push({ faculty_id: prefId, role: 'pi' });
+            assignments.push({ faId: m.focus_area_id, role: 'pi' });
+            break;
+          }
+        }
+      }
+
+      // If still under max teams, place on their best available FA as co-pi
+      // Allow teams up to 6 for preferred faculty (they're high-value additions)
+      if (assignments.length < _pfMaxTeams) {
+        const matches = (L.topMatchesByFaculty[prefId] || []).filter(s => s.composite >= 2.5);
+        for (const m of matches) {
+          if (!_pfTeams[m.focus_area_id]) continue;
+          const team = _pfTeams[m.focus_area_id];
+          const alreadyOn = team.some(t => t.faculty_id === prefId);
+          if (!alreadyOn && team.length < 6) {
+            team.push({ faculty_id: prefId, role: 'co-pi' });
             break;
           }
         }
@@ -377,40 +434,7 @@ async function renderPortfolio(container) {
   }
   html += `</div></div>`;
 
-  // ═══ IDEAL TEAM COMPARISON ═══
-  html += `<div class="card" style="padding:12px 16px;margin-bottom:14px;border-left:3px solid var(--green)">
-    <div style="font-size:11px;font-weight:700;color:#FFF;margin-bottom:4px">Ideal vs. Current Teams</div>
-    <div style="font-size:10px;color:var(--text2);line-height:1.5;margin-bottom:10px">For each proposal, this shows the strongest possible team from ALL UTEP faculty (not just AAII). If the ideal team differs significantly from the current AAII-led team, consider recruiting the suggested faculty.</div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px">`;
-
-  for (const fa of _pfFAs) {
-    const currentTeam = _pfTeams[fa.faId] || [];
-    const currentProfile = stats.profiles[fa.faId] || { avgComposite: 0 };
-    // Build ideal team from all faculty
-    const idealTeam = Strategy.suggestTeam(fa.faId, L);
-    const idealArr = Array.isArray(idealTeam) ? idealTeam : [];
-    const idealProfile = Strategy.computeTeamProfile(idealArr, fa.faId, L);
-    const improvement = idealProfile.avgComposite - currentProfile.avgComposite;
-
-    if (improvement > 0.2) {
-      // Find who's in ideal but not current
-      const currentIds = new Set(currentTeam.map(m => m.faculty_id));
-      const newMembers = idealArr.filter(m => !currentIds.has(m.faculty_id)).slice(0, 3);
-
-      html += `<div style="padding:8px 10px;border-radius:var(--radius-sm);background:rgba(255,255,255,0.02);border:1px solid var(--card-border)">
-        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
-          <span style="font-size:10px;font-weight:700;color:var(--cyan)">${fa.faId}</span>
-          <span style="font-size:10px;color:var(--text3)">Current: <strong style="color:#FFF">${currentProfile.avgComposite}</strong> Ideal: <strong style="color:var(--green)">${idealProfile.avgComposite}</strong> (+${Math.round(improvement * 10) / 10})</span>
-        </div>
-        ${newMembers.length ? `<div style="font-size:9px;color:var(--text3)">
-          <span style="color:var(--green)">Consider adding:</span>
-          ${newMembers.map(m => { const f = L.facultyById[m.faculty_id]; return f ? `<span style="color:var(--text2)">${f.name}</span>` : ''; }).filter(Boolean).join(', ')}
-        </div>` : ''}
-      </div>`;
-    }
-  }
-
-  html += `</div></div>`;
+  // (Ideal vs Current data now shown directly on each card)
 
   // ═══ ALERTS ═══
   if (stats.alerts.length) {
@@ -420,6 +444,21 @@ async function renderPortfolio(container) {
       html += `<div style="padding:6px 12px;border-radius:var(--radius-sm);background:${c.bg};border:1px solid ${c.border};font-size:10px;color:${c.text};font-weight:600">${a.message}</div>`;
     }
     html += `</div>`;
+  }
+
+  // Precompute ideal teams for each FA
+  const idealData = {};
+  for (const fa of _pfFAs) {
+    const idealTeam = Strategy.suggestTeam(fa.faId, L);
+    const idealArr = Array.isArray(idealTeam) ? idealTeam : [];
+    const idealProfile = Strategy.computeTeamProfile(idealArr, fa.faId, L);
+    const currentProfile = stats.profiles[fa.faId] || { avgComposite: 0 };
+    const gap = idealProfile.avgComposite - currentProfile.avgComposite;
+    const currentIds = new Set((_pfTeams[fa.faId] || []).map(m => m.faculty_id));
+    const missingFaculty = idealArr.filter(m => !currentIds.has(m.faculty_id)).slice(0, 3).map(m => {
+      const f = L.facultyById[m.faculty_id]; return f ? f.name : '';
+    }).filter(Boolean);
+    idealData[fa.faId] = { idealComposite: idealProfile.avgComposite, gap: Math.round(gap * 10) / 10, missingFaculty, isOptimal: gap <= 0.2 };
   }
 
   // ═══ PROPOSAL CARDS ═══
@@ -464,9 +503,10 @@ async function renderPortfolio(container) {
       <div style="color:var(--text3);margin-left:8px">${isExpanded ? ICONS.chevronDown : ICONS.chevronRight}</div>
     </div>`;
 
-    // Collapsed: show team summary
+    // Collapsed: show team summary + trade-off indicator
     if (!isExpanded) {
-      html += `<div style="padding:0 14px 10px;display:flex;gap:4px;flex-wrap:wrap">`;
+      const ideal = idealData[fa.faId] || { isOptimal: true, gap: 0, missingFaculty: [] };
+      html += `<div style="padding:0 14px 6px;display:flex;gap:4px;flex-wrap:wrap;align-items:center">`;
       for (const m of team) {
         const f = L.facultyById[m.faculty_id];
         if (!f) continue;
@@ -481,6 +521,16 @@ async function renderPortfolio(container) {
       }
       html += `</span>`;
       html += `</div>`;
+
+      // Trade-off indicator on card
+      if (ideal.isOptimal) {
+        html += `<div style="padding:4px 14px 10px"><span style="font-size:9px;padding:2px 8px;border-radius:3px;background:rgba(34,197,94,0.10);color:#22C55E;font-weight:600">${ICONS.check} Optimized</span></div>`;
+      } else {
+        html += `<div style="padding:4px 14px 10px">
+          <span style="font-size:9px;padding:2px 8px;border-radius:3px;background:rgba(245,158,11,0.10);color:#F59E0B;font-weight:600">Trade-off: +${ideal.gap} possible</span>
+          ${ideal.missingFaculty.length ? `<span style="font-size:8px;color:var(--text3);margin-left:6px">Consider: ${ideal.missingFaculty.join(', ')}</span>` : ''}
+        </div>`;
+      }
     }
 
     // Expanded: full team builder
