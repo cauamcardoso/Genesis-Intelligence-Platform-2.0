@@ -55,34 +55,59 @@ const PFOptimizer = {
     const teams = {};
     for (const fa of selectedFAs) teams[fa.faId] = [];
 
-    // Pass 1: PI (AAII preferred, fallback to Recommended)
+    // Locked PIs first
+    for (const lock of locked) {
+      init(lock.faculty_id);
+      teams[lock.focus_area_id] = [{ faculty_id: lock.faculty_id, role: 'pi' }];
+      usage[lock.faculty_id].push({ faId: lock.focus_area_id, role: 'pi' });
+    }
+
+    // Pass 0: PREFERRED PI faculty get first pick (ensures they lead proposals)
+    const preferredPIPairs = [];
+    for (const fa of selectedFAs) {
+      if (teams[fa.faId]?.some(m => m.role === 'pi')) continue; // already has locked PI
+      for (const s of (L.topFacultyByFA[fa.faId] || [])) {
+        if (!_pfPreferPI.has(s.faculty_id)) continue;
+        const f = L.facultyById[s.faculty_id];
+        if (!f || !Strategy.canServeAs(f, 'pi') || s.composite < 2.5) continue;
+        const sen = Strategy.seniorityScore(f, L);
+        preferredPIPairs.push({
+          fid: s.faculty_id, faId: fa.faId, composite: s.composite,
+          score: s.composite + 0.4 * (sen / 5),
+        });
+      }
+    }
+    preferredPIPairs.sort((a, b) => b.score - a.score);
+    for (const p of preferredPIPairs) {
+      init(p.fid);
+      if (usage[p.fid].some(r => r.role === 'pi')) continue; // already PI somewhere
+      if (count(p.fid) >= _pfMaxTeams) continue;
+      if (teams[p.faId]?.some(m => m.role === 'pi')) continue; // FA already has PI
+      if (!teams[p.faId]) continue;
+      teams[p.faId].push({ faculty_id: p.fid, role: 'pi' });
+      usage[p.fid].push({ faId: p.faId, role: 'pi' });
+    }
+
+    // Pass 1: Remaining PIs (general pool, AAII preferred)
     const piPairs = [];
     for (const fa of selectedFAs) {
+      if (teams[fa.faId]?.some(m => m.role === 'pi')) continue; // already has PI
       for (const s of (L.topFacultyByFA[fa.faId] || [])) {
         const f = L.facultyById[s.faculty_id];
         if (!f || !Strategy.canServeAs(f, 'pi') || s.composite < 2.5) continue;
         const sen = Strategy.seniorityScore(f, L);
         piPairs.push({
           fid: s.faculty_id, faId: fa.faId, composite: s.composite, seniority: sen,
-          score: s.composite + 0.4 * (sen / 5) + (aaiiIds.has(s.faculty_id) ? 0.3 : 0) + (_pfPreferPI.has(s.faculty_id) ? 0.5 : 0),
+          score: s.composite + 0.4 * (sen / 5) + (aaiiIds.has(s.faculty_id) ? 0.3 : 0),
         });
       }
     }
-
-    // Locked PIs first
-    for (const lock of locked) {
-      init(lock.faculty_id);
-      const s = (L.topFacultyByFA[lock.focus_area_id] || []).find(sc => sc.faculty_id === lock.faculty_id);
-      teams[lock.focus_area_id] = [{ faculty_id: lock.faculty_id, role: 'pi' }];
-      usage[lock.faculty_id].push({ faId: lock.focus_area_id, role: 'pi' });
-    }
-
     piPairs.sort((a, b) => b.score - a.score);
     for (const p of piPairs) {
       init(p.fid);
       if (usage[p.fid].some(r => r.role === 'pi')) continue;
       if (count(p.fid) >= _pfMaxTeams) continue;
-      if (teams[p.faId] && teams[p.faId].some(m => m.role === 'pi')) continue;
+      if (teams[p.faId]?.some(m => m.role === 'pi')) continue;
       if (!teams[p.faId]) continue;
       teams[p.faId].push({ faculty_id: p.fid, role: 'pi' });
       usage[p.fid].push({ faId: p.faId, role: 'pi' });
@@ -187,27 +212,31 @@ async function renderPortfolio(container) {
     let others = eligible.filter(f => !f.mandatory).slice(0, Math.max(1, _pfSize - mandatory.length));
     let selected = [...mandatory, ...others];
 
-    // Senior faculty recovery: check if any senior AAII faculty are left out
+    // Senior/preferred faculty recovery: ensure their best FAs are in the portfolio
     const selectedFAIds = new Set(selected.map(f => f.faId));
     const seniorAAII = Strategy.getAAIIFaculty(L).filter(f => Strategy.seniorityScore(f, L) >= 4 || _pfPreferPI.has(f.id));
     for (const sf of seniorAAII) {
-      // Find this faculty's best FA
+      // Check if this faculty already has a strong match in the portfolio
       const matches = (L.topMatchesByFaculty[sf.id] || []).filter(s => s.composite >= 3);
       if (!matches.length) continue;
+      const hasStrongInPortfolio = matches.some(m => selectedFAIds.has(m.focus_area_id));
+      if (hasStrongInPortfolio) continue; // already has a good FA in portfolio
+
+      // Their best FA is not in the portfolio; try to add it
       const bestFA = matches[0].focus_area_id;
-      if (selectedFAIds.has(bestFA)) continue; // already covered
-      // Check if this FA is in eligible list
       const eligibleFA = eligible.find(e => e.faId === bestFA);
       if (!eligibleFA) continue;
-      // Swap weakest non-mandatory FA if portfolio is full
+
       if (selected.length >= _pfSize) {
+        // Swap the weakest non-mandatory FA
         const weakestIdx = selected.reduce((wi, f, i) => {
           if (f.mandatory) return wi;
           return (wi === -1 || f.score < selected[wi].score) ? i : wi;
         }, -1);
-        if (weakestIdx >= 0 && eligibleFA.score >= selected[weakestIdx].score * 0.7) {
+        if (weakestIdx >= 0) {
+          const oldFaId = selected[weakestIdx].faId;
           selected[weakestIdx] = eligibleFA;
-          selectedFAIds.delete(selected[weakestIdx].faId);
+          selectedFAIds.delete(oldFaId);
           selectedFAIds.add(bestFA);
         }
       } else {
@@ -218,6 +247,32 @@ async function renderPortfolio(container) {
 
     _pfFAs = selected;
     _pfTeams = PFOptimizer.allocate(L, _pfFAs, _pfLocked);
+
+    // Post-allocation fix: promote preferred-PI faculty stuck as contributors
+    for (const prefId of _pfPreferPI) {
+      let currentRole = null, currentFA = null;
+      for (const [faId, team] of Object.entries(_pfTeams)) {
+        const m = team.find(t => t.faculty_id === prefId);
+        if (m) { currentRole = m.role; currentFA = faId; break; }
+      }
+      // If they're a contributor, try to promote to co-pi
+      if (currentRole === 'contributor' && currentFA) {
+        const team = _pfTeams[currentFA];
+        const idx = team.findIndex(m => m.faculty_id === prefId);
+        if (idx >= 0) team[idx].role = 'co-pi';
+      }
+      // If they're not assigned anywhere, find their best FA and add as co-pi
+      if (!currentRole) {
+        const matches = (L.topMatchesByFaculty[prefId] || []).filter(s => s.composite >= 2.5);
+        for (const m of matches) {
+          if (_pfTeams[m.focus_area_id] && _pfTeams[m.focus_area_id].length < 5) {
+            _pfTeams[m.focus_area_id].push({ faculty_id: prefId, role: 'co-pi' });
+            break;
+          }
+        }
+      }
+    }
+
     _pfInitialized = true;
   }
 
