@@ -1,0 +1,27 @@
+/* ═══ Portfolio Optimizer Styles ═══ */
+
+/* ─── Slider ─── */
+.portfolio-slider{
+  -webkit-appearance:none;appearance:none;
+  width:120px;height:4px;border-radius:2px;
+  background:rgba(255,255,255,0.08);outline:none;
+}
+.portfolio-slider::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;
+  width:16px;height:16px;border-radius:50%;
+  background:var(--accent);cursor:pointer;border:2px solid rgba(255,255,255,0.2);
+}
+
+/* ─── Utilization Matrix ─── */
+.util-matrix{width:100%;border-collapse:collapse;font-size:11px}
+.util-matrix th{
+  padding:6px 8px;font-size:10px;font-weight:700;color:var(--text3);
+  text-transform:uppercase;letter-spacing:0.06em;
+  border-bottom:1px solid rgba(255,255,255,0.08);
+  position:sticky;top:0;background:var(--card);
+  white-space:nowrap;
+}
+.util-matrix td{
+  padding:5px 8px;border-bottom:1px solid rgba(255,255,255,0.03);
+}
+.util-matrix tr:hover{background:rgba(255,255,255,0.02)}

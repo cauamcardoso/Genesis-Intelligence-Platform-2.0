@@ -561,4 +561,60 @@ const Strategy = {
 
     return matches.slice(0, 5);
   },
+
+
+  /* ─── AAII Portfolio Helpers ─── */
+
+  /** Get all AAII Affiliated faculty */
+  getAAIIFaculty(L) {
+    return L.faculty.filter(f => f.tier === 'AAII Affiliated');
+  },
+
+  /** Compute AAII-weighted opportunity score for a focus area (only AAII faculty count) */
+  computeAAIIOpportunityScore(faId, L) {
+    const aaiiIds = new Set(this.getAAIIFaculty(L).map(f => f.id));
+    const allScores = L.topFacultyByFA[faId] || [];
+    const aaiiScores = allScores.filter(s => aaiiIds.has(s.faculty_id));
+    const aaiiStrong = aaiiScores.filter(s => s.composite >= 3);
+
+    // Strength: avg of top 3 AAII composites
+    const top3 = aaiiScores.slice(0, 3).map(s => s.composite);
+    const strength = top3.length ? top3.reduce((a, b) => a + b, 0) / top3.length : 0;
+
+    // PI pool: AAII faculty with composite >= 3 who can be PI
+    const piPool = aaiiStrong.filter(s => {
+      const f = L.facultyById[s.faculty_id];
+      return f && this.canServeAs(f, 'pi');
+    }).length;
+
+    // Dept diversity among AAII with composite >= 2.5
+    const depts = new Set();
+    for (const s of aaiiScores.filter(s => s.composite >= 2.5)) {
+      const f = L.facultyById[s.faculty_id];
+      if (f && f.department) depts.add(f.department);
+    }
+
+    // Seniority depth
+    let seniorCount = 0;
+    for (const s of aaiiScores.slice(0, 10)) {
+      const f = L.facultyById[s.faculty_id];
+      if (f && this.seniorityScore(f, L) >= 4) seniorCount++;
+    }
+
+    const normStrength = strength / 5;
+    const normPI = Math.min(piPool / 3, 1);
+    const normDept = Math.min(depts.size / 3, 1);
+    const normSeniority = Math.min(seniorCount / 2, 1);
+
+    return {
+      faId,
+      strength: Math.round(strength * 10) / 10,
+      piPool,
+      deptDiversity: depts.size,
+      seniorityDepth: seniorCount,
+      aaiiStrongCount: aaiiStrong.length,
+      score: normStrength * 0.40 + normPI * 0.30 + normDept * 0.20 + normSeniority * 0.10,
+      topAAII: aaiiScores.slice(0, 8),
+    };
+  },
 };

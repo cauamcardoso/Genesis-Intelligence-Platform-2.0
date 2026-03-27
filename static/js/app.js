@@ -12,6 +12,7 @@ const TABS = [
     ]
   },
   { id: 'proposallab', label: 'Proposal Lab', icon: ICONS.bulb },
+  { id: 'portfolio', label: 'AAII Portfolio', icon: ICONS.zap },
 ];
 
 let activeTab = 'overview';
@@ -103,6 +104,9 @@ async function renderContent() {
       break;
     case 'proposallab':
       await renderProposalLab(content);
+      break;
+    case 'portfolio':
+      await renderPortfolio(content);
       break;
     default:
       content.innerHTML = '<div class="loading">Unknown tab</div>';
