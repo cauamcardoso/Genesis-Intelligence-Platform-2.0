@@ -35,8 +35,8 @@ async function renderOverview(container) {
       <div class="deco-ring deco-ring-3"></div>
     </div>
     <div class="hero-label">AAII x DOE Genesis Mission</div>
-    <h2 class="hero-heading">AI-powered strategy for building research teams and winning proposals.</h2>
-    <p class="hero-desc">This platform scores ${S.totalFaculty} UTEP faculty against ${S.totalFocusAreas} DOE Genesis focus areas, identifies the strongest opportunities, and assembles optimal teams backed by evidence. It combines multi-axis scoring with portfolio optimization and AI-generated research directions to give every proposal the best possible starting point.</p>
+    <h2 class="hero-heading" style="max-width:700px">AI-powered strategy for building research teams and winning proposals.</h2>
+    <p class="hero-desc" style="text-align:justify;max-width:680px">This platform scores ${S.totalFaculty} UTEP faculty against ${S.totalFocusAreas} DOE Genesis focus areas, identifies the strongest opportunities, and assembles optimal teams backed by evidence. It combines multi-axis scoring with portfolio optimization and AI-generated research directions to give every proposal the best possible starting point.</p>
   </div>`;
 
   // ═══ 2. STATS + PIPELINE in two-column layout ═══
@@ -66,15 +66,25 @@ async function renderOverview(container) {
         </div>
       </div>
     </div>
-    <div class="card" style="padding:24px">
-      <div style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:16px">What This Platform Does</div>
-      <div style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:12px">The Genesis Intelligence Platform identifies where UTEP's faculty strengths align with DOE Genesis Mission priorities, then helps assemble optimal proposal teams backed by evidence.</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <span style="font-size:10px;padding:4px 10px;border-radius:20px;background:rgba(56,189,248,0.10);color:var(--cyan);border:1px solid rgba(56,189,248,0.20)">Multi-axis scoring</span>
-        <span style="font-size:10px;padding:4px 10px;border-radius:20px;background:rgba(255,130,0,0.10);color:var(--accent);border:1px solid rgba(255,130,0,0.20)">Opportunity mapping</span>
-        <span style="font-size:10px;padding:4px 10px;border-radius:20px;background:rgba(34,197,94,0.10);color:var(--green);border:1px solid rgba(34,197,94,0.20)">AI team suggestions</span>
-        <span style="font-size:10px;padding:4px 10px;border-radius:20px;background:rgba(139,92,246,0.10);color:var(--purple);border:1px solid rgba(139,92,246,0.20)">Research directions</span>
-        <span style="font-size:10px;padding:4px 10px;border-radius:20px;background:rgba(219,39,119,0.10);color:#DB2777;border:1px solid rgba(219,39,119,0.20)">Word export</span>
+    <div class="card" style="padding:24px;display:flex;flex-direction:column">
+      <div style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px">What This Platform Does</div>
+      <div style="display:flex;flex-direction:column;gap:10px;flex:1">
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <div style="width:6px;height:6px;border-radius:50%;background:var(--cyan);flex-shrink:0;margin-top:6px"></div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.6"><strong style="color:#FFF">Scores every faculty member</strong> against every DOE focus area on four dimensions: research fit, competitive edge, team feasibility, and partnership readiness.</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <div style="width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:6px"></div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.6"><strong style="color:#FFF">Maps opportunities</strong> by ranking focus areas based on PI availability, department diversity, and seniority depth.</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <div style="width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;margin-top:6px"></div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.6"><strong style="color:#FFF">Builds optimal teams</strong> with AI-suggested compositions, research directions, and literature review keywords.</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <div style="width:6px;height:6px;border-radius:50%;background:var(--purple);flex-shrink:0;margin-top:6px"></div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.6"><strong style="color:#FFF">Optimizes the full portfolio</strong> to distribute faculty across proposals and maximize total competitiveness.</div>
+        </div>
       </div>
     </div>
   </div>`;
@@ -215,22 +225,45 @@ async function renderOverview(container) {
   }
   html += `</div>`;
 
-  // Right: Department treemap
+  // Right: Department pie chart (modern conic gradient)
   html += `<div class="card" data-reveal="up" style="padding:20px 24px;display:flex;flex-direction:column">
     <div class="card-title"><div class="icon" style="background:var(--grad-purple)">${ICONS.users}</div>Faculty by Department</div>
-    <p style="font-size:12px;color:var(--text3);margin-top:-10px;margin-bottom:10px">${S.totalFaculty} faculty across ${depts.length} departments</p>
-    <div class="dept-grid" style="flex:1">`;
+    <p style="font-size:12px;color:var(--text3);margin-top:-10px;margin-bottom:12px">${S.totalFaculty} faculty across ${depts.length} departments</p>
+    <div style="display:flex;gap:24px;align-items:center;flex:1">
+      <div style="position:relative;flex-shrink:0">`;
+
+  // Build conic gradient stops
+  let gradStops = [];
+  let cumPct = 0;
+  for (let i = 0; i < depts.length; i++) {
+    const [, count] = depts[i];
+    const pct = (count / totalDeptFac) * 100;
+    gradStops.push(`${deptColors[i % deptColors.length]} ${cumPct}% ${cumPct + pct}%`);
+    cumPct += pct;
+  }
+  const conicGrad = `conic-gradient(${gradStops.join(', ')})`;
+
+  html += `<div style="width:180px;height:180px;border-radius:50%;background:${conicGrad};position:relative;box-shadow:0 0 40px rgba(56,189,248,0.08),0 8px 24px rgba(0,0,0,0.3)">
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:100px;height:100px;border-radius:50%;background:var(--bg2);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:inset 0 2px 8px rgba(0,0,0,0.3)">
+          <div style="font-size:26px;font-weight:800;color:#FFF">${S.totalFaculty}</div>
+          <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em">Faculty</div>
+        </div>
+      </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px;flex:1">`;
+
   for (let i = 0; i < depts.length; i++) {
     const [dept, count] = depts[i];
     const pct = (count / totalDeptFac * 100).toFixed(0);
-    const size = count >= totalDeptFac * 0.15 ? 'dept-lg' : count >= totalDeptFac * 0.08 ? 'dept-md' : 'dept-sm';
-    html += `<div class="${size} dept-block" style="--dept-color:${deptColors[i % deptColors.length]}">
-      <div class="dept-block-name">${dept}</div>
-      <div class="dept-block-count">${count}</div>
-      <div style="font-size:9px;color:var(--text3);margin-top:1px">${pct}%</div>
+    html += `<div style="display:flex;align-items:center;gap:8px;padding:3px 0">
+      <div style="width:10px;height:10px;border-radius:50%;background:${deptColors[i % deptColors.length]};flex-shrink:0"></div>
+      <div style="flex:1;font-size:11px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${dept}</div>
+      <div style="font-size:11px;font-weight:700;color:#FFF;min-width:20px;text-align:right">${count}</div>
+      <div style="font-size:10px;color:var(--text3);min-width:30px;text-align:right">${pct}%</div>
     </div>`;
   }
   html += `</div>
+    </div>
   </div></div>
   </div>`;
 

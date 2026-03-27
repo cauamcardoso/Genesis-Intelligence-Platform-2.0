@@ -349,16 +349,67 @@ async function renderPortfolio(container) {
   gaps_arr.sort((a, b) => b.gap - a.gap);
 
   if (gaps_arr.length) {
+    // For each gap, find recommended non-AAII faculty to close it
     for (const g of gaps_arr.slice(0, 4)) {
-      html += `<div style="padding:6px 10px;border-radius:var(--radius-sm);background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.15)">
-        <span style="font-weight:700;color:#F59E0B">${g.faId}</span>
-        <span style="color:var(--text3)">AAII: ${g.aaii} vs Overall: ${g.overall}</span>
-        <span style="color:#F59E0B">(gap: ${g.gap})</span>
+      const currentTeamIds = new Set((_pfTeams[g.faId] || []).map(m => m.faculty_id));
+      const topNonAAII = (L.topFacultyByFA[g.faId] || [])
+        .filter(s => {
+          const f = L.facultyById[s.faculty_id];
+          return f && f.tier !== 'AAII Affiliated' && !currentTeamIds.has(s.faculty_id) && s.composite >= 3;
+        }).slice(0, 3);
+      const recNames = topNonAAII.map(s => {
+        const f = L.facultyById[s.faculty_id];
+        return f ? `${f.name} (${f.department}, ${s.composite})` : '';
+      }).filter(Boolean);
+
+      html += `<div style="padding:8px 12px;border-radius:var(--radius-sm);background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.15);flex:1;min-width:260px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <span style="font-weight:700;color:#F59E0B">${g.faId}</span>
+          <span style="color:var(--text3)">AAII: ${g.aaii} vs Overall: ${g.overall} (gap: ${g.gap})</span>
+        </div>
+        ${recNames.length ? `<div style="font-size:9px;color:var(--text3);margin-top:4px">
+          <span style="color:var(--green);font-weight:700">Recommended additions:</span> ${recNames.join('; ')}
+        </div>` : ''}
       </div>`;
     }
   } else {
     html += `<div style="color:var(--green);font-weight:600">All proposals show strong AAII coverage relative to overall opportunity.</div>`;
   }
+  html += `</div></div>`;
+
+  // ═══ IDEAL TEAM COMPARISON ═══
+  html += `<div class="card" style="padding:12px 16px;margin-bottom:14px;border-left:3px solid var(--green)">
+    <div style="font-size:11px;font-weight:700;color:#FFF;margin-bottom:4px">Ideal vs. Current Teams</div>
+    <div style="font-size:10px;color:var(--text2);line-height:1.5;margin-bottom:10px">For each proposal, this shows the strongest possible team from ALL UTEP faculty (not just AAII). If the ideal team differs significantly from the current AAII-led team, consider recruiting the suggested faculty.</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px">`;
+
+  for (const fa of _pfFAs) {
+    const currentTeam = _pfTeams[fa.faId] || [];
+    const currentProfile = stats.profiles[fa.faId] || { avgComposite: 0 };
+    // Build ideal team from all faculty
+    const idealTeam = Strategy.suggestTeam(fa.faId, L);
+    const idealArr = Array.isArray(idealTeam) ? idealTeam : [];
+    const idealProfile = Strategy.computeTeamProfile(idealArr, fa.faId, L);
+    const improvement = idealProfile.avgComposite - currentProfile.avgComposite;
+
+    if (improvement > 0.2) {
+      // Find who's in ideal but not current
+      const currentIds = new Set(currentTeam.map(m => m.faculty_id));
+      const newMembers = idealArr.filter(m => !currentIds.has(m.faculty_id)).slice(0, 3);
+
+      html += `<div style="padding:8px 10px;border-radius:var(--radius-sm);background:rgba(255,255,255,0.02);border:1px solid var(--card-border)">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <span style="font-size:10px;font-weight:700;color:var(--cyan)">${fa.faId}</span>
+          <span style="font-size:10px;color:var(--text3)">Current: <strong style="color:#FFF">${currentProfile.avgComposite}</strong> Ideal: <strong style="color:var(--green)">${idealProfile.avgComposite}</strong> (+${Math.round(improvement * 10) / 10})</span>
+        </div>
+        ${newMembers.length ? `<div style="font-size:9px;color:var(--text3)">
+          <span style="color:var(--green)">Consider adding:</span>
+          ${newMembers.map(m => { const f = L.facultyById[m.faculty_id]; return f ? `<span style="color:var(--text2)">${f.name}</span>` : ''; }).filter(Boolean).join(', ')}
+        </div>` : ''}
+      </div>`;
+    }
+  }
+
   html += `</div></div>`;
 
   // ═══ ALERTS ═══
