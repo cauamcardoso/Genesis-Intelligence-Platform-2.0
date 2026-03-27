@@ -1,5 +1,7 @@
 /* ═══ Opportunity Map - Focus Area Opportunity Ranking ═══ */
 
+let _oppSort = 'opportunity'; // 'opportunity' | 'strength' | 'pipool' | 'diversity'
+
 async function renderOpportunityMap(container) {
   container.innerHTML = '<div class="loading">Loading Opportunity Map...</div>';
   const L = await DataStore.buildLookups();
@@ -44,18 +46,30 @@ async function renderOpportunityMap(container) {
     </div>
   </div>`;
 
-  // ═══ FILTER BAR ═══
-  html += `<div class="filter-row" id="opp-filters">
+  // ═══ FILTER + SORT BAR ═══
+  html += `<div class="filter-row" id="opp-filters" style="margin-bottom:8px">
     <button class="filter-btn active" onclick="oppFilter('all')">All (${opportunities.length})</button>
     <button class="filter-btn" onclick="oppFilter('High Opportunity')">High (${highOpp})</button>
     <button class="filter-btn" onclick="oppFilter('Moderate')">Moderate (${modOpp})</button>
     <button class="filter-btn" onclick="oppFilter('Weak')">Weak (${opportunities.filter(o=>o.tier==='Weak').length})</button>
     <button class="filter-btn" onclick="oppFilter('Gap')">Gaps (${gaps})</button>
     <div class="filter-sep"></div>
-    <select id="opp-challenge-filter" onchange="oppFilterChallenge(this.value)" style="padding:5px 10px;border-radius:var(--radius-sm);border:1px solid var(--card-border);background:rgba(255,255,255,0.03);color:var(--text2);font-size:12px;font-family:var(--font)">
+    <select id="opp-challenge-filter" onchange="oppFilterChallenge(this.value)" style="padding:5px 10px;border-radius:var(--radius-sm);border:1px solid var(--card-border);background:rgba(255,255,255,0.03);color:var(--text2);font-size:11px;font-family:var(--font)">
       <option value="all">All Challenges</option>
       ${L.challenges.map(c => `<option value="${c.id}">${c.id}: ${truncate(c.title, 40)}</option>`).join('')}
     </select>
+    <div class="filter-sep"></div>
+    <select id="opp-sort" onchange="oppChangeSort(this.value)" style="padding:5px 10px;border-radius:var(--radius-sm);border:1px solid var(--card-border);background:rgba(255,255,255,0.03);color:var(--text2);font-size:11px;font-family:var(--font)">
+      <option value="opportunity" ${_oppSort==='opportunity'?'selected':''}>Sort: Overall Opportunity Score</option>
+      <option value="strength" ${_oppSort==='strength'?'selected':''}>Sort: Faculty Strength (highest first)</option>
+      <option value="pipool" ${_oppSort==='pipool'?'selected':''}>Sort: PI Availability</option>
+      <option value="diversity" ${_oppSort==='diversity'?'selected':''}>Sort: Department Diversity</option>
+    </select>
+  </div>`;
+
+  // ═══ COLUMN HEADERS ═══
+  html += `<div style="display:grid;grid-template-columns:50px 1fr 110px 60px 60px 60px 120px;gap:10px;padding:4px 18px;font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px">
+    <div>ID</div><div>Focus Area</div><div>Strength</div><div style="text-align:center">PIs</div><div style="text-align:center">Depts</div><div style="text-align:center">Senior</div><div style="text-align:right">Tier</div>
   </div>`;
 
   // ═══ OPPORTUNITY ROWS ═══
@@ -202,6 +216,11 @@ function oppFilterChallenge(challengeId) {
   applyOppFilters();
 }
 
+function oppChangeSort(sortBy) {
+  _oppSort = sortBy;
+  applyOppFilters();
+}
+
 function applyOppFilters() {
   let filtered = window._oppData || [];
   if (window._oppTierFilter !== 'all') {
@@ -210,6 +229,15 @@ function applyOppFilters() {
   if (window._oppChallengeFilter !== 'all') {
     filtered = filtered.filter(o => o.challengeId === window._oppChallengeFilter);
   }
+  // Apply sort
+  filtered = [...filtered].sort((a, b) => {
+    switch (_oppSort) {
+      case 'strength': return b.strength - a.strength;
+      case 'pipool': return b.piPool - a.piPool;
+      case 'diversity': return b.deptDiversity - a.deptDiversity;
+      default: return b.opportunityScore - a.opportunityScore;
+    }
+  });
   const listEl = document.getElementById('opp-list');
   if (listEl) {
     listEl.innerHTML = renderOppRows(filtered, window._oppLookups);

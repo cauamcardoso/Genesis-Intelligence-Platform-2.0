@@ -13,6 +13,7 @@ async function renderMethodology(container) {
     { id: 'faculty', label: 'Faculty & Data' },
     { id: 'technical', label: 'Technical Pipeline' },
     { id: 'teambuilding', label: 'Team Building' },
+    { id: 'portfolio', label: 'Portfolio Optimization' },
     { id: 'limitations', label: 'Limitations' },
   ];
 
@@ -35,6 +36,7 @@ async function renderMethodology(container) {
     case 'faculty': html += renderMethodFaculty(L); break;
     case 'technical': html += renderMethodTechnical(L, meta, methodology); break;
     case 'teambuilding': html += renderMethodTeamBuilding(L); break;
+    case 'portfolio': html += renderMethodPortfolio(L); break;
     case 'limitations': html += renderMethodLimitations(); break;
   }
 
@@ -222,6 +224,88 @@ function renderMethodTeamBuilding(L) {
     <div class="method-section">
       <h3>AI-Assisted Research Concepts</h3>
       <p>The Proposal Lab integrates Claude to generate research directions tailored to each team-focus area combination. The AI receives the focus area description, team member profiles (expertise, h-index, publications), and selected UTEP advantages, then suggests 2-3 specific research directions with technical approach descriptions and team positioning rationale. These serve as conversation starters for faculty, not final proposals.</p>
+    </div>`;
+}
+
+function renderMethodPortfolio(L) {
+  return `
+    <div class="method-section">
+      <h3>Portfolio Optimization</h3>
+      <p>The AAII Portfolio Optimizer addresses a problem that individual team building cannot: how to distribute a limited pool of faculty across multiple proposals simultaneously to maximize the total portfolio strength. This is the difference between building one strong proposal and building eight competitive proposals that collectively give UTEP the best chance of winning multiple awards.</p>
+    </div>
+
+    <div class="method-section">
+      <h3>Two Levels of Opportunity Assessment</h3>
+      <p>The platform distinguishes between two complementary views of opportunity strength:</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:12px 0">
+        <div style="padding:16px;border-radius:var(--radius-sm);border:1px solid rgba(56,189,248,0.2);background:rgba(56,189,248,0.04)">
+          <div style="font-size:13px;font-weight:700;color:var(--cyan);margin-bottom:6px">Overall Opportunity Strength</div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.65">Assessed in the Opportunity Map using ALL ${L.stats.totalFaculty} faculty. Measures how well UTEP as a whole can compete for a given focus area, considering every available researcher regardless of institutional affiliation.</div>
+        </div>
+        <div style="padding:16px;border-radius:var(--radius-sm);border:1px solid rgba(255,130,0,0.2);background:rgba(255,130,0,0.04)">
+          <div style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:6px">AAII Feasibility Score</div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.65">Assessed in the Portfolio Optimizer using only AAII-affiliated faculty. Measures organizational feasibility: can the Institute field a competitive team from its own faculty? A focus area may be strong overall but weak for AAII if the top candidates are not AAII members.</div>
+        </div>
+      </div>
+      <p>The Portfolio Optimizer shows both scores, allowing the strategist to see when selecting an organizationally feasible proposal means trading off overall proposal strength, and by how much.</p>
+    </div>
+
+    <div class="method-section">
+      <h3>Allocation Algorithm</h3>
+      <p>The portfolio allocation runs in multiple passes to balance competing constraints:</p>
+      <div style="display:flex;flex-direction:column;gap:8px;margin:12px 0">
+        <div style="display:flex;gap:12px;padding:12px;border-radius:var(--radius-sm);background:rgba(255,255,255,0.02);border-left:3px solid var(--accent)">
+          <div style="font-size:11px;font-weight:800;color:var(--accent);flex-shrink:0;width:60px">Pass 0</div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.5"><strong>Preferred PI Assignment.</strong> Faculty designated as leadership candidates by the strategist are assigned as PIs first, on their strongest available focus area. This ensures key faculty lead proposals.</div>
+        </div>
+        <div style="display:flex;gap:12px;padding:12px;border-radius:var(--radius-sm);background:rgba(255,255,255,0.02);border-left:3px solid var(--cyan)">
+          <div style="font-size:11px;font-weight:800;color:var(--cyan);flex-shrink:0;width:60px">Pass 1</div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.5"><strong>General PI Allocation.</strong> Remaining proposals without PIs are filled using a greedy sort by composite + seniority + AAII affiliation bonus. Each faculty can be PI on at most one proposal.</div>
+        </div>
+        <div style="display:flex;gap:12px;padding:12px;border-radius:var(--radius-sm);background:rgba(255,130,0,0.02);border-left:3px solid var(--green)">
+          <div style="font-size:11px;font-weight:800;color:var(--green);flex-shrink:0;width:60px">Pass 2</div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.5"><strong>Co-PI Fill.</strong> Weakest teams are prioritized. Candidates are ranked by composite + departmental diversity bonus + AAII/preference bonus. Up to 2 Co-PIs per team.</div>
+        </div>
+        <div style="display:flex;gap:12px;padding:12px;border-radius:var(--radius-sm);background:rgba(255,255,255,0.02);border-left:3px solid var(--purple)">
+          <div style="font-size:11px;font-weight:800;color:var(--purple);flex-shrink:0;width:60px">Pass 3</div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.5"><strong>Contributor Fill.</strong> Remaining slots filled by composite score, up to 5 members per team.</div>
+        </div>
+        <div style="display:flex;gap:12px;padding:12px;border-radius:var(--radius-sm);background:rgba(255,255,255,0.02);border-left:3px solid #DB2777">
+          <div style="font-size:11px;font-weight:800;color:#DB2777;flex-shrink:0;width:60px">Post</div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.5"><strong>Promotion Pass.</strong> Preferred faculty who ended up as contributors are promoted to Co-PI. Unassigned preferred faculty are placed on their best available team.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="method-section">
+      <h3>Key Constraints</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:12px 0">
+        <div style="padding:14px;text-align:center;border-radius:var(--radius-sm);background:rgba(255,255,255,0.02);border:1px solid var(--card-border)">
+          <div style="font-size:20px;font-weight:800;color:var(--accent)">1</div>
+          <div style="font-size:11px;font-weight:600;color:#FFF">PI per faculty</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:2px">Each faculty can lead at most one proposal</div>
+        </div>
+        <div style="padding:14px;text-align:center;border-radius:var(--radius-sm);background:rgba(255,255,255,0.02);border:1px solid var(--card-border)">
+          <div style="font-size:20px;font-weight:800;color:var(--accent)">2</div>
+          <div style="font-size:11px;font-weight:600;color:#FFF">Max teams per faculty</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:2px">No individual is spread across more than 2 proposals</div>
+        </div>
+        <div style="padding:14px;text-align:center;border-radius:var(--radius-sm);background:rgba(255,255,255,0.02);border:1px solid var(--card-border)">
+          <div style="font-size:20px;font-weight:800;color:var(--accent)">3</div>
+          <div style="font-size:11px;font-weight:600;color:#FFF">Mandatory focus areas</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:2px">C20-A, C20-B, C20-C always included</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="method-section">
+      <h3>Senior Faculty Recovery</h3>
+      <p>After the initial portfolio selection, the optimizer checks whether any senior or preferred faculty would be left without a strong focus area in the portfolio. If a senior faculty member's best match is not among the selected proposals, the algorithm considers replacing the weakest non-mandatory proposal with that faculty's best focus area. This ensures that experienced researchers are not excluded simply because their strongest match did not rank in the initial top N.</p>
+    </div>
+
+    <div class="method-section">
+      <h3>Manual Override Design</h3>
+      <p>The optimizer provides a starting point, not a final answer. Every assignment can be overridden through drag-and-drop: faculty can be moved between teams, proposals can be added or removed, and the system re-scores the entire portfolio after each change. This combination of algorithmic optimization with human judgment is intentional. The strategist brings qualitative knowledge (faculty availability, interest, existing collaborations) that the scoring data does not capture.</p>
     </div>`;
 }
 

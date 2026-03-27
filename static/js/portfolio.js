@@ -280,6 +280,19 @@ async function renderPortfolio(container) {
   const eligible = PFOptimizer.filterEligibleFAs(L);
   const usedFAIds = new Set(_pfFAs.map(f => f.faId));
 
+  // Compute overall opportunity scores for comparison
+  const overallOpps = Strategy.computeFocusAreaOpportunities(L);
+  const overallMap = {};
+  for (const o of overallOpps) overallMap[o.faId] = o;
+
+  // Portfolio-level strength comparison
+  let totalOverallStrength = 0;
+  for (const fa of _pfFAs) {
+    const ov = overallMap[fa.faId];
+    if (ov) totalOverallStrength += ov.strength;
+  }
+  const avgOverallStrength = _pfFAs.length ? Math.round((totalOverallStrength / _pfFAs.length) * 10) / 10 : 0;
+
   let html = '';
 
   // ═══ HEADER ═══
@@ -309,13 +322,44 @@ async function renderPortfolio(container) {
 
   // ═══ STATS ═══
   const sc = stats.avg >= 3.5 ? 'var(--green)' : stats.avg >= 2.5 ? 'var(--cyan)' : 'var(--accent)';
-  html += `<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px">
+  const osc = avgOverallStrength >= 3.5 ? 'var(--green)' : avgOverallStrength >= 2.5 ? 'var(--cyan)' : 'var(--accent)';
+  html += `<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:10px">
     <div class="card" style="padding:10px 14px;border-top:3px solid var(--accent)"><div style="font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em">Proposals</div><div style="font-size:20px;font-weight:800;color:#FFF">${stats.count}</div></div>
-    <div class="card" style="padding:10px 14px;border-top:3px solid var(--cyan)"><div style="font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em">Total Composite</div><div style="font-size:20px;font-weight:800;color:var(--cyan)">${stats.total}</div></div>
-    <div class="card" style="padding:10px 14px;border-top:3px solid ${sc}"><div style="font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em">Avg Strength</div><div style="font-size:20px;font-weight:800;color:${sc}">${stats.avg}</div></div>
+    <div class="card" style="padding:10px 14px;border-top:3px solid var(--cyan)"><div style="font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em">AAII Team Avg</div><div style="font-size:20px;font-weight:800;color:var(--cyan)">${stats.avg}</div><div style="font-size:8px;color:var(--text3)">AAII faculty only</div></div>
+    <div class="card" style="padding:10px 14px;border-top:3px solid ${osc}"><div style="font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em">Overall Strength</div><div style="font-size:20px;font-weight:800;color:${osc}">${avgOverallStrength}</div><div style="font-size:8px;color:var(--text3)">All UTEP faculty</div></div>
     <div class="card" style="padding:10px 14px;border-top:3px solid ${stats.weakest >= 3 ? 'var(--green)' : '#EF4444'}"><div style="font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em">Weakest</div><div style="font-size:20px;font-weight:800;color:${stats.weakest >= 3 ? 'var(--green)' : '#EF4444'}">${stats.weakest}</div><div style="font-size:9px;color:var(--text3)">${stats.weakestFA}</div></div>
     <div class="card" style="padding:10px 14px;border-top:3px solid var(--purple)"><div style="font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em">AAII Used</div><div style="font-size:20px;font-weight:800;color:var(--purple)">${stats.utilPct}%</div><div style="font-size:9px;color:var(--text3)">${stats.utilUsed}/${stats.utilTotal}</div></div>
+    <div class="card" style="padding:10px 14px;border-top:3px solid var(--green)"><div style="font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em">Total Composite</div><div style="font-size:20px;font-weight:800;color:var(--green)">${stats.total}</div></div>
   </div>`;
+
+  // ═══ STRENGTH IMPLICATIONS PANEL ═══
+  html += `<div class="card" style="padding:12px 16px;margin-bottom:14px;border-left:3px solid var(--cyan)">
+    <div style="font-size:11px;font-weight:700;color:#FFF;margin-bottom:6px">Strength vs. Feasibility Trade-offs</div>
+    <div style="font-size:11px;color:var(--text2);line-height:1.6;margin-bottom:10px">Each proposal below shows two metrics: <strong style="color:var(--cyan)">AAII Team Composite</strong> (based on AAII-led teams) and <strong style="color:var(--green)">Overall Opportunity Strength</strong> (based on all UTEP faculty). When AAII Composite is lower than Overall Strength, it means stronger non-AAII faculty exist for that focus area. Consider recruiting them as Co-PIs or Contributors to close the gap.</div>
+    <div style="display:flex;gap:16px;font-size:10px;flex-wrap:wrap">`;
+
+  // Show which proposals have the biggest gap between AAII and overall
+  const gaps_arr = [];
+  for (const fa of _pfFAs) {
+    const ov = overallMap[fa.faId];
+    const prof = stats.profiles[fa.faId] || { avgComposite: 0 };
+    const gap = (ov ? ov.strength : 0) - prof.avgComposite;
+    if (gap > 0.3) gaps_arr.push({ faId: fa.faId, gap: Math.round(gap * 10) / 10, overall: ov ? ov.strength : 0, aaii: prof.avgComposite });
+  }
+  gaps_arr.sort((a, b) => b.gap - a.gap);
+
+  if (gaps_arr.length) {
+    for (const g of gaps_arr.slice(0, 4)) {
+      html += `<div style="padding:6px 10px;border-radius:var(--radius-sm);background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.15)">
+        <span style="font-weight:700;color:#F59E0B">${g.faId}</span>
+        <span style="color:var(--text3)">AAII: ${g.aaii} vs Overall: ${g.overall}</span>
+        <span style="color:#F59E0B">(gap: ${g.gap})</span>
+      </div>`;
+    }
+  } else {
+    html += `<div style="color:var(--green);font-weight:600">All proposals show strong AAII coverage relative to overall opportunity.</div>`;
+  }
+  html += `</div></div>`;
 
   // ═══ ALERTS ═══
   if (stats.alerts.length) {
@@ -333,6 +377,9 @@ async function renderPortfolio(container) {
     const team = _pfTeams[fa.faId] || [];
     const profile = stats.profiles[fa.faId] || { avgComposite: 0 };
     const cc = SCORE_TEXT[Math.round(profile.avgComposite)] || SCORE_TEXT[3];
+    const overallOpp = overallMap[fa.faId];
+    const overallStr = overallOpp ? overallOpp.strength : 0;
+    const strengthGap = overallStr - profile.avgComposite;
     const isExpanded = _pfExpanded === fa.faId;
     const hasPi = team.some(m => m.role === 'pi');
 
@@ -350,9 +397,18 @@ async function renderPortfolio(container) {
         <div style="font-size:10px;color:var(--text3);margin-top:1px">${fa.challengeTitle}</div>
       </div>
       <div style="text-align:right;flex-shrink:0">
-        <div style="font-size:18px;font-weight:800;color:${cc}">${profile.avgComposite}</div>
-        <div style="font-size:8px;color:var(--text3);text-transform:uppercase">Composite</div>
-        <div style="font-size:9px;color:var(--text3);margin-top:2px">${team.length} members</div>
+        <div style="display:flex;gap:10px;align-items:flex-end;justify-content:flex-end">
+          <div>
+            <div style="font-size:16px;font-weight:800;color:${cc}">${profile.avgComposite}</div>
+            <div style="font-size:7px;color:var(--text3);text-transform:uppercase">AAII Team</div>
+          </div>
+          <div>
+            <div style="font-size:13px;font-weight:700;color:${overallStr >= 3.5 ? 'var(--green)' : 'var(--text2)'}">${overallStr}</div>
+            <div style="font-size:7px;color:var(--text3);text-transform:uppercase">Overall</div>
+          </div>
+        </div>
+        ${strengthGap > 0.5 ? `<div style="font-size:8px;color:#F59E0B;margin-top:2px">Gap: ${Math.round(strengthGap*10)/10}</div>` : ''}
+        <div style="font-size:8px;color:var(--text3);margin-top:1px">${team.length} members</div>
       </div>
       <div style="color:var(--text3);margin-left:8px">${isExpanded ? ICONS.chevronDown : ICONS.chevronRight}</div>
     </div>`;
