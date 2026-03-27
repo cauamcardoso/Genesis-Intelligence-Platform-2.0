@@ -1267,8 +1267,10 @@ function renderPackageDetail(container, L, advs) {
           </button>
         </div>
       </div>
-      <input class="pkg-concept-title-input" type="text" value="${escapeHtml(pkg.concept_title)}" placeholder="Concept title..." onchange="updatePkgField('concept_title',this.value)">
-      <textarea class="pkg-concept-seed" id="pkg-concept-textarea" onchange="updatePkgField('concept_seed',this.value)" placeholder="Research concept description..." style="min-height:200px;font-size:12px;line-height:1.7">${escapeHtml(pkg.concept_seed)}</textarea>
+      ${pkg.concept_directions && pkg.concept_directions.length ? renderDirectionsInline(pkg.concept_directions) : `
+        <input class="pkg-concept-title-input" type="text" value="${escapeHtml(pkg.concept_title)}" placeholder="Concept title..." onchange="updatePkgField('concept_title',this.value)">
+        <textarea class="pkg-concept-seed" id="pkg-concept-textarea" onchange="updatePkgField('concept_seed',this.value)" placeholder="Research concept description..." style="min-height:200px;font-size:12px;line-height:1.7">${escapeHtml(pkg.concept_seed)}</textarea>
+      `}
       <textarea class="pkg-notes" onchange="updatePkgField('notes',this.value)" placeholder="Curator notes (internal, not shared)...">${escapeHtml(pkg.notes || '')}</textarea>
     </div>`;
 
@@ -1720,6 +1722,32 @@ function switchDirectionPage(idx) {
 function closeDirectionsModal() {
   const overlay = document.getElementById('dir-modal-overlay');
   if (overlay) overlay.remove();
+  // Re-render to show inline directions
+  if (_labEditingPkg && _labEditingPkg.concept_directions) {
+    renderProposalLab($('content'));
+  }
+}
+
+function renderDirectionsInline(directions) {
+  if (!directions || !directions.length) return '';
+  const colors = ['var(--cyan)', 'var(--accent)', 'var(--green)'];
+  const bgColors = ['rgba(56,189,248,0.05)', 'rgba(255,130,0,0.05)', 'rgba(34,197,94,0.05)'];
+
+  let html = '<div style="display:flex;flex-direction:column;gap:10px">';
+  for (let i = 0; i < directions.length; i++) {
+    const d = directions[i];
+    const c = colors[i % colors.length];
+    const bg = bgColors[i % bgColors.length];
+    html += `<div style="border-left:3px solid ${c};background:${bg};border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:14px 16px">
+      <div style="font-size:13px;font-weight:700;color:#FFF;margin-bottom:6px">${i + 1}. ${d.title || 'Research Direction'}</div>
+      <div style="font-size:12px;color:var(--text2);line-height:1.65;margin-bottom:8px">${d.approach || ''}</div>
+      <div style="font-size:11px;color:var(--text3);line-height:1.5;margin-bottom:6px"><strong style="color:${c}">Team fit:</strong> ${d.team_rationale || ''}</div>
+      ${d.key_questions && d.key_questions.length ? `<div style="font-size:11px;color:var(--text3);margin-bottom:6px"><strong style="color:${c}">Key questions:</strong> ${d.key_questions.join(' | ')}</div>` : ''}
+      ${d.potential_impact ? `<div style="font-size:11px;color:var(--text3)"><strong style="color:${c}">Impact:</strong> ${d.potential_impact}</div>` : ''}
+    </div>`;
+  }
+  html += '</div>';
+  return html;
 }
 
 
@@ -1873,6 +1901,7 @@ async function labExportDocx() {
         team: teamData,
         track: pkg.track,
         concepts: pkg.concept_seed || '',
+        concept_directions: pkg.concept_directions || [],
         keywords: pkg.keywords || {},
         advantages: selectedAdvs,
         scoring: {

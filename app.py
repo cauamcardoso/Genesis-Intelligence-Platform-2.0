@@ -306,6 +306,7 @@ def api_export_docx():
         challenge = data.get("challenge", {})
         team = data.get("team", [])
         concepts = data.get("concepts", "")
+        concept_directions = data.get("concept_directions", [])
         keywords = data.get("keywords", {})
         advantages = data.get("advantages", [])
         track = data.get("track", "")
@@ -439,7 +440,63 @@ def api_export_docx():
         h = doc.add_heading("4. Research Directions", level=1)
         h.runs[0].font.color.rgb = RGBColor(0x04, 0x1E, 0x42)
 
-        if concepts:
+        if concept_directions:
+            for idx, d in enumerate(concept_directions):
+                # Direction title
+                p = doc.add_paragraph()
+                run = p.add_run(f"Direction {idx + 1}: {d.get('title', 'Untitled')}")
+                run.font.size = Pt(12)
+                run.font.bold = True
+                run.font.color.rgb = RGBColor(0x04, 0x1E, 0x42)
+
+                # Approach
+                if d.get('approach'):
+                    p = doc.add_paragraph()
+                    run = p.add_run("Technical Approach: ")
+                    run.font.bold = True
+                    run.font.size = Pt(10)
+                    run = p.add_run(d['approach'])
+                    run.font.size = Pt(10)
+
+                # Team rationale
+                if d.get('team_rationale'):
+                    p = doc.add_paragraph()
+                    run = p.add_run("Team Positioning: ")
+                    run.font.bold = True
+                    run.font.size = Pt(10)
+                    run = p.add_run(d['team_rationale'])
+                    run.font.size = Pt(10)
+
+                # Key questions
+                if d.get('key_questions'):
+                    p = doc.add_paragraph()
+                    run = p.add_run("Key Research Questions:")
+                    run.font.bold = True
+                    run.font.size = Pt(10)
+                    for q in d['key_questions']:
+                        doc.add_paragraph(q, style='List Bullet')
+
+                # Potential impact
+                if d.get('potential_impact'):
+                    p = doc.add_paragraph()
+                    run = p.add_run("Potential Impact: ")
+                    run.font.bold = True
+                    run.font.size = Pt(10)
+                    run = p.add_run(d['potential_impact'])
+                    run.font.size = Pt(10)
+
+                # Suggested next steps
+                if d.get('suggested_next_steps'):
+                    p = doc.add_paragraph()
+                    run = p.add_run("Suggested Next Steps:")
+                    run.font.bold = True
+                    run.font.size = Pt(10)
+                    for step in d['suggested_next_steps']:
+                        doc.add_paragraph(step, style='List Bullet')
+
+                doc.add_paragraph("")  # spacer between directions
+
+        elif concepts:
             doc.add_paragraph(concepts)
         else:
             doc.add_paragraph("Research directions have not yet been generated for this package.")
