@@ -35,8 +35,8 @@ async function renderOverview(container) {
       <div class="deco-ring deco-ring-3"></div>
     </div>
     <div class="hero-label">AAII x DOE Genesis Mission</div>
-    <h2 class="hero-heading">From faculty scores to proposal-ready teams.</h2>
-    <p class="hero-desc">This platform scores ${S.totalFaculty} UTEP faculty against ${S.totalFocusAreas} DOE Genesis focus areas, then helps assemble optimal research teams for each opportunity. It combines multi-axis scoring with seniority analysis and departmental diversity to recommend PIs, build teams, and generate AI-assisted research concepts that serve as starting points for proposal development.</p>
+    <h2 class="hero-heading">AI-powered strategy for building research teams and winning proposals.</h2>
+    <p class="hero-desc">This platform scores ${S.totalFaculty} UTEP faculty against ${S.totalFocusAreas} DOE Genesis focus areas, identifies the strongest opportunities, and assembles optimal teams backed by evidence. It combines multi-axis scoring with portfolio optimization and AI-generated research directions to give every proposal the best possible starting point.</p>
   </div>`;
 
   // ═══ 2. STATS + PIPELINE in two-column layout ═══
@@ -215,46 +215,22 @@ async function renderOverview(container) {
   }
   html += `</div>`;
 
-  // Right: Department donut chart
+  // Right: Department treemap
   html += `<div class="card" data-reveal="up" style="padding:20px 24px;display:flex;flex-direction:column">
     <div class="card-title"><div class="icon" style="background:var(--grad-purple)">${ICONS.users}</div>Faculty by Department</div>
     <p style="font-size:12px;color:var(--text3);margin-top:-10px;margin-bottom:10px">${S.totalFaculty} faculty across ${depts.length} departments</p>
-    <div class="donut-container">
-      <div class="donut-chart-wrap">
-      <svg class="donut-svg" viewBox="0 0 200 200">`;
-
-  // Build donut segments
-  const donutR = 75, donutStroke = 32;
-  const donutCirc = 2 * Math.PI * donutR;
-  let donutOffset = 0;
+    <div class="dept-grid" style="flex:1">`;
   for (let i = 0; i < depts.length; i++) {
     const [dept, count] = depts[i];
-    const pct = count / totalDeptFac;
-    const dashLen = donutCirc * pct;
-    const gap = depts.length > 1 ? 2 : 0;
-    html += `<circle cx="100" cy="100" r="${donutR}" fill="none"
-      stroke="${deptColors[i % deptColors.length]}" stroke-width="${donutStroke}"
-      stroke-dasharray="${Math.max(0, dashLen - gap)} ${donutCirc - dashLen + gap}"
-      stroke-dashoffset="${-donutOffset}"
-      transform="rotate(-90 100 100)"
-      class="donut-seg" data-dept="${dept}" data-count="${count}"/>`;
-    donutOffset += dashLen;
-  }
-  html += `<text x="100" y="92" text-anchor="middle" fill="#FFF" font-size="32" font-weight="800">${S.totalFaculty}</text>
-        <text x="100" y="116" text-anchor="middle" fill="rgba(255,255,255,0.4)" font-size="12" font-weight="600">FACULTY</text>
-      </svg>
-      </div>
-      <div class="donut-legend">`;
-  for (let i = 0; i < depts.length; i++) {
-    const [dept, count] = depts[i];
-    html += `<div class="donut-legend-item">
-      <div class="donut-legend-dot" style="background:${deptColors[i % deptColors.length]}"></div>
-      <span class="donut-legend-name">${dept}</span>
-      <span class="donut-legend-val">${count}</span>
+    const pct = (count / totalDeptFac * 100).toFixed(0);
+    const size = count >= totalDeptFac * 0.15 ? 'dept-lg' : count >= totalDeptFac * 0.08 ? 'dept-md' : 'dept-sm';
+    html += `<div class="${size} dept-block" style="--dept-color:${deptColors[i % deptColors.length]}">
+      <div class="dept-block-name">${dept}</div>
+      <div class="dept-block-count">${count}</div>
+      <div style="font-size:9px;color:var(--text3);margin-top:1px">${pct}%</div>
     </div>`;
   }
   html += `</div>
-    </div>
   </div></div>
   </div>`;
 

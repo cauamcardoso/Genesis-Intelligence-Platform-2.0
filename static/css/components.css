@@ -1,3 +1,7 @@
+/* ─── Expandable Text ─── */
+.et-open .et-short{display:none}
+.et-open .et-full{display:inline!important}
+
 /* ─── Cards ─── */
 .card{
   background:rgba(15,22,55,0.65);

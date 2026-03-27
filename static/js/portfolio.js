@@ -11,6 +11,13 @@ let _pfInitialized = false;
 const _pfMandatory = ['C20-A', 'C20-B', 'C20-C'];  // Always included
 const _pfMaxTeams = 2;         // Max proposals per faculty
 
+// Faculty role preferences (by ID)
+// Prefer PI or Co-PI: Chris Kiekintveld(7), Palvi Aggarwal(24), Monika Akbar(22),
+//   Shahriar Hossain(27), Olac Fuentes(23), Deepak Tosh(8)
+// Prefer Co-PI or Contributor: Anantaa Kotal(2), Aritran Piplai(3), Sajedul Talukder(26)
+const _pfPreferPI = new Set([7, 24, 22, 27, 23, 8]);
+const _pfPreferCoPI = new Set([2, 3, 26]);
+
 /* ─── Optimizer Core ─── */
 
 const PFOptimizer = {
@@ -57,7 +64,7 @@ const PFOptimizer = {
         const sen = Strategy.seniorityScore(f, L);
         piPairs.push({
           fid: s.faculty_id, faId: fa.faId, composite: s.composite, seniority: sen,
-          score: s.composite + 0.4 * (sen / 5) + (aaiiIds.has(s.faculty_id) ? 0.3 : 0),
+          score: s.composite + 0.4 * (sen / 5) + (aaiiIds.has(s.faculty_id) ? 0.3 : 0) + (_pfPreferPI.has(s.faculty_id) ? 0.5 : 0),
         });
       }
     }
@@ -94,7 +101,7 @@ const PFOptimizer = {
         .filter(s => s.composite >= 2.5 && !onTeam(s.faculty_id, fa.faId))
         .filter(s => { init(s.faculty_id); return count(s.faculty_id) < _pfMaxTeams; })
         .filter(s => Strategy.canServeAs(L.facultyById[s.faculty_id], 'co-pi'))
-        .map(s => ({ ...s, sc: s.composite + (!depts.has((L.facultyById[s.faculty_id] || {}).department) ? 0.4 : 0) + (aaiiIds.has(s.faculty_id) ? 0.2 : 0) }))
+        .map(s => ({ ...s, sc: s.composite + (!depts.has((L.facultyById[s.faculty_id] || {}).department) ? 0.4 : 0) + (aaiiIds.has(s.faculty_id) ? 0.2 : 0) + (_pfPreferPI.has(s.faculty_id) || _pfPreferCoPI.has(s.faculty_id) ? 0.3 : 0) }))
         .sort((a, b) => b.sc - a.sc);
       for (const c of cands.slice(0, 2)) {
         team.push({ faculty_id: c.faculty_id, role: 'co-pi' });
@@ -177,8 +184,39 @@ async function renderPortfolio(container) {
     const eligible = PFOptimizer.filterEligibleFAs(L);
     // Mandatory + top N
     const mandatory = eligible.filter(f => f.mandatory);
-    const others = eligible.filter(f => !f.mandatory).slice(0, Math.max(1, _pfSize - mandatory.length));
-    _pfFAs = [...mandatory, ...others];
+    let others = eligible.filter(f => !f.mandatory).slice(0, Math.max(1, _pfSize - mandatory.length));
+    let selected = [...mandatory, ...others];
+
+    // Senior faculty recovery: check if any senior AAII faculty are left out
+    const selectedFAIds = new Set(selected.map(f => f.faId));
+    const seniorAAII = Strategy.getAAIIFaculty(L).filter(f => Strategy.seniorityScore(f, L) >= 4 || _pfPreferPI.has(f.id));
+    for (const sf of seniorAAII) {
+      // Find this faculty's best FA
+      const matches = (L.topMatchesByFaculty[sf.id] || []).filter(s => s.composite >= 3);
+      if (!matches.length) continue;
+      const bestFA = matches[0].focus_area_id;
+      if (selectedFAIds.has(bestFA)) continue; // already covered
+      // Check if this FA is in eligible list
+      const eligibleFA = eligible.find(e => e.faId === bestFA);
+      if (!eligibleFA) continue;
+      // Swap weakest non-mandatory FA if portfolio is full
+      if (selected.length >= _pfSize) {
+        const weakestIdx = selected.reduce((wi, f, i) => {
+          if (f.mandatory) return wi;
+          return (wi === -1 || f.score < selected[wi].score) ? i : wi;
+        }, -1);
+        if (weakestIdx >= 0 && eligibleFA.score >= selected[weakestIdx].score * 0.7) {
+          selected[weakestIdx] = eligibleFA;
+          selectedFAIds.delete(selected[weakestIdx].faId);
+          selectedFAIds.add(bestFA);
+        }
+      } else {
+        selected.push(eligibleFA);
+        selectedFAIds.add(bestFA);
+      }
+    }
+
+    _pfFAs = selected;
     _pfTeams = PFOptimizer.allocate(L, _pfFAs, _pfLocked);
     _pfInitialized = true;
   }
@@ -274,9 +312,12 @@ async function renderPortfolio(container) {
         const r = rc[m.role] || rc['contributor'];
         html += `<span style="font-size:9px;padding:2px 6px;border-radius:3px;background:${r.bg};color:${r.c}">${m.role === 'pi' ? 'PI: ' : ''}${f.name.split(' ').pop()}</span>`;
       }
+      html += `<span style="margin-left:auto;display:flex;gap:4px">`;
+      html += `<button onclick="event.stopPropagation();pfEditInLab('${fa.faId}')" style="font-size:9px;padding:2px 6px;border-radius:3px;background:rgba(34,197,94,0.08);color:#22C55E;border:none;cursor:pointer" title="Edit in Proposal Lab">${ICONS.fileText} Edit</button>`;
       if (!fa.mandatory) {
-        html += `<button onclick="event.stopPropagation();pfRemoveProposal('${fa.faId}')" style="font-size:9px;padding:2px 6px;border-radius:3px;background:rgba(239,68,68,0.08);color:#EF4444;border:none;cursor:pointer;margin-left:auto" title="Remove proposal">&times;</button>`;
+        html += `<button onclick="event.stopPropagation();pfRemoveProposal('${fa.faId}')" style="font-size:9px;padding:2px 6px;border-radius:3px;background:rgba(239,68,68,0.08);color:#EF4444;border:none;cursor:pointer" title="Remove">&times;</button>`;
       }
+      html += `</span>`;
       html += `</div>`;
     }
 
@@ -439,6 +480,28 @@ async function renderPortfolio(container) {
 
 
 /* ─── Interactions ─── */
+
+function pfEditInLab(faId) {
+  const L = DataStore._lookups;
+  if (!L) return;
+  const team = _pfTeams[faId] || [];
+  const fa = _pfFAs.find(f => f.faId === faId);
+  if (!fa) return;
+  // Find or create package
+  let pkg = PackageStore.list().find(p => p.focus_area_id === faId);
+  if (!pkg) {
+    const concept = Strategy.generateConceptSeed(team, faId, L, []);
+    pkg = PackageStore.createBlank({
+      track: 'aaii-led', focus_area_id: faId, challenge_id: fa.challengeId,
+      team: team.map(m => ({ faculty_id: m.faculty_id, role: m.role })),
+      concept_title: concept.title, concept_seed: concept.seed,
+    });
+    PackageStore.save(pkg);
+  }
+  _labEditingPkg = pkg;
+  _labView = 'package-detail';
+  switchTab('proposallab');
+}
 
 function pfToggleCard(faId) {
   _pfExpanded = _pfExpanded === faId ? null : faId;

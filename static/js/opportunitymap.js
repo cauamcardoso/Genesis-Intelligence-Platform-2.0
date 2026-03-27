@@ -133,7 +133,7 @@ function renderOppDetail(opp, L) {
   const fa = L.focusAreaById[opp.faId];
 
   if (fa && fa.description) {
-    html += `<div style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:14px;max-width:800px">${truncate(fa.description, 300)}</div>`;
+    html += `<div style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:14px;max-width:800px">${expandableText(fa.description, 250)}</div>`;
   }
 
   // Faculty pool

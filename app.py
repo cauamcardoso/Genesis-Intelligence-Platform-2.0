@@ -99,22 +99,42 @@ Research Team:
 {team_text}
 {adv_text}
 
-For each research direction, provide:
-1. A concise title (under 10 words)
-2. A 2-3 sentence description of the specific technical approach and what it would accomplish
-3. One sentence on why this team's specific expertise makes them well-suited for it
+Return ONLY valid JSON (no markdown, no code fences). Use this exact structure:
+{{
+  "directions": [
+    {{
+      "title": "Concise title under 10 words",
+      "approach": "3-4 sentences describing the specific technical approach, methodology, and what it would accomplish. Be detailed and specific.",
+      "team_rationale": "2 sentences on why this team's specific expertise makes them well-suited. Reference team members by name.",
+      "key_questions": ["3-4 specific research questions this direction would address"],
+      "potential_impact": "2 sentences on the potential scientific or practical impact if successful.",
+      "suggested_next_steps": ["3-4 concrete next steps the team should take to develop this direction into a proposal"]
+    }}
+  ]
+}}
 
 Be specific and technical. Reference the team members' actual expertise areas. Do not use filler phrases, hedging language, or words like "leverage", "utilize", "robust", "cutting-edge", or "seamless". Write in third person. Do not use em dashes."""
 
         client = anthropic.Anthropic()
         message = client.messages.create(
             model="claude-sonnet-4-20250514",
-            max_tokens=1000,
+            max_tokens=2000,
             timeout=60.0,
             messages=[{"role": "user", "content": prompt}]
         )
 
-        return jsonify({"concepts": message.content[0].text})
+        text = message.content[0].text.strip()
+        # Try to parse as JSON
+        try:
+            if text.startswith("```"):
+                text = text.split("```")[1]
+                if text.startswith("json"):
+                    text = text[4:]
+            result = json.loads(text)
+            return jsonify(result)
+        except json.JSONDecodeError:
+            # Fallback: return as plain text
+            return jsonify({"concepts": text})
 
     except ImportError:
         return jsonify({"error": "Anthropic SDK not installed"}), 500

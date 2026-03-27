@@ -12,7 +12,7 @@ const TABS = [
     ]
   },
   { id: 'proposallab', label: 'Proposal Lab', icon: ICONS.bulb },
-  { id: 'portfolio', label: 'AAII Portfolio', icon: ICONS.zap },
+  { id: 'portfolio', label: 'AAII Portfolio Optimizer', icon: ICONS.zap },
 ];
 
 let activeTab = 'overview';

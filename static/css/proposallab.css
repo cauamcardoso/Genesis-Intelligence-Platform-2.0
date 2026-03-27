@@ -553,5 +553,14 @@
 /* ─── Didactic Panels ─── */
 .lab-didactic{border-radius:var(--radius-sm)}
 
+/* ─── Directions Modal ─── */
+.dir-modal{
+  background:var(--bg2);border:1px solid rgba(255,255,255,0.10);border-radius:var(--radius-lg);
+  padding:28px;max-width:800px;width:92%;max-height:88vh;overflow-y:auto;
+  position:relative;box-shadow:0 24px 64px rgba(0,0,0,0.5);
+}
+.dir-nav-btn:hover{filter:brightness(1.2)}
+.dir-nav-btn.active{font-weight:800}
+
 /* ─── Entry Cards (4-col) ─── */
 .entry-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}

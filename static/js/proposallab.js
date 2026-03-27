@@ -1258,11 +1258,14 @@ function renderPackageDetail(container, L, advs) {
   // Concept
   html += `
     <div class="pkg-concept">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:8px">
         <div style="font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.10em">Research Concept</div>
-        <button class="generate-concept-btn" id="generate-concept-btn" onclick="labGenerateConcept()">
-          ${ICONS.zap} Generate Research Directions
-        </button>
+        <div style="display:flex;gap:6px">
+          ${pkg.concept_directions ? `<button onclick="showDirectionsModal(_labEditingPkg.concept_directions, DataStore._lookups.focusAreaById[_labEditingPkg.focus_area_id], DataStore._lookups.challengeById[DataStore._lookups.focusAreaById[_labEditingPkg.focus_area_id]?.challenge_id])" style="padding:6px 14px;border-radius:var(--radius-sm);border:1px solid rgba(56,189,248,0.3);background:rgba(56,189,248,0.08);color:var(--cyan);font-size:11px;font-weight:600;cursor:pointer;font-family:var(--font)">${ICONS.bulb} View Directions</button>` : ''}
+          <button class="generate-concept-btn" id="generate-concept-btn" onclick="labGenerateConcept()">
+            ${ICONS.zap} Generate Research Directions
+          </button>
+        </div>
       </div>
       <input class="pkg-concept-title-input" type="text" value="${escapeHtml(pkg.concept_title)}" placeholder="Concept title..." onchange="updatePkgField('concept_title',this.value)">
       <textarea class="pkg-concept-seed" id="pkg-concept-textarea" onchange="updatePkgField('concept_seed',this.value)" placeholder="Research concept description..." style="min-height:200px;font-size:12px;line-height:1.7">${escapeHtml(pkg.concept_seed)}</textarea>
@@ -1387,14 +1390,25 @@ async function labGenerateConcept() {
       return;
     }
 
-    // Update the package with generated concept
-    pkg.concept_seed = data.concepts;
-    pkg.concept_title = fa ? fa.title : pkg.concept_title;
+    // Handle structured JSON response
+    if (data.directions) {
+      pkg.concept_directions = data.directions;
+      pkg.concept_seed = data.directions.map((d, i) => `${i + 1}. ${d.title}\n${d.approach}\n${d.team_rationale}`).join('\n\n');
+      pkg.concept_title = data.directions[0]?.title || (fa ? fa.title : pkg.concept_title);
+    } else if (data.concepts) {
+      pkg.concept_seed = data.concepts;
+      pkg.concept_title = fa ? fa.title : pkg.concept_title;
+    }
     PackageStore.save(pkg);
 
-    // Update textarea directly
+    // Show visual modal if structured data available
+    if (pkg.concept_directions) {
+      showDirectionsModal(pkg.concept_directions, fa, challenge);
+    }
+
+    // Update textarea
     const textarea = document.getElementById('pkg-concept-textarea');
-    if (textarea) textarea.value = data.concepts;
+    if (textarea) textarea.value = pkg.concept_seed;
 
     showToast('Research directions generated');
   } catch (e) {
@@ -1539,6 +1553,10 @@ function renderPackageManager(container, L, advs) {
         <span>${new Date(pkg.updated).toLocaleDateString()}</span>
         <span class="pkg-summary-composite" style="color:${compositeColor}">${profile.avgComposite}</span>
       </div>
+      <div style="display:flex;gap:6px;margin-top:8px;padding-top:8px;border-top:1px solid var(--card-border)">
+        <button onclick="event.stopPropagation();_labEditingPkg=PackageStore.get('${pkg.id}');_labView='package-detail';renderProposalLab($('content'))" style="flex:1;padding:5px;border-radius:var(--radius-sm);border:1px solid rgba(56,189,248,0.2);background:rgba(56,189,248,0.06);color:var(--cyan);font-size:10px;font-weight:600;cursor:pointer;font-family:var(--font)">${ICONS.fileText} Edit</button>
+        <button onclick="event.stopPropagation();if(confirm('Delete this package?')){PackageStore.delete('${pkg.id}');renderProposalLab($('content'))}" style="padding:5px 10px;border-radius:var(--radius-sm);border:1px solid rgba(239,68,68,0.2);background:rgba(239,68,68,0.06);color:#EF4444;font-size:10px;font-weight:600;cursor:pointer;font-family:var(--font)">&times;</button>
+      </div>
     `;
     grid.appendChild(pkgCard);
   }
@@ -1609,6 +1627,99 @@ function renderSharedView(container, encoded, L, advs) {
   evHtml += '</div>';
   evidence.innerHTML = evHtml;
   container.appendChild(evidence);
+}
+
+
+/* ═══════════════════════════════════════════════════════
+   RESEARCH DIRECTIONS MODAL
+   ═══════════════════════════════════════════════════════ */
+
+let _dirModalPage = 0;
+
+function showDirectionsModal(directions, fa, challenge) {
+  if (!directions || !directions.length) return;
+  _dirModalPage = 0;
+
+  const existing = document.getElementById('dir-modal-overlay');
+  if (existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'dir-modal-overlay';
+  overlay.className = 'fac-modal-overlay';
+  overlay.onclick = (e) => { if (e.target === overlay) closeDirectionsModal(); };
+
+  const colors = ['var(--cyan)', 'var(--accent)', 'var(--green)'];
+  const bgColors = ['rgba(56,189,248,0.06)', 'rgba(255,130,0,0.06)', 'rgba(34,197,94,0.06)'];
+
+  let html = `<div class="dir-modal">
+    <button class="fac-modal-close" onclick="closeDirectionsModal()">&times;</button>
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px">AI-Generated Research Directions</div>
+      <div style="font-size:15px;font-weight:800;color:#FFF">${fa ? fa.title : ''}</div>
+      <div style="font-size:11px;color:var(--text3);margin-top:2px">${challenge ? challenge.title : ''}</div>
+    </div>
+    <div style="display:flex;justify-content:center;gap:8px;margin-bottom:20px">`;
+
+  for (let i = 0; i < directions.length; i++) {
+    html += `<button class="dir-nav-btn${i === 0 ? ' active' : ''}" onclick="switchDirectionPage(${i})" style="padding:8px 20px;border-radius:20px;border:1px solid ${colors[i]}40;background:${i === 0 ? bgColors[i] : 'transparent'};color:${colors[i]};font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all 0.2s">Direction ${i + 1}</button>`;
+  }
+  html += `</div>`;
+
+  for (let i = 0; i < directions.length; i++) {
+    const d = directions[i];
+    const c = colors[i % colors.length];
+    const bg = bgColors[i % bgColors.length];
+
+    html += `<div class="dir-page" id="dir-page-${i}" style="display:${i === 0 ? 'block' : 'none'}">
+      <div style="border-top:3px solid ${c};border-radius:var(--radius);background:${bg};padding:24px;margin-bottom:16px">
+        <h3 style="font-size:16px;font-weight:800;color:#FFF;margin-bottom:16px">${d.title || 'Research Direction ' + (i+1)}</h3>
+
+        <div style="margin-bottom:16px">
+          <div style="font-size:10px;font-weight:700;color:${c};text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px">Technical Approach</div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.7">${d.approach || ''}</div>
+        </div>
+
+        <div style="margin-bottom:16px">
+          <div style="font-size:10px;font-weight:700;color:${c};text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px">Why This Team</div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.7">${d.team_rationale || ''}</div>
+        </div>
+
+        ${d.key_questions && d.key_questions.length ? `<div style="margin-bottom:16px">
+          <div style="font-size:10px;font-weight:700;color:${c};text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px">Key Research Questions</div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            ${d.key_questions.map(q => `<div style="display:flex;gap:8px;font-size:12px;color:var(--text2);line-height:1.5"><span style="color:${c};flex-shrink:0">?</span>${q}</div>`).join('')}
+          </div>
+        </div>` : ''}
+
+        ${d.potential_impact ? `<div style="margin-bottom:16px">
+          <div style="font-size:10px;font-weight:700;color:${c};text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px">Potential Impact</div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.7">${d.potential_impact}</div>
+        </div>` : ''}
+
+        ${d.suggested_next_steps && d.suggested_next_steps.length ? `<div>
+          <div style="font-size:10px;font-weight:700;color:${c};text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px">Suggested Next Steps</div>
+          <div style="display:flex;flex-direction:column;gap:4px">
+            ${d.suggested_next_steps.map((s, j) => `<div style="display:flex;gap:8px;font-size:12px;color:var(--text2);line-height:1.5"><span style="color:${c};font-weight:800;flex-shrink:0">${j+1}.</span>${s}</div>`).join('')}
+          </div>
+        </div>` : ''}
+      </div>
+    </div>`;
+  }
+
+  html += `</div>`;
+  overlay.innerHTML = html;
+  document.body.appendChild(overlay);
+}
+
+function switchDirectionPage(idx) {
+  _dirModalPage = idx;
+  document.querySelectorAll('.dir-page').forEach((p, i) => { p.style.display = i === idx ? 'block' : 'none'; });
+  document.querySelectorAll('.dir-nav-btn').forEach((b, i) => { b.classList.toggle('active', i === idx); b.style.background = i === idx ? ['rgba(56,189,248,0.06)','rgba(255,130,0,0.06)','rgba(34,197,94,0.06)'][i] : 'transparent'; });
+}
+
+function closeDirectionsModal() {
+  const overlay = document.getElementById('dir-modal-overlay');
+  if (overlay) overlay.remove();
 }
 
 

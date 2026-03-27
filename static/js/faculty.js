@@ -98,7 +98,7 @@ async function renderFaculty(container) {
     if (isExpanded) {
       html += `<tr class="fac-detail-row"><td colspan="7"><div class="fac-inline-detail">
         <div style="flex:1">
-          ${f.bio ? `<div style="font-size:11px;color:var(--text2);line-height:1.65;margin-bottom:8px">${truncate(f.bio, 250)}</div>` : ''}
+          ${f.bio ? `<div style="font-size:11px;color:var(--text2);line-height:1.65;margin-bottom:8px">${expandableText(f.bio, 200)}</div>` : ''}
           ${(f.expertise_keywords || []).length ? `<div style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:8px">${f.expertise_keywords.slice(0, 8).map(k => `<span style="font-size:9px;padding:2px 6px;border-radius:3px;background:rgba(56,189,248,0.10);color:var(--cyan)">${k}</span>`).join('')}</div>` : ''}
           <div style="display:flex;gap:12px;font-size:10px;color:var(--text3)">
             ${f.scholar_metrics?.h_index ? `<span>h-index: <strong style="color:var(--text2)">${f.scholar_metrics.h_index}</strong></span>` : ''}

@@ -79,6 +79,13 @@ function getInitials(name) {
   return name.split(' ').map(w => w[0]).filter(Boolean).slice(0, 2).join('').toUpperCase();
 }
 
+// Helper: expandable text block (shows first N chars with Read more toggle)
+function expandableText(text, maxLen = 200, id) {
+  if (!text || text.length <= maxLen) return text || '';
+  const eid = id || 'et-' + Math.random().toString(36).slice(2, 8);
+  return `<span id="${eid}"><span class="et-short">${text.substring(0, maxLen)}... <a onclick="document.getElementById('${eid}').classList.add('et-open')" style="color:var(--accent);cursor:pointer;font-weight:600;font-size:10px">Read more</a></span><span class="et-full" style="display:none">${text} <a onclick="document.getElementById('${eid}').classList.remove('et-open')" style="color:var(--accent);cursor:pointer;font-weight:600;font-size:10px">Show less</a></span></span>`;
+}
+
 // Helper: truncate text
 function truncate(text, len) {
   if (!text) return '';
