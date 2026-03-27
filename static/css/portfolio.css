@@ -3,7 +3,7 @@
 /* ─── Slider ─── */
 .portfolio-slider{
   -webkit-appearance:none;appearance:none;
-  width:120px;height:4px;border-radius:2px;
+  width:100px;height:4px;border-radius:2px;
   background:rgba(255,255,255,0.08);outline:none;
 }
 .portfolio-slider::-webkit-slider-thumb{
@@ -12,16 +12,24 @@
   background:var(--accent);cursor:pointer;border:2px solid rgba(255,255,255,0.2);
 }
 
+/* ─── Portfolio Card ─── */
+.pf-card{transition:all 0.2s;cursor:default}
+.pf-card:hover{border-color:rgba(255,255,255,0.14)}
+.pf-card-header{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:12px 14px;cursor:pointer;transition:background 0.15s;
+}
+.pf-card-header:hover{background:rgba(255,255,255,0.02)}
+.pf-expanded{border-color:rgba(255,130,0,0.25)}
+.pf-expanded .pf-card-header{border-bottom:1px solid var(--card-border)}
+
 /* ─── Utilization Matrix ─── */
-.util-matrix{width:100%;border-collapse:collapse;font-size:11px}
+.util-matrix{width:100%;border-collapse:collapse}
 .util-matrix th{
-  padding:6px 8px;font-size:10px;font-weight:700;color:var(--text3);
-  text-transform:uppercase;letter-spacing:0.06em;
+  padding:5px 6px;font-size:9px;font-weight:700;color:var(--text3);
+  text-transform:uppercase;letter-spacing:0.05em;
   border-bottom:1px solid rgba(255,255,255,0.08);
-  position:sticky;top:0;background:var(--card);
-  white-space:nowrap;
+  position:sticky;top:0;background:var(--card);white-space:nowrap;
 }
-.util-matrix td{
-  padding:5px 8px;border-bottom:1px solid rgba(255,255,255,0.03);
-}
+.util-matrix td{padding:4px 6px;border-bottom:1px solid rgba(255,255,255,0.02)}
 .util-matrix tr:hover{background:rgba(255,255,255,0.02)}
