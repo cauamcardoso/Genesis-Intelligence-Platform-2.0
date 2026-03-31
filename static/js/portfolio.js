@@ -8,6 +8,7 @@ let _pfLocked = [];            // [{faculty_id, focus_area_id}]
 let _pfExpanded = null;        // Which card is expanded for editing
 let _pfDragFaculty = null;     // Drag state
 let _pfInitialized = false;
+let _pfTracks = {};            // faId -> 'aaii-led' | 'open' (whether non-AAII can be PI)
 const _pfMandatory = ['C20-A', 'C20-B', 'C20-C'];  // Always included
 const _pfMaxTeams = 2;         // Max proposals per faculty
 
@@ -368,9 +369,17 @@ async function renderPortfolio(container) {
     <button onclick="pfReoptimize()" style="padding:5px 14px;border-radius:var(--radius-sm);border:1px solid rgba(255,130,0,0.3);background:rgba(255,130,0,0.08);color:var(--accent);font-size:11px;font-weight:600;cursor:pointer;font-family:var(--font)">${ICONS.zap} Re-optimize</button>
     <div style="display:flex;align-items:center;gap:6px">
       <span style="font-size:11px;font-weight:600;color:var(--text2)">Add:</span>
-      <select id="pf-add-fa" style="padding:4px 8px;border-radius:var(--radius-sm);border:1px solid var(--card-border);background:rgba(255,255,255,0.03);color:var(--text2);font-size:10px;font-family:var(--font);max-width:250px">
+      <select id="pf-add-fa" style="padding:4px 8px;border-radius:var(--radius-sm);border:1px solid var(--card-border);background:rgba(255,255,255,0.03);color:var(--text2);font-size:10px;font-family:var(--font);max-width:280px">
         <option value="">Select focus area to add...</option>
         ${eligible.filter(f => !usedFAIds.has(f.faId)).map(f => `<option value="${f.faId}">${f.faId}: ${truncate(f.faTitle, 40)} (${f.strength})</option>`).join('')}
+        ${(() => {
+          const eligibleIds = new Set(eligible.map(f => f.faId));
+          const others = L.focusAreas.filter(fa => !usedFAIds.has(fa.id) && !eligibleIds.has(fa.id));
+          return others.length ? '<option disabled>-- Other focus areas --</option>' + others.map(fa => {
+            const opp = overallMap[fa.id];
+            return `<option value="${fa.id}">${fa.id}: ${truncate(fa.title, 40)}${opp ? ' (' + opp.strength + ')' : ''}</option>`;
+          }).join('') : '';
+        })()}
       </select>
       <button onclick="pfAddProposal()" style="padding:4px 10px;border-radius:var(--radius-sm);border:1px solid rgba(34,197,94,0.3);background:rgba(34,197,94,0.08);color:#22C55E;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--font)">+ Add</button>
     </div>
@@ -389,10 +398,10 @@ async function renderPortfolio(container) {
     <div class="card" style="padding:10px 14px;border-top:3px solid var(--green)"><div style="font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em">Total Composite</div><div style="font-size:20px;font-weight:800;color:var(--green)">${stats.total}</div></div>
   </div>`;
 
-  // ═══ STRENGTH IMPLICATIONS PANEL ═══
+  // ═══ RECRUITMENT OPPORTUNITIES PANEL ═══
   html += `<div class="card" style="padding:12px 16px;margin-bottom:14px;border-left:3px solid var(--cyan)">
-    <div style="font-size:11px;font-weight:700;color:#FFF;margin-bottom:6px">Strength vs. Feasibility Trade-offs</div>
-    <div style="font-size:11px;color:var(--text2);line-height:1.6;margin-bottom:10px">Each proposal below shows two metrics: <strong style="color:var(--cyan)">AAII Team Composite</strong> (based on AAII-led teams) and <strong style="color:var(--green)">Overall Opportunity Strength</strong> (based on all UTEP faculty). When AAII Composite is lower than Overall Strength, it means stronger non-AAII faculty exist for that focus area. Consider recruiting them as Co-PIs or Contributors to close the gap.</div>
+    <div style="font-size:11px;font-weight:700;color:#FFF;margin-bottom:6px">Recruitment Opportunities</div>
+    <div style="font-size:11px;color:var(--text2);line-height:1.6;margin-bottom:10px">These proposals have a gap between the <strong style="color:var(--cyan)">current AAII team score</strong> and the <strong style="color:var(--green)">best possible score using all UTEP faculty</strong>. The gap indicates where adding non-AAII faculty would strengthen the proposal. Larger gaps mean more room for improvement.</div>
     <div style="display:flex;gap:16px;font-size:10px;flex-wrap:wrap">`;
 
   // Show which proposals have the biggest gap between AAII and overall
@@ -401,36 +410,46 @@ async function renderPortfolio(container) {
     const ov = overallMap[fa.faId];
     const prof = stats.profiles[fa.faId] || { avgComposite: 0 };
     const gap = (ov ? ov.strength : 0) - prof.avgComposite;
-    if (gap > 0.3) gaps_arr.push({ faId: fa.faId, gap: Math.round(gap * 10) / 10, overall: ov ? ov.strength : 0, aaii: prof.avgComposite });
+    if (gap > 0.3) gaps_arr.push({ faId: fa.faId, faTitle: fa.faTitle, gap: Math.round(gap * 10) / 10, overall: ov ? ov.strength : 0, aaii: prof.avgComposite });
   }
   gaps_arr.sort((a, b) => b.gap - a.gap);
 
   if (gaps_arr.length) {
-    // For each gap, find recommended non-AAII faculty to close it
     for (const g of gaps_arr.slice(0, 4)) {
       const currentTeamIds = new Set((_pfTeams[g.faId] || []).map(m => m.faculty_id));
-      const topNonAAII = (L.topFacultyByFA[g.faId] || [])
+      // Find recommended non-AAII faculty, starting at composite >= 3, falling back to >= 2.5
+      let topNonAAII = (L.topFacultyByFA[g.faId] || [])
         .filter(s => {
           const f = L.facultyById[s.faculty_id];
           return f && f.tier !== 'AAII Affiliated' && !currentTeamIds.has(s.faculty_id) && s.composite >= 3;
         }).slice(0, 3);
+      if (!topNonAAII.length) {
+        topNonAAII = (L.topFacultyByFA[g.faId] || [])
+          .filter(s => {
+            const f = L.facultyById[s.faculty_id];
+            return f && f.tier !== 'AAII Affiliated' && !currentTeamIds.has(s.faculty_id) && s.composite >= 2.5;
+          }).slice(0, 3);
+      }
       const recNames = topNonAAII.map(s => {
         const f = L.facultyById[s.faculty_id];
         return f ? `${f.name} (${f.department}, ${s.composite})` : '';
       }).filter(Boolean);
 
+      const teamEmpty = !(_pfTeams[g.faId] || []).length;
+
       html += `<div style="padding:8px 12px;border-radius:var(--radius-sm);background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.15);flex:1;min-width:260px">
         <div style="display:flex;justify-content:space-between;margin-bottom:4px">
           <span style="font-weight:700;color:#F59E0B">${g.faId}</span>
-          <span style="color:var(--text3)">AAII: ${g.aaii} vs Overall: ${g.overall} (gap: ${g.gap})</span>
+          <span style="color:var(--text3)">Current: ${g.aaii} / Possible: ${g.overall} (gap: ${g.gap})</span>
         </div>
+        ${teamEmpty ? '<div style="font-size:9px;color:#EF4444;margin-top:2px">No team assigned yet. Expand the card below to build a team.</div>' : ''}
         ${recNames.length ? `<div style="font-size:9px;color:var(--text3);margin-top:4px">
-          <span style="color:var(--green);font-weight:700">Recommended additions:</span> ${recNames.join('; ')}
-        </div>` : ''}
+          <span style="color:var(--green);font-weight:700">Consider adding:</span> ${recNames.join('; ')}
+        </div>` : `<div style="font-size:9px;color:var(--text3);margin-top:4px;font-style:italic">No strong non-AAII matches found for this focus area.</div>`}
       </div>`;
     }
   } else {
-    html += `<div style="color:var(--green);font-weight:600">All proposals show strong AAII coverage relative to overall opportunity.</div>`;
+    html += `<div style="color:var(--green);font-weight:600">All proposals show strong coverage. No significant gaps between current teams and best possible scores.</div>`;
   }
   html += `</div></div>`;
 
@@ -482,6 +501,7 @@ async function renderPortfolio(container) {
           <span style="font-size:11px;font-weight:700;color:var(--cyan)">${fa.faId}</span>
           ${fa.mandatory ? '<span style="font-size:8px;padding:1px 5px;border-radius:3px;background:rgba(255,130,0,0.15);color:var(--accent);font-weight:700">REQUIRED</span>' : ''}
           ${!hasPi ? '<span style="font-size:8px;padding:1px 5px;border-radius:3px;background:rgba(239,68,68,0.15);color:#EF4444;font-weight:700">NO PI</span>' : ''}
+          ${(_pfTracks[fa.faId] || 'aaii-led') === 'open' ? '<span style="font-size:8px;padding:1px 5px;border-radius:3px;background:rgba(34,197,94,0.12);color:#22C55E;font-weight:700">OPEN PI</span>' : ''}
         </div>
         <div style="font-size:12px;font-weight:700;color:#FFF;margin-top:2px;line-height:1.3">${fa.faTitle}</div>
         <div style="font-size:10px;color:var(--text3);margin-top:1px">${fa.challengeTitle}</div>
@@ -515,7 +535,8 @@ async function renderPortfolio(container) {
         html += `<span style="font-size:9px;padding:2px 6px;border-radius:3px;background:${r.bg};color:${r.c}">${m.role === 'pi' ? 'PI: ' : ''}${f.name.split(' ').pop()}</span>`;
       }
       html += `<span style="margin-left:auto;display:flex;gap:4px">`;
-      html += `<button onclick="event.stopPropagation();pfEditInLab('${fa.faId}')" style="font-size:9px;padding:2px 6px;border-radius:3px;background:rgba(34,197,94,0.08);color:#22C55E;border:none;cursor:pointer" title="Edit in Proposal Lab">${ICONS.fileText} Edit</button>`;
+      html += `<button onclick="event.stopPropagation();pfSendOneLab('${fa.faId}')" style="font-size:9px;padding:2px 6px;border-radius:3px;background:rgba(34,197,94,0.08);color:#22C55E;border:none;cursor:pointer;font-family:var(--font)" title="Create a Proposal Lab package from this team">${ICONS.clipboard} Send to Lab</button>`;
+      html += `<button onclick="event.stopPropagation();pfEditInLab('${fa.faId}')" style="font-size:9px;padding:2px 6px;border-radius:3px;background:rgba(56,189,248,0.08);color:var(--cyan);border:none;cursor:pointer;font-family:var(--font)" title="Open in Proposal Lab team builder">${ICONS.fileText} Edit</button>`;
       if (!fa.mandatory) {
         html += `<button onclick="event.stopPropagation();pfRemoveProposal('${fa.faId}')" style="font-size:9px;padding:2px 6px;border-radius:3px;background:rgba(239,68,68,0.08);color:#EF4444;border:none;cursor:pointer" title="Remove">&times;</button>`;
       }
@@ -546,7 +567,15 @@ async function renderPortfolio(container) {
 
       // LEFT: Team slots
       html += `<div>`;
-      html += `<div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">Team Composition</div>`;
+      const track = _pfTracks[fa.faId] || 'aaii-led';
+      html += `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <span style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em">Team Composition</span>
+        <div class="pf-track-toggle" onclick="event.stopPropagation();pfToggleTrack('${fa.faId}')">
+          <span class="pf-track-opt${track === 'aaii-led' ? ' active' : ''}" style="${track === 'aaii-led' ? 'background:rgba(56,189,248,0.15);color:var(--cyan)' : 'color:var(--text3)'}">AAII-Led</span>
+          <span class="pf-track-opt${track === 'open' ? ' active' : ''}" style="${track === 'open' ? 'background:rgba(34,197,94,0.15);color:#22C55E' : 'color:var(--text3)'}">Open PI</span>
+        </div>
+      </div>
+      ${track === 'open' ? '<div style="font-size:9px;color:#22C55E;margin-bottom:6px;padding:3px 8px;background:rgba(34,197,94,0.06);border-radius:var(--radius-sm);border:1px solid rgba(34,197,94,0.12)">Any faculty (including non-AAII) can serve as PI for this proposal</div>' : ''}`;
 
       const roles = ['pi', 'co-pi', 'co-pi', 'contributor', 'contributor'];
       const roleLabels = { 'pi': 'PI', 'co-pi': 'Co-PI', 'contributor': 'Contributor' };
@@ -564,7 +593,7 @@ async function renderPortfolio(container) {
           const comp = s ? s.composite : 0;
 
           html += `<div class="tb-slot filled" ondragover="pfSlotOver(event)" ondragleave="pfSlotLeave(event)" ondrop="pfSlotDrop(event,'${fa.faId}',${i})">
-            <span class="role-badge role-${role}">${label}</span>
+            <span class="role-badge role-${role} role-clickable" onclick="event.stopPropagation();pfCycleRole('${fa.faId}',${i})" title="Click to change role">${label} &#x25BE;</span>
             <div class="tb-slot-member">
               <div class="fac-avatar" style="background:${TIER_AVATAR[f.tier]};width:24px;height:24px;font-size:9px">${getInitials(f.name)}</div>
               <div>
@@ -601,10 +630,13 @@ async function renderPortfolio(container) {
       }
       html += `</div>`;
 
-      // Remove proposal button (non-mandatory)
+      // Action buttons
+      html += `<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">`;
+      html += `<button onclick="pfSendOneLab('${fa.faId}')" style="padding:5px 12px;border-radius:var(--radius-sm);border:1px solid rgba(34,197,94,0.3);background:rgba(34,197,94,0.08);color:#22C55E;font-size:10px;font-weight:600;cursor:pointer;font-family:var(--font)">${ICONS.clipboard} Send to Proposal Lab</button>`;
       if (!fa.mandatory) {
-        html += `<button onclick="pfRemoveProposal('${fa.faId}')" style="margin-top:8px;padding:5px 12px;border-radius:var(--radius-sm);border:1px solid rgba(239,68,68,0.2);background:rgba(239,68,68,0.06);color:#EF4444;font-size:10px;font-weight:600;cursor:pointer;font-family:var(--font)">Remove this proposal</button>`;
+        html += `<button onclick="pfRemoveProposal('${fa.faId}')" style="padding:5px 12px;border-radius:var(--radius-sm);border:1px solid rgba(239,68,68,0.2);background:rgba(239,68,68,0.06);color:#EF4444;font-size:10px;font-weight:600;cursor:pointer;font-family:var(--font)">Remove this proposal</button>`;
       }
+      html += `</div>`;
       html += `</div>`;
 
       // RIGHT: Faculty pool
@@ -728,18 +760,29 @@ function pfReoptimize() {
 
 function pfAddProposal() {
   const sel = document.getElementById('pf-add-fa');
-  if (!sel || !sel.value) return;
+  if (!sel || !sel.value) {
+    showToast('Select a focus area from the dropdown first');
+    return;
+  }
   const L = DataStore._lookups;
   if (!L) return;
-  const fa = L.focusAreaById[sel.value];
+  const faId = sel.value;
+  // Check if already in portfolio
+  if (_pfFAs.some(f => f.faId === faId)) {
+    showToast('This focus area is already in the portfolio');
+    return;
+  }
+  const fa = L.focusAreaById[faId];
   if (!fa) return;
   const ch = L.challengeById[fa.challenge_id];
-  const opp = Strategy.computeAAIIOpportunityScore(sel.value, L);
+  const opp = Strategy.computeAAIIOpportunityScore(faId, L);
   _pfFAs.push({ ...opp, faTitle: fa.title, faDescription: fa.description || '', challengeId: fa.challenge_id, challengeTitle: ch ? ch.title : '', mandatory: false });
   // Auto-suggest team for new FA
-  const suggested = Strategy.suggestTeam(sel.value, L);
-  _pfTeams[sel.value] = (Array.isArray(suggested) ? suggested : []).map(m => ({ faculty_id: m.faculty_id, role: m.role })).slice(0, 5);
+  const suggested = Strategy.suggestTeam(faId, L);
+  _pfTeams[faId] = (Array.isArray(suggested) ? suggested : []).map(m => ({ faculty_id: m.faculty_id, role: m.role })).slice(0, 5);
+  _pfExpanded = faId; // Expand the newly added card so user can see/edit the team
   renderPortfolio($('content'));
+  showToast(`Added ${faId} to portfolio with suggested team`);
 }
 
 function pfRemoveProposal(faId) {
@@ -825,6 +868,67 @@ function pfRemoveMember(faId, idx) {
   renderPortfolio($('content'));
 }
 
+function pfCycleRole(faId, idx) {
+  const team = _pfTeams[faId] || [];
+  const member = team[idx];
+  if (!member) return;
+  const L = DataStore._lookups;
+  if (!L) return;
+  const f = L.facultyById[member.faculty_id];
+
+  const cycle = ['pi', 'co-pi', 'contributor'];
+  const curIdx = cycle.indexOf(member.role);
+  let nextRole = cycle[(curIdx + 1) % cycle.length];
+
+  // Enforce constraints
+  if (f && !Strategy.canServeAs(f, nextRole)) {
+    nextRole = 'contributor';
+    showToast(`${f.name} can only serve as Contributor`);
+  }
+
+  // If promoting to PI, demote any existing PI to Co-PI
+  if (nextRole === 'pi') {
+    for (const m of team) {
+      if (m.role === 'pi') m.role = 'co-pi';
+    }
+  }
+
+  member.role = nextRole;
+
+  // Ensure team still has a PI (unless explicitly set otherwise)
+  _pfTeams[faId] = team;
+  renderPortfolio($('content'));
+}
+
+function pfToggleTrack(faId) {
+  const current = _pfTracks[faId] || 'aaii-led';
+  _pfTracks[faId] = current === 'aaii-led' ? 'open' : 'aaii-led';
+  renderPortfolio($('content'));
+}
+
+function pfSendOneLab(faId) {
+  const L = DataStore._lookups;
+  if (!L) return;
+  const fa = _pfFAs.find(f => f.faId === faId);
+  if (!fa) return;
+  const team = _pfTeams[faId] || [];
+  if (!team.length) {
+    showToast('No team assigned. Expand the card and add faculty first.');
+    return;
+  }
+  const concept = Strategy.generateConceptSeed(team, faId, L, []);
+  const pkg = PackageStore.createBlank({
+    track: (_pfTracks[faId] || 'aaii-led') === 'open' ? 'faculty-led' : 'aaii-led',
+    focus_area_id: faId, challenge_id: fa.challengeId,
+    team: team.map(m => ({ faculty_id: m.faculty_id, role: m.role })),
+    concept_title: concept.title, concept_seed: concept.seed,
+  });
+  PackageStore.save(pkg);
+  showToast(`Package created for ${faId}. Opening in Proposal Lab...`);
+  _labView = 'packages';
+  switchTab('proposallab');
+}
+
 function portfolioSendToLab() {
   const L = DataStore._lookups;
   if (!L) return;
@@ -834,7 +938,7 @@ function portfolioSendToLab() {
     if (!team.length) continue;
     const concept = Strategy.generateConceptSeed(team, fa.faId, L, []);
     const pkg = PackageStore.createBlank({
-      track: 'aaii-led', focus_area_id: fa.faId, challenge_id: fa.challengeId,
+      track: (_pfTracks[fa.faId] || 'aaii-led') === 'open' ? 'faculty-led' : 'aaii-led', focus_area_id: fa.faId, challenge_id: fa.challengeId,
       team: team.map(m => ({ faculty_id: m.faculty_id, role: m.role })),
       concept_title: concept.title, concept_seed: concept.seed,
     });

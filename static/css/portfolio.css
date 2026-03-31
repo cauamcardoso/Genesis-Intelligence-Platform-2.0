@@ -23,6 +23,22 @@
 .pf-expanded{border-color:rgba(255,130,0,0.25)}
 .pf-expanded .pf-card-header{border-bottom:1px solid var(--card-border)}
 
+/* ─── Clickable Role Badges ─── */
+.role-clickable{cursor:pointer;transition:all 0.15s}
+.role-clickable:hover{filter:brightness(1.3);transform:scale(1.05)}
+
+/* ─── Track Toggle ─── */
+.pf-track-toggle{
+  display:inline-flex;gap:2px;padding:2px;
+  border-radius:var(--radius-sm);background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.06);cursor:pointer;
+}
+.pf-track-opt{
+  font-size:9px;font-weight:600;padding:2px 8px;border-radius:3px;
+  transition:all 0.15s;user-select:none;
+}
+.pf-track-opt:hover{filter:brightness(1.2)}
+
 /* ─── Utilization Matrix ─── */
 .util-matrix{width:100%;border-collapse:collapse}
 .util-matrix th{

@@ -957,7 +957,7 @@ function renderTeamBuilder(container, L, advs) {
       teamHtml += `
         <div class="tb-slot filled"
              ondragover="tbSlotDragOver(event)" ondrop="tbSlotDrop(event,${i})" ondragleave="tbSlotDragLeave(event)">
-          <span class="role-badge role-${role}">${label}</span>
+          <span class="role-badge role-${role} role-clickable" onclick="event.stopPropagation();tbCycleRole(${i})" title="Click to change role">${label} &#x25BE;</span>
           <div class="tb-slot-member">
             <div class="fac-avatar" style="background:${TIER_AVATAR[f.tier]};width:28px;height:28px;font-size:10px">${getInitials(f.name)}</div>
             <div>
@@ -1112,6 +1112,34 @@ function tbRemoveFromTeam(idx) {
   if (_labTeam.length > 0 && !_labTeam.find(m => m.role === 'pi')) {
     _labTeam[0].role = 'pi';
   }
+  renderProposalLab($('content'));
+}
+
+function tbCycleRole(idx) {
+  const member = _labTeam[idx];
+  if (!member) return;
+  const L = DataStore._lookups;
+  if (!L) return;
+  const f = L.facultyById[member.faculty_id];
+
+  const cycle = ['pi', 'co-pi', 'contributor'];
+  const curIdx = cycle.indexOf(member.role);
+  let nextRole = cycle[(curIdx + 1) % cycle.length];
+
+  // Enforce constraints
+  if (f && !Strategy.canServeAs(f, nextRole)) {
+    nextRole = 'contributor';
+    showToast(`${f.name} can only serve as Contributor`);
+  }
+
+  // If promoting to PI, demote any existing PI to Co-PI
+  if (nextRole === 'pi') {
+    for (const m of _labTeam) {
+      if (m.role === 'pi') m.role = 'co-pi';
+    }
+  }
+
+  member.role = nextRole;
   renderProposalLab($('content'));
 }
 
